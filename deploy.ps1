@@ -9,11 +9,13 @@ if ($LASTEXITCODE -ne 0) { throw "Build failed" }
 
 Set-Location "$root\app\dist"
 New-Item -ItemType File .nojekyll -Force | Out-Null
-git init | Out-Null
-git checkout -b gh-pages 2>$null
+# NOTE: no stderr redirects here — git writes status to stderr, and under
+# ErrorActionPreference=Stop a redirected stderr line becomes a fatal error
+git init --quiet
+git checkout -B gh-pages --quiet
 git add -A
-git commit -m "Deploy Tommy's Quests build" | Out-Null
-git push --force "https://github.com/githubonlyy/tommys-quests.git" gh-pages
+git commit -m "Deploy Tommy's Quests build" --quiet
+git push --force --quiet "https://github.com/githubonlyy/tommys-quests.git" gh-pages
 Set-Location $root
 Remove-Item -Recurse -Force "$root\app\dist\.git" -Confirm:$false
 
