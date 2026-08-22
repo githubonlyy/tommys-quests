@@ -1,0 +1,35 @@
+[
+  {
+    "id": "padel-serve",
+    "title": "Extra Serve!",
+    "type": "Padel Perk",
+    "desc": "הגשה נוספת חינם במשחק הפאדל המשפחתי הבא!",
+    "cost": 500,
+    "rarity": "RARE",
+    "icon": "award",
+    "bgColor": "bg-blue-500",
+    "borderColor": "border-blue-700"
+  },
+  {
+    "id": "trail-boss",
+    "title": "Trail Boss",
+    "type": "Weekend Hike",
+    "desc": "אתה בוחר בדיוק לאן הולכים לטייל בשבת הקרובה.",
+    "cost": 1200,
+    "rarity": "EPIC",
+    "icon": "flag",
+    "bgColor": "bg-purple-500",
+    "borderColor": "border-purple-700"
+  },
+  {
+    "id": "lego-set",
+    "title": "Lego Set",
+    "type": "Hardware",
+    "desc": "בוחרים סט לגו חדש לגמרי בביקור הבא בחנות!",
+    "cost": 5000,
+    "rarity": "LEGENDARY",
+    "icon": "zap",
+    "bgColor": "bg-yellow-400",
+    "borderColor": "border-yellow-600"
+  }
+]

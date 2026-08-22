@@ -1,0 +1,15 @@
+{
+  "defaultPin": "1234",
+  "questionsPerMatch": 10,
+  "questionTimerSec": 20,
+  "speedThresholdSec": 10,
+  "coinsPerCorrect": 10,
+  "speedBonusCoins": 5,
+  "winBonusCoins": 50,
+  "winThreshold": 7,
+  "drawThreshold": 5,
+  "xpPerCorrect": 10,
+  "dailyResetHour": 5,
+  "pinLockoutTries": 3,
+  "pinLockoutSec": 60
+}
