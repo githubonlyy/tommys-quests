@@ -13,7 +13,7 @@ export default function MapGrid({ question, disabled, onAnswer }) {
 
   return (
     <div className="flex justify-center w-full">
-      <svg viewBox="0 0 200 420" className="h-[52vh] max-h-[480px] drop-shadow-lg select-none">
+      <svg viewBox="0 0 200 420" className="h-[46vh] md:h-[52vh] max-h-[480px] drop-shadow-lg select-none">
         {/* sea */}
         <rect x="0" y="0" width="200" height="420" rx="16" fill="#bae6fd" />
         {/* land */}

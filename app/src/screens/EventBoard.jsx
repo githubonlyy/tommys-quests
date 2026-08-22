@@ -23,7 +23,7 @@ export default function EventBoard({ onStartMatch }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
         {EVENTS.map((event) => {
           const Icon = ICONS[event.id]
           const practice = playedToday(event.id)
@@ -40,12 +40,12 @@ export default function EventBoard({ onStartMatch }) {
                   </span>
                 </div>
 
-                <div className="p-6 flex items-start gap-4 flex-1">
-                  <div className={`p-3 rounded-2xl bg-slate-100 border-4 ${event.borderColor} shadow-inner -rotate-3 group-hover:rotate-0 transition-transform`}>
-                    <Icon className={`${event.textColor} w-12 h-12`} />
+                <div className="p-4 md:p-6 pb-12 md:pb-14 flex items-start gap-3 md:gap-4 flex-1">
+                  <div className={`p-2.5 md:p-3 rounded-2xl bg-slate-100 border-4 ${event.borderColor} shadow-inner -rotate-3 group-hover:rotate-0 transition-transform`}>
+                    <Icon className={`${event.textColor} w-10 h-10 md:w-12 md:h-12`} />
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-2xl font-black text-slate-800 uppercase italic leading-tight mb-2">
+                    <h3 className="text-xl md:text-2xl font-black text-slate-800 uppercase italic leading-tight mb-2">
                       {event.title}
                     </h3>
                     <div className="bg-slate-100 p-2 rounded-xl border-2 border-slate-200" dir="rtl">
@@ -93,7 +93,7 @@ export default function EventBoard({ onStartMatch }) {
                 </h2>
               </div>
 
-              <div className="p-8 flex flex-col items-center text-center bg-slate-50">
+              <div className="p-5 md:p-8 flex flex-col items-center text-center bg-slate-50">
                 <div className="inline-block px-4 py-1 bg-slate-200 rounded-full font-bold text-slate-500 uppercase tracking-wider text-sm mb-4">
                   {preview.type}
                 </div>

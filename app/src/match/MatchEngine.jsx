@@ -141,7 +141,7 @@ export default function MatchEngine({ event, practice, onExit, onPlayAgain }) {
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-blue-950/95 backdrop-blur-sm">
       {phase !== 'results' && question && (
-        <div className="flex-1 flex flex-col max-w-3xl w-full mx-auto p-4 md:p-6">
+        <div className="flex-1 flex flex-col max-w-3xl w-full mx-auto p-3 md:p-6" style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}>
           {/* top bar: exit, progress, practice badge */}
           <div className="flex items-center gap-3 mb-4">
             <button
@@ -180,7 +180,7 @@ export default function MatchEngine({ event, practice, onExit, onPlayAgain }) {
 
           {/* question card */}
           <div
-            className={`flex-1 bg-white rounded-3xl border-8 border-slate-800 shadow-2xl flex flex-col items-center justify-center gap-6 p-6 overflow-y-auto relative ${
+            className={`flex-1 bg-white rounded-3xl border-8 border-slate-800 shadow-2xl flex flex-col items-center justify-center gap-4 md:gap-6 p-4 md:p-6 overflow-y-auto relative ${
               feedback && !feedback.correct ? 'anim-shake' : ''
             } ${feedback ? (feedback.correct ? 'outline outline-8 outline-green-400' : 'outline outline-8 outline-red-400') : ''}`}
           >
@@ -188,7 +188,7 @@ export default function MatchEngine({ event, practice, onExit, onPlayAgain }) {
               <span className="text-white font-black uppercase italic tracking-wider drop-shadow-sm">{event.title}</span>
             </div>
 
-            <p className="text-3xl md:text-5xl font-black text-slate-800 text-center" dir={prompt.dir}>
+            <p className="text-2xl md:text-4xl lg:text-5xl font-black text-slate-800 text-center" dir={prompt.dir}>
               {prompt.text}
             </p>
 

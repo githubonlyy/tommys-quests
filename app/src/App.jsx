@@ -37,11 +37,11 @@ export default function App() {
   return (
     <ToastContext.Provider value={showToast}>
       <div
-        className="flex h-screen w-full bg-blue-600 text-slate-800 font-sans overflow-hidden selection:bg-yellow-400 selection:text-black"
+        className="flex flex-col md:flex-row h-dvh w-full bg-blue-600 text-slate-800 font-sans overflow-hidden selection:bg-yellow-400 selection:text-black"
         style={{ backgroundImage: 'radial-gradient(circle at center, #2563eb 0%, #1e40af 100%)' }}
       >
-        {/* SIDEBAR */}
-        <aside className="w-24 md:w-64 bg-blue-900 border-r-4 border-blue-950 flex flex-col relative z-20 shadow-2xl">
+        {/* SIDEBAR — tablet/desktop only; phones get the bottom nav */}
+        <aside className="hidden md:flex w-64 bg-blue-900 border-r-4 border-blue-950 flex-col relative z-20 shadow-2xl">
           <div className="p-4 md:p-6 border-b-4 border-blue-950 flex flex-col items-center md:items-start">
             <div className="bg-yellow-400 p-2 md:p-3 rounded-2xl border-b-4 border-yellow-600 shadow-lg mb-2 -rotate-3">
               <Zap className="text-yellow-950 h-8 w-8 md:h-10 md:w-10 fill-current" />
@@ -84,18 +84,18 @@ export default function App() {
         </aside>
 
         {/* MAIN */}
-        <main className="flex-1 flex flex-col relative overflow-hidden">
-          <header className="h-24 bg-blue-800/80 backdrop-blur-md border-b-4 border-blue-900 flex items-center justify-between px-4 md:px-8 z-10 shadow-md">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 bg-slate-200 rounded-2xl border-4 border-slate-300 flex items-center justify-center shadow-lg relative overflow-hidden">
-                <Star className="text-slate-400 w-8 h-8 fill-current" />
+        <main className="flex-1 flex flex-col relative overflow-hidden min-h-0">
+          <header className="h-16 md:h-24 shrink-0 bg-blue-800/80 backdrop-blur-md border-b-4 border-blue-900 flex items-center justify-between px-3 md:px-8 z-10 shadow-md">
+            <div className="flex items-center gap-2 md:gap-4">
+              <div className="w-10 h-10 md:w-14 md:h-14 bg-slate-200 rounded-xl md:rounded-2xl border-4 border-slate-300 flex items-center justify-center shadow-lg relative overflow-hidden">
+                <Star className="text-slate-400 w-6 h-6 md:w-8 md:h-8 fill-current" />
                 <div className="absolute bottom-0 w-full h-1/2 bg-slate-300/50"></div>
               </div>
               <div className="flex flex-col">
-                <span className="text-xl md:text-2xl text-white font-black drop-shadow-md tracking-wide">TOMMY</span>
-                <div className="flex items-center gap-2 mt-1 w-32 md:w-48">
-                  <span className="text-xs font-black text-blue-300">LVL {state.level}</span>
-                  <div className="flex-1 h-4 bg-blue-950 rounded-full border-2 border-blue-900 overflow-hidden relative">
+                <span className="text-base md:text-2xl text-white font-black drop-shadow-md tracking-wide leading-tight">TOMMY</span>
+                <div className="flex items-center gap-1.5 md:gap-2 w-28 md:w-48">
+                  <span className="text-[10px] md:text-xs font-black text-blue-300 whitespace-nowrap">LVL {state.level}</span>
+                  <div className="flex-1 h-3 md:h-4 bg-blue-950 rounded-full border-2 border-blue-900 overflow-hidden relative">
                     <div
                       className="absolute top-0 left-0 h-full bg-gradient-to-r from-yellow-400 to-orange-500 transition-all duration-1000"
                       style={{ width: `${xpPct}%` }}
@@ -106,18 +106,18 @@ export default function App() {
               </div>
             </div>
 
-            <div className="flex items-center bg-blue-950 border-4 border-blue-900 rounded-2xl px-4 py-2 md:px-6 md:py-3 shadow-inner rotate-1">
-              <div className="bg-yellow-400 p-1.5 rounded-full mr-2 md:mr-3 border-2 border-yellow-600 shadow-sm">
-                <Coins className="text-yellow-900 fill-yellow-200" size={20} />
+            <div className="flex items-center bg-blue-950 border-4 border-blue-900 rounded-xl md:rounded-2xl px-2.5 py-1 md:px-6 md:py-3 shadow-inner rotate-1">
+              <div className="bg-yellow-400 p-1 md:p-1.5 rounded-full mr-1.5 md:mr-3 border-2 border-yellow-600 shadow-sm">
+                <Coins className="text-yellow-900 fill-yellow-200 w-4 h-4 md:w-5 md:h-5" />
               </div>
-              <span className="text-xl md:text-3xl text-yellow-400 font-black tracking-wide drop-shadow-sm">
+              <span className="text-lg md:text-3xl text-yellow-400 font-black tracking-wide drop-shadow-sm tabular-nums">
                 {state.coins.toLocaleString()}
               </span>
             </div>
           </header>
 
-          <div className="flex-1 overflow-y-auto p-4 md:p-8 relative">
-            <div className="relative z-10 max-w-5xl mx-auto pb-20">
+          <div className="flex-1 overflow-y-auto p-3 md:p-8 relative">
+            <div className="relative z-10 max-w-5xl mx-auto pb-8 md:pb-20">
               {activeTab === 'events' && (
                 <EventBoard
                   onStartMatch={(event) => setMatch({ event, practice: playedToday(event.id) })}
@@ -128,6 +128,34 @@ export default function App() {
             </div>
           </div>
         </main>
+
+        {/* BOTTOM NAV — phones only */}
+        <nav
+          className="md:hidden shrink-0 grid grid-cols-3 bg-blue-900 border-t-4 border-blue-950 z-20 shadow-[0_-4px_12px_rgba(0,0,0,0.3)]"
+          style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+        >
+          <BottomNavItem
+            icon={<Gamepad2 size={24} />}
+            label="Events"
+            isActive={activeTab === 'events'}
+            activeColor="text-green-400"
+            onClick={() => setActiveTab('events')}
+          />
+          <BottomNavItem
+            icon={<Store size={24} />}
+            label="Shop"
+            isActive={activeTab === 'rewards'}
+            activeColor="text-purple-400"
+            onClick={() => setActiveTab('rewards')}
+          />
+          <BottomNavItem
+            icon={<BarChart3 size={24} />}
+            label="Coach"
+            isActive={activeTab === 'admin'}
+            activeColor="text-slate-300"
+            onClick={() => setActiveTab('admin')}
+          />
+        </nav>
 
         {/* MATCH OVERLAY */}
         {match && (
@@ -157,6 +185,21 @@ export default function App() {
         )}
       </div>
     </ToastContext.Provider>
+  )
+}
+
+function BottomNavItem({ icon, label, isActive, activeColor, onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`flex flex-col items-center justify-center gap-0.5 py-2 min-h-14 font-black uppercase tracking-wider transition-colors relative
+        ${isActive ? `${activeColor}` : 'text-blue-400 active:text-blue-200'}`}
+    >
+      {/* active indicator bar */}
+      <span className={`absolute top-0 left-1/4 right-1/4 h-1 rounded-b-full transition-opacity ${isActive ? 'bg-yellow-400 opacity-100' : 'opacity-0'}`}></span>
+      {icon}
+      <span className="text-[11px] leading-none">{label}</span>
+    </button>
   )
 }
 

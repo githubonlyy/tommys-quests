@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+@theme {
+  /* Rubik: chunky rounded weights + full Hebrew support */
+  --font-sans: "Rubik", ui-rounded, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
 /* Brawl-style motion helpers (tailwindcss-animate not installed; keep it lean) */
 @keyframes zoomIn95 {
   from { opacity: 0; transform: scale(0.95); }
@@ -41,4 +46,21 @@ body {
   margin: 0;
   overscroll-behavior: none;
   -webkit-tap-highlight-color: transparent;
+}
+
+/* kill the 300ms tap delay / accidental double-tap zoom on controls */
+button, a, [role="button"] {
+  touch-action: manipulation;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-zoom-in, .anim-toast, .anim-fade-in, .anim-shake, .anim-pop {
+    animation: none;
+  }
+  .confetti-piece {
+    display: none;
+  }
+  * {
+    transition-duration: 0.01ms !important;
+  }
 }
