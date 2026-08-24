@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { X, Coins, Trophy, Skull, Minus, Sparkles, ChevronUp } from 'lucide-react'
+import { X, Coins, Trophy, Skull, Minus, Sparkles, ChevronUp, Flame, Volume2, VolumeX } from 'lucide-react'
+import { sfx, isMuted, setMuted } from './sounds.js'
 import { usePlayer } from '../context/PlayerContext.jsx'
 import mathQ from '../data/questions/math.json'
 import englishQ from '../data/questions/english.json'
@@ -117,6 +118,13 @@ export default function MatchEngine({ event, mode = 'classic', practice, onExit,
   const [coinsEarned, setCoinsEarned] = useState(0)
   const [pairsOutcome, setPairsOutcome] = useState(null)
   const [revealDone, setRevealDone] = useState(false)
+  const [streak, setStreak] = useState(0)
+  const [muted, setMutedState] = useState(isMuted())
+
+  const toggleMute = () => {
+    setMuted(!muted)
+    setMutedState(!muted)
+  }
 
   const qStartRef = useRef(Date.now())
   const totalTimeRef = useRef(0)
@@ -146,7 +154,9 @@ export default function MatchEngine({ event, mode = 'classic', practice, onExit,
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, qIndex])
 
-  function handleAnswer(isCorrect, timedOut = false) {
+  // fxDelay: widget is playing its own effect (pop, pin drop...) — the answer is
+  // locked in NOW (timer frozen), feedback overlay appears after the fx finishes.
+  function handleAnswer(isCorrect, timedOut = false, fxDelay = 0) {
     if (phase !== 'ask') return
     const elapsed = timedOut ? config.questionTimerSec : (Date.now() - qStartRef.current) / 1000
     totalTimeRef.current += elapsed
@@ -156,9 +166,22 @@ export default function MatchEngine({ event, mode = 'classic', practice, onExit,
       gained = config.coinsPerCorrect + (elapsed < config.speedThresholdSec ? config.speedBonusCoins : 0)
       setCorrectCount((c) => c + 1)
       setCoinsEarned((c) => c + gained)
+      setStreak((s) => s + 1)
+    } else {
+      setStreak(0)
     }
-    setFeedback({ correct: isCorrect, gained, timedOut })
-    setPhase('feedback')
+
+    const showFeedback = () => {
+      if (mode !== 'balloon') (isCorrect ? sfx.ding : sfx.buzz)() // balloon pops/buzzes itself
+      setFeedback({ correct: isCorrect, gained, timedOut })
+      setPhase('feedback')
+    }
+    if (fxDelay > 0) {
+      setPhase('fxwait') // freezes the countdown while the widget animates
+      setTimeout(showFeedback, fxDelay)
+    } else {
+      showFeedback()
+    }
   }
 
   // feedback pause, then advance
@@ -220,6 +243,7 @@ export default function MatchEngine({ event, mode = 'classic', practice, onExit,
   useEffect(() => {
     if (phase !== 'results' || reportedRef.current) return
     reportedRef.current = true
+    if (unified.resultLabel === 'WIN') sfx.fanfare()
     dispatch({
       type: 'MATCH_RESULT',
       eventId: event.id,
@@ -272,11 +296,23 @@ export default function MatchEngine({ event, mode = 'classic', practice, onExit,
             {isPairs && (
               <span className="flex-1 text-white font-black text-lg uppercase italic tracking-wide">Pairs Match</span>
             )}
+            {!isPairs && streak >= 3 && (
+              <span key={streak} className="anim-streak-pop flex items-center gap-1 bg-orange-500 text-white text-sm font-black px-2.5 py-1 rounded-full border-2 border-orange-300 shrink-0">
+                <Flame size={16} className="fill-yellow-300 text-yellow-200" /> x{streak}
+              </span>
+            )}
             {practice && (
               <span className="bg-blue-500 text-white text-xs font-black px-3 py-1 rounded-full border-2 border-blue-300 shrink-0">
                 PRACTICE
               </span>
             )}
+            <button
+              onClick={toggleMute}
+              className="w-10 h-10 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center transition-colors shrink-0"
+              aria-label={muted ? 'Unmute sounds' : 'Mute sounds'}
+            >
+              {muted ? <VolumeX size={20} /> : <Volume2 size={20} />}
+            </button>
           </div>
 
           {/* per-question timer (question modes) */}
@@ -306,7 +342,8 @@ export default function MatchEngine({ event, mode = 'classic', practice, onExit,
           {/* QUESTION CARD (classic + balloon) */}
           {!isPairs && question && (
             <div
-              className={`flex-1 bg-white rounded-3xl border-8 border-slate-800 shadow-2xl flex flex-col items-center justify-center gap-4 md:gap-6 p-4 md:p-6 overflow-y-auto relative ${
+              key={qIndex}
+              className={`anim-slide-in-q flex-1 bg-white rounded-3xl border-8 border-slate-800 shadow-2xl flex flex-col items-center justify-center gap-4 md:gap-6 p-4 md:p-6 overflow-y-auto relative ${
                 feedback && !feedback.correct ? 'anim-shake' : ''
               } ${feedback ? (feedback.correct ? 'outline outline-8 outline-green-400' : 'outline outline-8 outline-red-400') : ''}`}
             >
@@ -320,7 +357,14 @@ export default function MatchEngine({ event, mode = 'classic', practice, onExit,
                 {prompt.text}
               </p>
 
-              <Widget key={qIndex} question={question} disabled={phase !== 'ask'} onAnswer={(ok) => handleAnswer(ok)} />
+              <Widget key={qIndex} question={question} disabled={phase !== 'ask'} onAnswer={(ok, fxDelay = 0) => handleAnswer(ok, false, fxDelay)} />
+
+              {/* floating coin gain */}
+              {feedback?.correct && !practice && (
+                <div className="anim-float-up absolute top-16 left-1/2 -translate-x-1/2 flex items-center gap-1 text-yellow-500 font-black text-2xl pointer-events-none z-10">
+                  <Coins size={22} className="fill-yellow-200" /> +{feedback.gained}
+                </div>
+              )}
 
               {feedback && (
                 <div

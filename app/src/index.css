@@ -64,6 +64,97 @@
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-8px); }
 }
+/* Juice pass: balloon pop, card flips, particles, streaks */
+@keyframes balloonInflate {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.25); }
+}
+@keyframes balloonShard {
+  0% { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) rotate(var(--rot, 240deg)) scale(0.4); opacity: 0; }
+}
+@keyframes popFlash {
+  0% { transform: scale(0.3); opacity: 0.9; }
+  100% { transform: scale(1.8); opacity: 0; }
+}
+@keyframes popText {
+  0% { transform: scale(0.3) rotate(-8deg); opacity: 0; }
+  35% { transform: scale(1.25) rotate(4deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); opacity: 0; }
+}
+@keyframes balloonDeflate {
+  0% { transform: scale(1) rotate(0deg); opacity: 1; }
+  30% { transform: scale(0.9) rotate(-10deg); }
+  60% { transform: scale(0.7) rotate(12deg) translateY(10px); }
+  100% { transform: scale(0.3) rotate(-20deg) translateY(60px); opacity: 0.2; }
+}
+@keyframes goldFlash {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(250, 204, 21, 0); }
+  50% { box-shadow: 0 0 24px 8px rgba(250, 204, 21, 0.9); }
+}
+@keyframes wobble {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-6deg); }
+  75% { transform: rotate(6deg); }
+}
+@keyframes floatUp {
+  0% { transform: translateY(0) scale(0.8); opacity: 0; }
+  20% { opacity: 1; transform: translateY(-8px) scale(1.1); }
+  100% { transform: translateY(-56px) scale(1); opacity: 0; }
+}
+@keyframes waveJump {
+  0%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-16px) scale(1.1); }
+}
+@keyframes scatterShake {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  25% { transform: translate(-6px, 2px) rotate(-8deg); }
+  50% { transform: translate(5px, -3px) rotate(6deg); }
+  75% { transform: translate(-4px, 3px) rotate(-5deg); }
+}
+@keyframes starBurst {
+  0% { transform: translate(0, 0) scale(0); opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(1.1); opacity: 0; }
+}
+@keyframes pinDrop {
+  0% { transform: translateY(-40px); opacity: 0; }
+  60% { transform: translateY(0); opacity: 1; }
+  75% { transform: translateY(-8px); }
+  100% { transform: translateY(0); }
+}
+@keyframes rippleRing {
+  0% { transform: scale(0.3); opacity: 0.9; }
+  100% { transform: scale(2.6); opacity: 0; }
+}
+@keyframes slideInQ {
+  0% { transform: translateX(48px); opacity: 0; }
+  100% { transform: translateX(0); opacity: 1; }
+}
+@keyframes streakPop {
+  0% { transform: scale(0.6); }
+  60% { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+.anim-balloon-inflate { animation: balloonInflate 0.18s ease-out forwards; }
+.anim-balloon-shard { animation: balloonShard 0.55s ease-out forwards; }
+.anim-pop-flash { animation: popFlash 0.4s ease-out forwards; }
+.anim-pop-text { animation: popText 0.7s ease-out forwards; }
+.anim-balloon-deflate { animation: balloonDeflate 0.6s ease-in forwards; }
+.anim-gold-flash { animation: goldFlash 0.6s ease-out 2; }
+.anim-wobble { animation: wobble 0.3s ease-in-out 2; }
+.anim-float-up { animation: floatUp 1s ease-out forwards; }
+.anim-wave-jump { animation: waveJump 0.5s ease-out; }
+.anim-scatter-shake { animation: scatterShake 0.45s ease-in-out; }
+.anim-star-burst { animation: starBurst 0.7s ease-out forwards; }
+.anim-pin-drop { animation: pinDrop 0.5s ease-out forwards; }
+.anim-ripple-ring { animation: rippleRing 0.9s ease-out forwards; }
+.anim-slide-in-q { animation: slideInQ 0.25s ease-out; }
+.anim-streak-pop { animation: streakPop 0.3s cubic-bezier(0.2, 1.4, 0.4, 1); }
+
+.perspective-600 { perspective: 600px; }
+.preserve-3d { transform-style: preserve-3d; }
+.backface-hidden { backface-visibility: hidden; }
+
 .anim-dial-spin { animation: dialSpin 0.9s ease-in-out forwards; }
 .anim-door-open { animation: doorOpen 0.5s cubic-bezier(0.6, 0, 0.4, 1.2) forwards; }
 .anim-vault-glow { animation: vaultGlow 0.4s ease-out forwards; }
@@ -91,8 +182,15 @@ button, a, [role="button"] {
 
 @media (prefers-reduced-motion: reduce) {
   .anim-zoom-in, .anim-toast, .anim-fade-in, .anim-shake, .anim-pop,
-  .anim-dial-spin, .anim-vault-thud, .anim-float-bob {
+  .anim-dial-spin, .anim-vault-thud, .anim-float-bob,
+  .anim-balloon-inflate, .anim-balloon-deflate, .anim-gold-flash, .anim-wobble,
+  .anim-wave-jump, .anim-scatter-shake, .anim-slide-in-q, .anim-streak-pop,
+  .anim-pin-drop {
     animation: none;
+  }
+  .anim-balloon-shard, .anim-pop-flash, .anim-pop-text, .anim-float-up,
+  .anim-star-burst, .anim-ripple-ring {
+    display: none;
   }
   /* vault jumps straight to its open end-state */
   .anim-door-open { animation: doorOpen 0.01ms forwards; }

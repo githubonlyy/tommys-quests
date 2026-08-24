@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { sfx } from '../sounds.js'
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
@@ -21,21 +22,25 @@ export default function LetterTiles({ question, disabled, onAnswer }) {
 
   // picked: array of tile ids in slot order
   const [picked, setPicked] = useState([])
+  const [fx, setFx] = useState(null) // 'wave' | 'scatter' once the word is full
 
   const pickTile = (tile) => {
-    if (disabled || picked.includes(tile.id) || picked.length >= question.word.length) return
+    if (disabled || fx || picked.includes(tile.id) || picked.length >= question.word.length) return
+    sfx.click()
     setPicked([...picked, tile.id])
   }
   const unpick = (slotIdx) => {
-    if (disabled) return
+    if (disabled || fx) return
     setPicked(picked.filter((_, i) => i !== slotIdx))
   }
 
   useEffect(() => {
     if (picked.length !== question.word.length) return
     const spelled = picked.map((id) => tiles.find((t) => t.id === id).ch).join('')
-    const timer = setTimeout(() => onAnswer(spelled === question.word), 350)
-    return () => clearTimeout(timer)
+    const ok = spelled === question.word
+    const fxTimer = setTimeout(() => setFx(ok ? 'wave' : 'scatter'), 250)
+    onAnswer(ok, 900) // answer locks in now; fx plays while the engine waits
+    return () => clearTimeout(fxTimer)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [picked])
 
@@ -56,9 +61,12 @@ export default function LetterTiles({ question, disabled, onAnswer }) {
               key={i}
               onClick={() => tileId !== undefined && unpick(i)}
               className={`w-14 h-14 rounded-xl text-3xl font-black flex items-center justify-center transition-all
+                ${fx === 'wave' ? 'anim-wave-jump !bg-green-500 !border-green-700' : ''}
+                ${fx === 'scatter' ? 'anim-scatter-shake !bg-red-400 !border-red-600' : ''}
                 ${ch
-                  ? 'bg-cyan-500 text-white border-b-4 border-cyan-700 shadow anim-pop'
+                  ? `bg-cyan-500 text-white border-b-4 border-cyan-700 shadow ${fx ? '' : 'anim-pop'}`
                   : 'bg-slate-200 border-4 border-dashed border-slate-300 text-slate-300'}`}
+              style={fx ? { animationDelay: `${i * 0.08}s` } : undefined}
             >
               {ch ?? '_'}
             </button>

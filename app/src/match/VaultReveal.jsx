@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Coins, Sparkles } from 'lucide-react'
+import { sfx } from './sounds.js'
 
 const BURST = Array.from({ length: 14 }, (_, i) => {
   const angle = (i / 14) * Math.PI * 2
@@ -33,7 +34,9 @@ export default function VaultReveal({ coins, xp, result, practice, onDone }) {
   }, [isLoss])
 
   useEffect(() => {
+    if (stage === 'thud') sfx.thud()
     if (stage !== 'open') return
+    sfx.click()
     const t = setTimeout(() => setStage('count'), 450)
     return () => clearTimeout(t)
   }, [stage])
@@ -43,7 +46,9 @@ export default function VaultReveal({ coins, xp, result, practice, onDone }) {
     if (stage !== 'count') return
     if (total === 0) { setStage('done'); return }
     const step = Math.max(1, Math.ceil(total / 40))
+    let tick = 0
     const iv = setInterval(() => {
+      if (tick++ % 5 === 0) sfx.coin()
       setCount((c) => {
         const next = c + step
         if (next >= total) { clearInterval(iv); setStage('done'); return total }

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Delete, Check } from 'lucide-react'
+import { sfx } from '../sounds.js'
 
 // Math answer input: builds a digit string, OK submits
 export default function NumberPad({ question, disabled, onAnswer }) {
@@ -7,6 +8,7 @@ export default function NumberPad({ question, disabled, onAnswer }) {
 
   const press = (d) => {
     if (disabled || value.length >= 4) return
+    sfx.click()
     setValue(value + d)
   }
   const backspace = () => !disabled && setValue(value.slice(0, -1))
