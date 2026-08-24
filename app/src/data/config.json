@@ -11,5 +11,12 @@
   "xpPerCorrect": 10,
   "dailyResetHour": 5,
   "pinLockoutTries": 3,
-  "pinLockoutSec": 60
+  "pinLockoutSec": 60,
+  "pairs": {
+    "pairCount": 6,
+    "coinsPerPair": 15,
+    "xpPerPair": 15,
+    "timerSec": 90,
+    "maxWrongForWin": 5
+  }
 }

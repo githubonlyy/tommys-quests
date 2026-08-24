@@ -5,25 +5,80 @@ import mathQ from '../data/questions/math.json'
 import englishQ from '../data/questions/english.json'
 import hebrewQ from '../data/questions/hebrew.json'
 import geographyQ from '../data/questions/geography.json'
+import oppositesQ from '../data/questions/opposites.json'
 import NumberPad from './widgets/NumberPad.jsx'
 import LetterTiles from './widgets/LetterTiles.jsx'
 import WordTap from './widgets/WordTap.jsx'
 import MapGrid from './widgets/MapGrid.jsx'
-import { placeName } from './widgets/israelCities.js'
+import BalloonPop from './widgets/BalloonPop.jsx'
+import PairsBoard from './PairsBoard.jsx'
+import VaultReveal from './VaultReveal.jsx'
+import { PLACES, placeName } from './widgets/israelCities.js'
 
 const BANKS = { math: mathQ, english: englishQ, hebrew: hebrewQ, geography: geographyQ }
 const WIDGETS = { numberpad: NumberPad, lettertiles: LetterTiles, wordtap: WordTap, mapgrid: MapGrid }
 
-function sample(bank, n) {
-  const a = [...bank]
+function shuffle(arr) {
+  const a = [...arr]
   for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1))
     ;[a[i], a[j]] = [a[j], a[i]]
   }
-  return a.slice(0, Math.min(n, a.length))
+  return a
+}
+const sample = (bank, n) => shuffle(bank).slice(0, Math.min(n, bank.length))
+const pickOthers = (bank, exclude, n, key) =>
+  shuffle(bank.filter((x) => x[key] !== exclude)).slice(0, n).map((x) => x[key])
+
+/* ---- balloon mode: turn a bank question into a 4-option pick ---- */
+function mathDistractors(answer) {
+  const a = parseInt(answer, 10)
+  const pool = new Set()
+  const candidates = [a + 1, a - 1, a + 2, a - 2, a + 10, a - 10, a + 5, a - 5]
+  for (const c of shuffle(candidates)) {
+    if (c > 0 && c !== a) pool.add(String(c))
+    if (pool.size === 3) break
+  }
+  return [...pool]
 }
 
-function correctAnswerText(eventId, q) {
+function buildBalloon(eventId, q, sourceBank) {
+  let prompt, dir, emoji = null, correct, decoys
+  if (eventId === 'math') {
+    prompt = `${q.q} = ?`; dir = 'ltr'
+    correct = q.a; decoys = mathDistractors(q.a)
+  } else if (eventId === 'english') {
+    prompt = q.hint; dir = 'rtl'; emoji = q.emoji
+    correct = q.word; decoys = pickOthers(sourceBank, q.word, 3, 'word')
+  } else if (eventId === 'hebrew') {
+    prompt = `מה ההפך של "${q.q}"?`; dir = 'rtl'
+    correct = q.a; decoys = pickOthers(sourceBank, q.a, 3, 'a')
+  } else {
+    prompt = q.q; dir = 'rtl'
+    correct = placeName(q.answer)
+    decoys = shuffle(PLACES.filter((p) => p.id !== q.answer)).slice(0, 3).map((p) => p.name)
+  }
+  return {
+    prompt,
+    dir,
+    emoji,
+    answerText: correct,
+    options: shuffle([{ label: correct, correct: true }, ...decoys.map((d) => ({ label: d, correct: false }))]),
+  }
+}
+
+/* ---- pairs mode: build 6 matching pairs from a bank ---- */
+function buildPairs(eventId, count) {
+  if (eventId === 'english') {
+    return sample(englishQ, count).map((q, i) => ({ id: i, a: q.word, b: q.hint }))
+  }
+  // math: exercise <-> result; avoid two exercises sharing the same answer
+  const seen = new Set()
+  const uniq = shuffle(mathQ).filter((q) => (seen.has(q.a) ? false : seen.add(q.a)))
+  return uniq.slice(0, count).map((q, i) => ({ id: i, a: q.q, b: q.a }))
+}
+
+function classicAnswerText(eventId, q) {
   if (eventId === 'math') return q.a
   if (eventId === 'english') return q.word
   if (eventId === 'hebrew') return q.sentence[q.target]
@@ -31,7 +86,7 @@ function correctAnswerText(eventId, q) {
   return ''
 }
 
-function questionPrompt(eventId, q) {
+function classicPrompt(eventId, q) {
   if (eventId === 'math') return { text: `${q.q} = ?`, dir: 'ltr' }
   if (eventId === 'english') return { text: 'SPELL IT!', dir: 'ltr' }
   if (eventId === 'hebrew') return { text: 'קראו את המשפט', dir: 'rtl' }
@@ -39,17 +94,29 @@ function questionPrompt(eventId, q) {
   return { text: '', dir: 'ltr' }
 }
 
-export default function MatchEngine({ event, practice, onExit, onPlayAgain }) {
+export default function MatchEngine({ event, mode = 'classic', practice, onExit, onPlayAgain }) {
   const { state, dispatch, config } = usePlayer()
   const N = config.questionsPerMatch
+  const isPairs = mode === 'pairs'
 
-  const [questions] = useState(() => sample(BANKS[event.id], N))
+  const [questions] = useState(() => {
+    if (isPairs) return []
+    if (mode === 'balloon') {
+      const source = event.id === 'hebrew' ? oppositesQ : BANKS[event.id]
+      return sample(source, N).map((q) => buildBalloon(event.id, q, source))
+    }
+    return sample(BANKS[event.id], N)
+  })
+  const [pairsData] = useState(() => (isPairs ? buildPairs(event.id, config.pairs.pairCount) : null))
+
   const [qIndex, setQIndex] = useState(0)
-  const [phase, setPhase] = useState('ask') // ask | feedback | results
+  const [phase, setPhase] = useState(isPairs ? 'board' : 'ask') // ask | feedback | board | results
   const [remaining, setRemaining] = useState(config.questionTimerSec)
-  const [feedback, setFeedback] = useState(null) // { correct, gained }
+  const [feedback, setFeedback] = useState(null)
   const [correctCount, setCorrectCount] = useState(0)
   const [coinsEarned, setCoinsEarned] = useState(0)
+  const [pairsOutcome, setPairsOutcome] = useState(null)
+  const [revealDone, setRevealDone] = useState(false)
 
   const qStartRef = useRef(Date.now())
   const totalTimeRef = useRef(0)
@@ -58,9 +125,9 @@ export default function MatchEngine({ event, practice, onExit, onPlayAgain }) {
 
   const total = questions.length
   const question = questions[qIndex]
-  const Widget = WIDGETS[event.widget]
+  const Widget = mode === 'balloon' ? BalloonPop : WIDGETS[event.widget]
 
-  // per-question countdown
+  // per-question countdown (question modes only)
   useEffect(() => {
     if (phase !== 'ask') return
     qStartRef.current = Date.now()
@@ -110,13 +177,46 @@ export default function MatchEngine({ event, practice, onExit, onPlayAgain }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase])
 
-  // report result exactly once
-  const isWin = correctCount >= config.winThreshold
-  const isDraw = !isWin && correctCount >= config.drawThreshold
-  const resultLabel = isWin ? 'WIN' : isDraw ? 'DRAW' : 'LOSS'
-  const finalCoins = coinsEarned + (isWin ? config.winBonusCoins : 0)
-  const xpEarned = correctCount * config.xpPerCorrect
+  function handleBoardFinish({ pairs, wrongFlips, elapsedSec, timedOut }) {
+    const pcfg = config.pairs
+    const complete = pairs === pcfg.pairCount
+    const win = complete && !timedOut && wrongFlips <= pcfg.maxWrongForWin
+    const resultLabel = win ? 'WIN' : complete ? 'DRAW' : 'LOSS'
+    setPairsOutcome({
+      correct: pairs,
+      total: pcfg.pairCount,
+      coins: pairs * pcfg.coinsPerPair + (win ? config.winBonusCoins : 0),
+      xp: pairs * pcfg.xpPerPair,
+      resultLabel,
+      avgTimeSec: Math.round((elapsedSec / Math.max(1, pairs)) * 10) / 10,
+    })
+    setPhase('results')
+  }
 
+  /* ---- unified result values across modes ---- */
+  const qIsWin = correctCount >= config.winThreshold
+  const qIsDraw = !qIsWin && correctCount >= config.drawThreshold
+  const unified = isPairs && pairsOutcome
+    ? {
+        correct: pairsOutcome.correct,
+        totalUnits: pairsOutcome.total,
+        resultLabel: pairsOutcome.resultLabel,
+        finalCoins: pairsOutcome.coins,
+        xpEarned: pairsOutcome.xp,
+        avgTimeSec: pairsOutcome.avgTimeSec,
+      }
+    : {
+        correct: correctCount,
+        totalUnits: total,
+        resultLabel: qIsWin ? 'WIN' : qIsDraw ? 'DRAW' : 'LOSS',
+        finalCoins: coinsEarned + (qIsWin ? config.winBonusCoins : 0),
+        xpEarned: correctCount * config.xpPerCorrect,
+        avgTimeSec: Math.round((totalTimeRef.current / Math.max(1, total)) * 10) / 10,
+      }
+  const isWin = unified.resultLabel === 'WIN'
+  const isDraw = unified.resultLabel === 'DRAW'
+
+  // report result exactly once
   useEffect(() => {
     if (phase !== 'results' || reportedRef.current) return
     reportedRef.current = true
@@ -124,11 +224,12 @@ export default function MatchEngine({ event, practice, onExit, onPlayAgain }) {
       type: 'MATCH_RESULT',
       eventId: event.id,
       subject: event.title,
-      result: resultLabel,
-      correct: correctCount,
-      coinsEarned: finalCoins,
-      xpEarned,
-      avgTimeSec: Math.round((totalTimeRef.current / total) * 10) / 10,
+      result: unified.resultLabel,
+      correct: unified.correct,
+      total: unified.totalUnits,
+      coinsEarned: unified.finalCoins,
+      xpEarned: unified.xpEarned,
+      avgTimeSec: unified.avgTimeSec,
       practice,
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -136,13 +237,16 @@ export default function MatchEngine({ event, practice, onExit, onPlayAgain }) {
 
   const leveledUp = state.level > startLevelRef.current
   const timerPct = (remaining / config.questionTimerSec) * 100
-  const prompt = question ? questionPrompt(event.id, question) : { text: '', dir: 'ltr' }
+  const prompt = !isPairs && question
+    ? mode === 'balloon' ? { text: question.prompt, dir: question.dir } : classicPrompt(event.id, question)
+    : { text: '', dir: 'ltr' }
+  const answerText = question ? (mode === 'balloon' ? question.answerText : classicAnswerText(event.id, question)) : ''
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-blue-950/95 backdrop-blur-sm">
-      {phase !== 'results' && question && (
+      {phase !== 'results' && (
         <div className="flex-1 flex flex-col max-w-3xl w-full mx-auto p-3 md:p-6" style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}>
-          {/* top bar: exit, progress, practice badge */}
+          {/* top bar */}
           <div className="flex items-center gap-3 mb-4">
             <button
               onClick={onExit}
@@ -150,17 +254,24 @@ export default function MatchEngine({ event, practice, onExit, onPlayAgain }) {
             >
               <X size={22} strokeWidth={3} />
             </button>
-            <div className="flex-1 flex gap-1.5">
-              {questions.map((_, i) => (
-                <div
-                  key={i}
-                  className={`h-3 flex-1 rounded-full ${
-                    i < qIndex ? 'bg-yellow-400' : i === qIndex ? 'bg-white' : 'bg-white/20'
-                  }`}
-                ></div>
-              ))}
-            </div>
-            <span className="text-white font-black text-lg shrink-0">{qIndex + 1}/{total}</span>
+            {!isPairs && (
+              <>
+                <div className="flex-1 flex gap-1.5">
+                  {questions.map((_, i) => (
+                    <div
+                      key={i}
+                      className={`h-3 flex-1 rounded-full ${
+                        i < qIndex ? 'bg-yellow-400' : i === qIndex ? 'bg-white' : 'bg-white/20'
+                      }`}
+                    ></div>
+                  ))}
+                </div>
+                <span className="text-white font-black text-lg shrink-0 tabular-nums">{qIndex + 1}/{total}</span>
+              </>
+            )}
+            {isPairs && (
+              <span className="flex-1 text-white font-black text-lg uppercase italic tracking-wide">Pairs Match</span>
+            )}
             {practice && (
               <span className="bg-blue-500 text-white text-xs font-black px-3 py-1 rounded-full border-2 border-blue-300 shrink-0">
                 PRACTICE
@@ -168,106 +279,133 @@ export default function MatchEngine({ event, practice, onExit, onPlayAgain }) {
             )}
           </div>
 
-          {/* timer bar */}
-          <div className="h-4 bg-black/40 rounded-full border-2 border-black/40 overflow-hidden mb-4">
-            <div
-              className={`h-full rounded-full transition-[width] duration-100 ${
-                timerPct > 50 ? 'bg-green-500' : timerPct > 25 ? 'bg-yellow-400' : 'bg-red-500'
-              }`}
-              style={{ width: `${timerPct}%` }}
-            ></div>
-          </div>
-
-          {/* question card */}
-          <div
-            className={`flex-1 bg-white rounded-3xl border-8 border-slate-800 shadow-2xl flex flex-col items-center justify-center gap-4 md:gap-6 p-4 md:p-6 overflow-y-auto relative ${
-              feedback && !feedback.correct ? 'anim-shake' : ''
-            } ${feedback ? (feedback.correct ? 'outline outline-8 outline-green-400' : 'outline outline-8 outline-red-400') : ''}`}
-          >
-            <div className={`${event.headerColor} px-6 py-2 rounded-full border-b-4 border-black/20`}>
-              <span className="text-white font-black uppercase italic tracking-wider drop-shadow-sm">{event.title}</span>
-            </div>
-
-            <p className="text-2xl md:text-4xl lg:text-5xl font-black text-slate-800 text-center" dir={prompt.dir}>
-              {prompt.text}
-            </p>
-
-            <Widget key={qIndex} question={question} disabled={phase !== 'ask'} onAnswer={(ok) => handleAnswer(ok)} />
-
-            {/* feedback overlay strip */}
-            {feedback && (
+          {/* per-question timer (question modes) */}
+          {!isPairs && (
+            <div className="h-4 bg-black/40 rounded-full border-2 border-black/40 overflow-hidden mb-4">
               <div
-                className={`absolute bottom-0 left-0 right-0 py-3 px-6 text-center font-black text-white text-xl anim-pop ${
-                  feedback.correct ? 'bg-green-500' : 'bg-red-500'
+                className={`h-full rounded-full transition-[width] duration-100 ${
+                  timerPct > 50 ? 'bg-green-500' : timerPct > 25 ? 'bg-yellow-400' : 'bg-red-500'
                 }`}
-                dir="rtl"
-              >
-                {feedback.correct ? (
-                  <span className="flex items-center justify-center gap-2">
-                    מעולה! {!practice && <span className="flex items-center gap-1"><Coins size={20} className="fill-yellow-200 text-yellow-200" /> +{feedback.gained}</span>}
-                  </span>
-                ) : feedback.timedOut ? (
-                  <span>נגמר הזמן! התשובה: {correctAnswerText(event.id, question)}</span>
-                ) : (
-                  <span>לא נורא! התשובה: {correctAnswerText(event.id, question)}</span>
-                )}
+                style={{ width: `${timerPct}%` }}
+              ></div>
+            </div>
+          )}
+
+          {/* PAIRS BOARD */}
+          {isPairs && (
+            <div className="flex-1 flex flex-col justify-center">
+              <PairsBoard
+                event={event}
+                pairs={pairsData}
+                timerSec={config.pairs.timerSec}
+                onFinish={handleBoardFinish}
+              />
+            </div>
+          )}
+
+          {/* QUESTION CARD (classic + balloon) */}
+          {!isPairs && question && (
+            <div
+              className={`flex-1 bg-white rounded-3xl border-8 border-slate-800 shadow-2xl flex flex-col items-center justify-center gap-4 md:gap-6 p-4 md:p-6 overflow-y-auto relative ${
+                feedback && !feedback.correct ? 'anim-shake' : ''
+              } ${feedback ? (feedback.correct ? 'outline outline-8 outline-green-400' : 'outline outline-8 outline-red-400') : ''}`}
+            >
+              <div className={`${event.headerColor} px-6 py-2 rounded-full border-b-4 border-black/20`}>
+                <span className="text-white font-black uppercase italic tracking-wider drop-shadow-sm">
+                  {mode === 'balloon' ? 'Balloon Pop' : event.title}
+                </span>
               </div>
-            )}
-          </div>
+
+              <p className="text-2xl md:text-4xl lg:text-5xl font-black text-slate-800 text-center" dir={prompt.dir}>
+                {prompt.text}
+              </p>
+
+              <Widget key={qIndex} question={question} disabled={phase !== 'ask'} onAnswer={(ok) => handleAnswer(ok)} />
+
+              {feedback && (
+                <div
+                  className={`absolute bottom-0 left-0 right-0 py-3 px-6 text-center font-black text-white text-xl anim-pop ${
+                    feedback.correct ? 'bg-green-500' : 'bg-red-500'
+                  }`}
+                  dir="rtl"
+                >
+                  {feedback.correct ? (
+                    <span className="flex items-center justify-center gap-2">
+                      מעולה! {!practice && <span className="flex items-center gap-1"><Coins size={20} className="fill-yellow-200 text-yellow-200" /> +{feedback.gained}</span>}
+                    </span>
+                  ) : feedback.timedOut ? (
+                    <span>נגמר הזמן! התשובה: {answerText}</span>
+                  ) : (
+                    <span>לא נורא! התשובה: {answerText}</span>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 
-      {/* RESULTS */}
+      {/* RESULTS — vault finale */}
       {phase === 'results' && (
-        <div className="flex-1 flex items-center justify-center p-4 relative overflow-hidden">
+        <div className="flex-1 flex items-center justify-center p-4 relative overflow-hidden overflow-y-auto">
           {isWin && <Confetti />}
-          <div className="anim-zoom-in bg-white rounded-3xl border-8 border-slate-800 shadow-2xl w-full max-w-md overflow-hidden relative z-10">
+          <div className="anim-zoom-in bg-white rounded-3xl border-8 border-slate-800 shadow-2xl w-full max-w-md overflow-hidden relative z-10 my-auto">
             <div
-              className={`p-6 text-center border-b-8 border-black/10 ${
+              className={`p-4 md:p-5 text-center border-b-8 border-black/10 ${
                 isWin ? 'bg-gradient-to-br from-green-400 to-green-600' : isDraw ? 'bg-gradient-to-br from-slate-400 to-slate-600' : 'bg-gradient-to-br from-red-400 to-red-600'
               }`}
             >
-              <div className="w-20 h-20 mx-auto bg-white rounded-2xl border-4 border-slate-200 flex items-center justify-center mb-2 shadow-lg rotate-3">
-                {isWin ? <Trophy className="text-yellow-500 fill-yellow-200 w-12 h-12" /> : isDraw ? <Minus className="text-slate-500 w-12 h-12" strokeWidth={4} /> : <Skull className="text-red-500 w-12 h-12" />}
-              </div>
-              <h2 className="text-4xl font-black text-white uppercase italic tracking-wide drop-shadow-md">{resultLabel}!</h2>
+              <h2 className="text-4xl font-black text-white uppercase italic tracking-wide drop-shadow-md flex items-center justify-center gap-3">
+                {isWin ? <Trophy className="fill-yellow-200 text-yellow-400" size={34} /> : isDraw ? <Minus size={34} strokeWidth={4} /> : <Skull size={34} />}
+                {unified.resultLabel}!
+              </h2>
             </div>
 
-            <div className="p-6 flex flex-col items-center gap-4 bg-slate-50">
-              <p className="text-2xl font-black text-slate-700" dir="rtl">
-                {correctCount} מתוך {total} נכונות!
-              </p>
+            <div className="p-5 md:p-6 flex flex-col items-center gap-4 bg-slate-50">
+              <VaultReveal
+                coins={unified.finalCoins}
+                xp={unified.xpEarned}
+                result={unified.resultLabel}
+                practice={practice}
+                onDone={() => setRevealDone(true)}
+              />
 
-              {leveledUp && (
-                <div className="flex items-center gap-2 bg-orange-100 border-4 border-orange-300 px-5 py-2 rounded-2xl anim-pop">
-                  <ChevronUp className="text-orange-500" size={26} strokeWidth={4} />
-                  <span className="font-black text-orange-600 text-xl uppercase">Level Up! LVL {state.level}</span>
-                </div>
-              )}
+              <div className={`flex flex-col items-center gap-3 w-full transition-opacity duration-500 ${revealDone ? 'opacity-100' : 'opacity-30'}`}>
+                <p className="text-xl font-black text-slate-700" dir="rtl">
+                  {unified.correct} מתוך {unified.totalUnits} {isPairs ? 'זוגות' : 'נכונות'}!
+                </p>
 
-              <div className="flex gap-3 w-full">
-                <div className="flex-1 bg-white border-4 border-slate-200 rounded-2xl p-3 text-center">
-                  <div className="flex items-center justify-center gap-1 text-yellow-500 font-black text-2xl">
-                    <Coins size={22} className="fill-yellow-200" /> {practice ? 0 : finalCoins}
+                {leveledUp && (
+                  <div className="flex items-center gap-2 bg-orange-100 border-4 border-orange-300 px-5 py-2 rounded-2xl anim-pop">
+                    <ChevronUp className="text-orange-500" size={26} strokeWidth={4} />
+                    <span className="font-black text-orange-600 text-xl uppercase">Level Up! LVL {state.level}</span>
                   </div>
-                  <span className="text-xs font-bold text-slate-400 uppercase">Coins</span>
-                </div>
-                <div className="flex-1 bg-white border-4 border-slate-200 rounded-2xl p-3 text-center">
-                  <div className="flex items-center justify-center gap-1 text-blue-500 font-black text-2xl">
-                    <Sparkles size={22} /> {xpEarned}
+                )}
+
+                <div className="flex gap-3 w-full">
+                  <div className="flex-1 bg-white border-4 border-slate-200 rounded-2xl p-3 text-center">
+                    <div className="flex items-center justify-center gap-1 text-yellow-500 font-black text-2xl tabular-nums">
+                      <Coins size={22} className="fill-yellow-200" /> {practice ? 0 : unified.finalCoins}
+                    </div>
+                    <span className="text-xs font-bold text-slate-400 uppercase">Coins</span>
                   </div>
-                  <span className="text-xs font-bold text-slate-400 uppercase">XP</span>
+                  <div className="flex-1 bg-white border-4 border-slate-200 rounded-2xl p-3 text-center">
+                    <div className="flex items-center justify-center gap-1 text-blue-500 font-black text-2xl tabular-nums">
+                      <Sparkles size={22} /> {unified.xpEarned}
+                    </div>
+                    <span className="text-xs font-bold text-slate-400 uppercase">XP</span>
+                  </div>
                 </div>
+
+                {practice && (
+                  <p className="text-sm font-bold text-blue-600" dir="rtl">משחק אימון — בלי מטבעות, רק XP</p>
+                )}
+                {isWin && !practice && (
+                  <p className="text-sm font-bold text-green-600" dir="rtl">כולל בונוס ניצחון +{config.winBonusCoins}!</p>
+                )}
               </div>
 
-              {practice && (
-                <p className="text-sm font-bold text-blue-600" dir="rtl">משחק אימון — בלי מטבעות, רק XP</p>
-              )}
-              {isWin && !practice && (
-                <p className="text-sm font-bold text-green-600" dir="rtl">כולל בונוס ניצחון +{config.winBonusCoins}!</p>
-              )}
-
-              <div className="flex gap-3 w-full mt-2">
+              <div className="flex gap-3 w-full mt-1">
                 <button
                   onClick={onPlayAgain}
                   className="flex-1 bg-blue-500 hover:bg-blue-400 text-white text-lg font-black italic uppercase py-3 rounded-2xl border-b-8 border-blue-700 active:border-b-0 active:translate-y-2 transition-all"

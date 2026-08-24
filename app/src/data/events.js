@@ -1,4 +1,12 @@
 // Event board metadata. Question banks live in ./questions/*.json
+
+// Game modes. 'classic' uses the event's own widget; arcade modes are shared.
+export const MODES = {
+  classic: { label: null, heLabel: null }, // label falls back to the event title
+  balloon: { label: 'Balloon Pop', heLabel: 'פוצצו את התשובה הנכונה!' },
+  pairs: { label: 'Pairs Match', heLabel: 'משחק זיכרון — מצאו את הזוגות!' },
+}
+
 export const EVENTS = [
   {
     id: 'math',
@@ -10,6 +18,7 @@ export const EVENTS = [
     headerColor: 'bg-gradient-to-br from-red-400 to-red-600',
     textColor: 'text-red-500',
     widget: 'numberpad',
+    modes: ['classic', 'balloon', 'pairs'],
   },
   {
     id: 'english',
@@ -21,6 +30,7 @@ export const EVENTS = [
     headerColor: 'bg-gradient-to-br from-cyan-400 to-cyan-600',
     textColor: 'text-cyan-500',
     widget: 'lettertiles',
+    modes: ['classic', 'balloon', 'pairs'],
   },
   {
     id: 'hebrew',
@@ -32,6 +42,7 @@ export const EVENTS = [
     headerColor: 'bg-gradient-to-br from-purple-400 to-purple-600',
     textColor: 'text-purple-500',
     widget: 'wordtap',
+    modes: ['classic', 'balloon'],
   },
   {
     id: 'geography',
@@ -43,5 +54,6 @@ export const EVENTS = [
     headerColor: 'bg-gradient-to-br from-green-400 to-green-600',
     textColor: 'text-green-500',
     widget: 'mapgrid',
+    modes: ['classic', 'balloon'],
   },
 ]

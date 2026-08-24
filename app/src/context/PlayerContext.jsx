@@ -42,7 +42,7 @@ export function applyXp(state, gained) {
 function reducer(state, action) {
   switch (action.type) {
     case 'MATCH_RESULT': {
-      const { eventId, subject, result, correct, coinsEarned, xpEarned, avgTimeSec, practice } = action
+      const { eventId, subject, result, correct, total, coinsEarned, xpEarned, avgTimeSec, practice } = action
       const { xp, level } = applyXp(state, xpEarned)
       const entry = {
         id: Date.now() + '-' + Math.random().toString(36).slice(2, 7),
@@ -50,6 +50,7 @@ function reducer(state, action) {
         subject,
         result,
         correct,
+        total: total ?? 10,
         coins: practice ? 0 : coinsEarned,
         avgTimeSec,
         practice,

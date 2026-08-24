@@ -35,6 +35,42 @@
   100% { transform: translateY(110vh) rotate(720deg); opacity: 0.3; }
 }
 
+/* Vault finale */
+@keyframes dialSpin {
+  0% { transform: rotate(0deg); }
+  40% { transform: rotate(-220deg); }
+  70% { transform: rotate(140deg); }
+  100% { transform: rotate(-80deg); }
+}
+@keyframes doorOpen {
+  0% { transform: translateX(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateX(115%) rotate(14deg); opacity: 1; }
+}
+@keyframes vaultGlow {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+@keyframes coinBurst {
+  0% { transform: translate(0, 0) scale(0.4); opacity: 0; }
+  15% { opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(1); opacity: 0; }
+}
+@keyframes vaultThud {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px) rotate(-1deg); }
+  75% { transform: translateX(5px) rotate(1deg); }
+}
+@keyframes floatBob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.anim-dial-spin { animation: dialSpin 0.9s ease-in-out forwards; }
+.anim-door-open { animation: doorOpen 0.5s cubic-bezier(0.6, 0, 0.4, 1.2) forwards; }
+.anim-vault-glow { animation: vaultGlow 0.4s ease-out forwards; }
+.anim-coin-burst { animation: coinBurst 1.1s ease-out forwards; }
+.anim-vault-thud { animation: vaultThud 0.35s ease-in-out 2; }
+.anim-float-bob { animation: floatBob 2.4s ease-in-out infinite; }
+
 .anim-zoom-in { animation: zoomIn95 0.2s ease-out; }
 .anim-toast { animation: slideFromTop 0.3s ease-out; }
 .anim-fade-in { animation: fadeIn 0.5s ease-out; }
@@ -54,10 +90,14 @@ button, a, [role="button"] {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .anim-zoom-in, .anim-toast, .anim-fade-in, .anim-shake, .anim-pop {
+  .anim-zoom-in, .anim-toast, .anim-fade-in, .anim-shake, .anim-pop,
+  .anim-dial-spin, .anim-vault-thud, .anim-float-bob {
     animation: none;
   }
-  .confetti-piece {
+  /* vault jumps straight to its open end-state */
+  .anim-door-open { animation: doorOpen 0.01ms forwards; }
+  .anim-vault-glow { animation: vaultGlow 0.01ms forwards; }
+  .confetti-piece, .anim-coin-burst {
     display: none;
   }
   * {

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Calculator, MessageCircle, BookOpen, Map as MapIcon, Coins, Check, X, Sparkles } from 'lucide-react'
-import { EVENTS } from '../data/events.js'
+import { EVENTS, MODES } from '../data/events.js'
 import { usePlayer } from '../context/PlayerContext.jsx'
 
 const ICONS = {
@@ -109,12 +109,25 @@ export default function EventBoard({ onStartMatch }) {
                   </div>
                 )}
 
-                <button
-                  onClick={() => { setPreview(null); onStartMatch(preview) }}
-                  className="w-full bg-green-500 hover:bg-green-400 text-white text-2xl font-black italic uppercase py-4 rounded-2xl border-b-8 border-green-700 active:border-b-0 active:translate-y-2 transition-all shadow-lg"
-                >
-                  PLAY!
-                </button>
+                {/* game mode picker */}
+                <div className="w-full space-y-3">
+                  <button
+                    onClick={() => { setPreview(null); onStartMatch(preview, 'classic') }}
+                    className="w-full bg-green-500 hover:bg-green-400 text-white text-2xl font-black italic uppercase py-4 rounded-2xl border-b-8 border-green-700 active:border-b-0 active:translate-y-2 transition-all shadow-lg"
+                  >
+                    PLAY! · {preview.title}
+                  </button>
+                  {preview.modes.filter((m) => m !== 'classic').map((m) => (
+                    <button
+                      key={m}
+                      onClick={() => { setPreview(null); onStartMatch(preview, m) }}
+                      className={`w-full ${m === 'balloon' ? 'bg-orange-400 hover:bg-orange-300 border-orange-600' : 'bg-indigo-500 hover:bg-indigo-400 border-indigo-700'} text-white font-black italic uppercase py-3 rounded-2xl border-b-8 active:border-b-0 active:translate-y-2 transition-all shadow-lg flex flex-col items-center leading-tight`}
+                    >
+                      <span className="text-xl">{MODES[m].label}</span>
+                      <span className="text-xs font-bold normal-case not-italic opacity-90" dir="rtl">{MODES[m].heLabel}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           </div>

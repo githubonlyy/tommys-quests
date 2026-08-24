@@ -126,7 +126,7 @@ function Dashboard() {
     for (const l of state.battleLog) {
       bySubject[l.subject] ??= { correct: 0, total: 0 }
       bySubject[l.subject].correct += l.correct
-      bySubject[l.subject].total += 10
+      bySubject[l.subject].total += l.total ?? 10
     }
     return { winRate, avgTime, wins, bySubject }
   }, [state.battleLog])
@@ -219,7 +219,7 @@ function Dashboard() {
                       {log.result}
                     </span>
                   </td>
-                  <td className="px-6 py-3 text-slate-600">{log.correct}/10</td>
+                  <td className="px-6 py-3 text-slate-600 tabular-nums">{log.correct}/{log.total ?? 10}</td>
                   <td className={`px-6 py-3 font-black ${log.coins > 0 ? 'text-green-500' : 'text-slate-400'}`}>
                     {log.coins > 0 ? `+${log.coins}` : '—'}
                   </td>

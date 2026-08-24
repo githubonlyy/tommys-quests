@@ -120,7 +120,7 @@ export default function App() {
             <div className="relative z-10 max-w-5xl mx-auto pb-8 md:pb-20">
               {activeTab === 'events' && (
                 <EventBoard
-                  onStartMatch={(event) => setMatch({ event, practice: playedToday(event.id) })}
+                  onStartMatch={(event, mode) => setMatch({ event, mode, practice: playedToday(event.id) })}
                 />
               )}
               {activeTab === 'rewards' && <Shop />}
@@ -160,10 +160,12 @@ export default function App() {
         {/* MATCH OVERLAY */}
         {match && (
           <MatchEngine
+            key={match.startedAt ?? 0}
             event={match.event}
+            mode={match.mode}
             practice={match.practice}
             onExit={() => setMatch(null)}
-            onPlayAgain={() => setMatch({ event: match.event, practice: true })}
+            onPlayAgain={() => setMatch({ event: match.event, mode: match.mode, practice: true, startedAt: Date.now() })}
           />
         )}
 
