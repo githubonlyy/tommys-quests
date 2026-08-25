@@ -12,6 +12,7 @@
   "dailyResetHour": 5,
   "pinLockoutTries": 3,
   "pinLockoutSec": 60,
+  "dailyChestCoins": 100,
   "pairs": {
     "pairCount": 6,
     "coinsPerPair": 15,

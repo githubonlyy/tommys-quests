@@ -149,6 +149,18 @@
 .anim-pin-drop { animation: pinDrop 0.5s ease-out forwards; }
 .anim-ripple-ring { animation: rippleRing 0.9s ease-out forwards; }
 .anim-slide-in-q { animation: slideInQ 0.25s ease-out; }
+
+@keyframes chestLidOpen {
+  0% { transform: rotate(0deg); }
+  60% { transform: rotate(-46deg); }
+  100% { transform: rotate(-40deg); }
+}
+@keyframes readyPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+.anim-chest-lid { animation: chestLidOpen 0.5s cubic-bezier(0.3, 1.3, 0.5, 1) forwards; transform-origin: 10% 100%; }
+.anim-ready-pulse { animation: readyPulse 1.2s ease-in-out infinite; }
 .anim-streak-pop { animation: streakPop 0.3s cubic-bezier(0.2, 1.4, 0.4, 1); }
 
 .perspective-600 { perspective: 600px; }
@@ -185,9 +197,10 @@ button, a, [role="button"] {
   .anim-dial-spin, .anim-vault-thud, .anim-float-bob,
   .anim-balloon-inflate, .anim-balloon-deflate, .anim-gold-flash, .anim-wobble,
   .anim-wave-jump, .anim-scatter-shake, .anim-slide-in-q, .anim-streak-pop,
-  .anim-pin-drop {
+  .anim-pin-drop, .anim-ready-pulse {
     animation: none;
   }
+  .anim-chest-lid { animation: chestLidOpen 0.01ms forwards; }
   .anim-balloon-shard, .anim-pop-flash, .anim-pop-text, .anim-float-up,
   .anim-star-burst, .anim-ripple-ring {
     display: none;

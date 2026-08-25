@@ -1,8 +1,10 @@
 import { useEffect, useState, createContext, useContext } from 'react'
-import { Gamepad2, Store, BarChart3, Zap, Star, Trophy, Coins, Lock, Skull, X } from 'lucide-react'
+import { Gamepad2, Store, BarChart3, Zap, Star, Trophy, Coins, Lock, Skull, Flame, Music } from 'lucide-react'
 import { usePlayer, levelCost } from './context/PlayerContext.jsx'
+import { playMusic, stopMusic, isMusicOn, setMusicOn } from './match/music.js'
 import EventBoard from './screens/EventBoard.jsx'
 import Shop from './screens/Shop.jsx'
+import Trophies from './screens/Trophies.jsx'
 import CoachStats from './screens/CoachStats.jsx'
 import MatchEngine from './match/MatchEngine.jsx'
 
@@ -15,6 +17,22 @@ export default function App() {
   const [toast, setToast] = useState(null)
   // { event, practice } while a match is running
   const [match, setMatch] = useState(null)
+  const [musicOn, setMusicOnState] = useState(isMusicOn())
+
+  // background music follows app state; first pointer tap unlocks WebAudio
+  useEffect(() => {
+    if (!musicOn) { stopMusic(); return }
+    const track = match ? 'match' : 'lobby'
+    playMusic(track)
+    const kick = () => playMusic(track)
+    window.addEventListener('pointerdown', kick, { once: true })
+    return () => window.removeEventListener('pointerdown', kick)
+  }, [match, musicOn])
+
+  const toggleMusic = () => {
+    setMusicOn(!musicOn)
+    setMusicOnState(!musicOn)
+  }
 
   useEffect(() => {
     if (!toast) return
@@ -66,6 +84,13 @@ export default function App() {
               onClick={() => setActiveTab('rewards')}
               color="bg-purple-500"
             />
+            <NavItem
+              icon={<Trophy size={28} className="md:mr-3" />}
+              label="Trophies"
+              isActive={activeTab === 'trophies'}
+              onClick={() => setActiveTab('trophies')}
+              color="bg-yellow-500"
+            />
           </nav>
 
           <div className="p-2 md:p-4 border-t-4 border-blue-950 bg-blue-800/50">
@@ -106,13 +131,30 @@ export default function App() {
               </div>
             </div>
 
-            <div className="flex items-center bg-blue-950 border-4 border-blue-900 rounded-xl md:rounded-2xl px-2.5 py-1 md:px-6 md:py-3 shadow-inner rotate-1">
+            <div className="flex items-center gap-2 md:gap-3">
+              <button
+                onClick={toggleMusic}
+                aria-label={musicOn ? 'Turn music off' : 'Turn music on'}
+                className={`w-9 h-9 md:w-11 md:h-11 rounded-xl border-b-4 flex items-center justify-center transition-all active:translate-y-0.5 active:border-b-2 relative
+                  ${musicOn ? 'bg-green-500 border-green-700 text-white' : 'bg-blue-950 border-blue-900 text-blue-600'}`}
+              >
+                <Music size={18} />
+                {!musicOn && <span className="absolute w-7 h-0.5 bg-blue-500 rotate-45 rounded"></span>}
+              </button>
+              {state.streak.count > 0 && (
+                <div className="flex items-center gap-1 bg-orange-500 border-2 border-orange-300 rounded-xl px-2 py-1 md:px-3 md:py-1.5 shadow-md -rotate-2">
+                  <Flame size={16} className="text-yellow-200 fill-yellow-300" />
+                  <span className="text-white font-black text-sm md:text-lg tabular-nums">{state.streak.count}</span>
+                </div>
+              )}
+              <div className="flex items-center bg-blue-950 border-4 border-blue-900 rounded-xl md:rounded-2xl px-2.5 py-1 md:px-6 md:py-3 shadow-inner rotate-1">
               <div className="bg-yellow-400 p-1 md:p-1.5 rounded-full mr-1.5 md:mr-3 border-2 border-yellow-600 shadow-sm">
                 <Coins className="text-yellow-900 fill-yellow-200 w-4 h-4 md:w-5 md:h-5" />
               </div>
               <span className="text-lg md:text-3xl text-yellow-400 font-black tracking-wide drop-shadow-sm tabular-nums">
                 {state.coins.toLocaleString()}
               </span>
+              </div>
             </div>
           </header>
 
@@ -124,6 +166,7 @@ export default function App() {
                 />
               )}
               {activeTab === 'rewards' && <Shop />}
+              {activeTab === 'trophies' && <Trophies />}
               {activeTab === 'admin' && <CoachStats />}
             </div>
           </div>
@@ -131,7 +174,7 @@ export default function App() {
 
         {/* BOTTOM NAV — phones only */}
         <nav
-          className="md:hidden shrink-0 grid grid-cols-3 bg-blue-900 border-t-4 border-blue-950 z-20 shadow-[0_-4px_12px_rgba(0,0,0,0.3)]"
+          className="md:hidden shrink-0 grid grid-cols-4 bg-blue-900 border-t-4 border-blue-950 z-20 shadow-[0_-4px_12px_rgba(0,0,0,0.3)]"
           style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
         >
           <BottomNavItem
@@ -147,6 +190,13 @@ export default function App() {
             isActive={activeTab === 'rewards'}
             activeColor="text-purple-400"
             onClick={() => setActiveTab('rewards')}
+          />
+          <BottomNavItem
+            icon={<Trophy size={24} />}
+            label="Wins"
+            isActive={activeTab === 'trophies'}
+            activeColor="text-yellow-400"
+            onClick={() => setActiveTab('trophies')}
           />
           <BottomNavItem
             icon={<BarChart3 size={24} />}
