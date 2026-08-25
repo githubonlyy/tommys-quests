@@ -17,6 +17,7 @@ const DEFAULT_STATE = {
   streak: { count: 0, best: 0, lastDate: null }, // paid-play daily streak
   chestClaimed: null, // business date the daily chest was opened
   trophies: {}, // trophyId -> earned timestamp
+  arcadeHighScore: 0,
   corrupt: false,
 }
 
@@ -112,6 +113,8 @@ function reducer(state, action) {
       const next = { ...state, coins: state.coins - item.cost, purchases: [purchase, ...state.purchases] }
       return { ...next, trophies: evaluateTrophies(next) }
     }
+    case 'ARCADE_SCORE':
+      return { ...state, arcadeHighScore: Math.max(state.arcadeHighScore, action.score) }
     case 'SET_PIN':
       return { ...state, pin: action.pin }
     case 'CLEAR_CORRUPT_FLAG':

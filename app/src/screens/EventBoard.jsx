@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
-import { Calculator, MessageCircle, BookOpen, Map as MapIcon, Coins, Check, X, Sparkles, Gift } from 'lucide-react'
+import { Calculator, MessageCircle, BookOpen, Map as MapIcon, Coins, Check, X, Sparkles, Gift, Gamepad2, Lock, Trophy } from 'lucide-react'
 import { EVENTS, MODES } from '../data/events.js'
 import { usePlayer, businessDate } from '../context/PlayerContext.jsx'
 import { sfx } from '../match/sounds.js'
+import CoinRush from '../arcade/CoinRush.jsx'
 
 const ICONS = {
   math: Calculator,
@@ -12,9 +13,10 @@ const ICONS = {
 }
 
 export default function EventBoard({ onStartMatch }) {
-  const { state, playedToday } = usePlayer()
+  const { state, dispatch, playedToday } = usePlayer()
   const [preview, setPreview] = useState(null) // event shown in the pre-match modal
   const [chestOpen, setChestOpen] = useState(false)
+  const [arcadeRun, setArcadeRun] = useState(0) // 0 = closed; >0 = round key (remount restarts)
 
   const doneCount = EVENTS.filter((e) => playedToday(e.id)).length
   const chestReady = doneCount === EVENTS.length
@@ -66,6 +68,54 @@ export default function EventBoard({ onStartMatch }) {
       </div>
 
       {chestOpen && <ChestModal onClose={() => setChestOpen(false)} />}
+
+      {/* ARCADE — unlocked after all daily events */}
+      <div
+        onClick={() => chestReady && setArcadeRun(1)}
+        className={`relative rounded-3xl border-b-8 transition-all duration-200 shadow-xl overflow-hidden
+          ${chestReady
+            ? 'bg-pink-500 border-pink-700 cursor-pointer hover:-translate-y-1 active:translate-y-1 active:border-b-0'
+            : 'bg-slate-600 border-slate-800 opacity-90'}`}
+      >
+        <div className="bg-white/95 m-1.5 rounded-[1.25rem] p-4 md:p-5 flex items-center gap-4">
+          <div className={`p-3 rounded-2xl border-4 shadow-inner -rotate-3 ${chestReady ? 'bg-pink-100 border-pink-600' : 'bg-slate-200 border-slate-500'}`}>
+            <Gamepad2 className={chestReady ? 'text-pink-500 w-10 h-10' : 'text-slate-400 w-10 h-10'} />
+          </div>
+          <div className="flex-1">
+            <div className="flex items-center gap-2">
+              <h3 className="text-xl md:text-2xl font-black text-slate-800 uppercase italic leading-tight">Coin Rush</h3>
+              <span className="px-2 py-0.5 bg-pink-100 border-2 border-pink-300 rounded-full text-pink-600 text-[10px] font-black uppercase">Arcade</span>
+            </div>
+            <p className="font-bold text-slate-500 text-sm mt-1" dir="rtl">
+              {chestReady
+                ? 'תפסו מטבעות, תתחמקו מפצצות — בלי לימודים, רק כיף!'
+                : `נפתח אחרי שמסיימים את כל המשימות של היום (${doneCount}/4)`}
+            </p>
+          </div>
+          {chestReady ? (
+            <div className="flex flex-col items-center gap-1 shrink-0">
+              <span className="bg-pink-500 text-white font-black italic uppercase px-4 py-2 rounded-xl border-b-4 border-pink-700 anim-ready-pulse">PLAY</span>
+              {state.arcadeHighScore > 0 && (
+                <span className="flex items-center gap-1 text-xs font-black text-slate-400 tabular-nums">
+                  <Trophy size={12} className="text-yellow-500 fill-yellow-200" /> {state.arcadeHighScore}
+                </span>
+              )}
+            </div>
+          ) : (
+            <Lock className="text-slate-400 shrink-0" size={28} />
+          )}
+        </div>
+      </div>
+
+      {arcadeRun > 0 && (
+        <CoinRush
+          key={arcadeRun}
+          highScore={state.arcadeHighScore}
+          onScore={(score) => dispatch({ type: 'ARCADE_SCORE', score })}
+          onRestart={() => setArcadeRun((r) => r + 1)}
+          onClose={() => setArcadeRun(0)}
+        />
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
         {EVENTS.map((event) => {
