@@ -13,6 +13,7 @@
   "pinLockoutTries": 3,
   "pinLockoutSec": 60,
   "dailyChestCoins": 100,
+  "dailyGoal": 4,
   "pairs": {
     "pairCount": 6,
     "coinsPerPair": 15,
