@@ -1,6 +1,7 @@
 import { useEffect, useState, createContext, useContext } from 'react'
-import { Gamepad2, Store, BarChart3, Zap, Star, Trophy, Coins, Lock, Skull, Flame } from 'lucide-react'
+import { Gamepad2, Store, BarChart3, Zap, Star, Trophy, Coins, Lock, Skull, Flame, Music } from 'lucide-react'
 import { usePlayer, levelCost } from './context/PlayerContext.jsx'
+import { playMusic, stopMusic, isMusicOn, setMusicOn } from './match/music.js'
 import EventBoard from './screens/EventBoard.jsx'
 import Shop from './screens/Shop.jsx'
 import Trophies from './screens/Trophies.jsx'
@@ -16,6 +17,22 @@ export default function App() {
   const [toast, setToast] = useState(null)
   // { event, practice } while a match is running
   const [match, setMatch] = useState(null)
+  const [musicOn, setMusicOnState] = useState(isMusicOn())
+
+  // background music follows app state; first pointer tap unlocks WebAudio
+  useEffect(() => {
+    if (!musicOn) { stopMusic(); return }
+    const track = match ? 'match' : 'lobby'
+    playMusic(track)
+    const kick = () => playMusic(track)
+    window.addEventListener('pointerdown', kick, { once: true })
+    return () => window.removeEventListener('pointerdown', kick)
+  }, [match, musicOn])
+
+  const toggleMusic = () => {
+    setMusicOn(!musicOn)
+    setMusicOnState(!musicOn)
+  }
 
   useEffect(() => {
     if (!toast) return
@@ -115,6 +132,15 @@ export default function App() {
             </div>
 
             <div className="flex items-center gap-2 md:gap-3">
+              <button
+                onClick={toggleMusic}
+                aria-label={musicOn ? 'Turn music off' : 'Turn music on'}
+                className={`w-9 h-9 md:w-11 md:h-11 rounded-xl border-b-4 flex items-center justify-center transition-all active:translate-y-0.5 active:border-b-2 relative
+                  ${musicOn ? 'bg-green-500 border-green-700 text-white' : 'bg-blue-950 border-blue-900 text-blue-600'}`}
+              >
+                <Music size={18} />
+                {!musicOn && <span className="absolute w-7 h-0.5 bg-blue-500 rotate-45 rounded"></span>}
+              </button>
               {state.streak.count > 0 && (
                 <div className="flex items-center gap-1 bg-orange-500 border-2 border-orange-300 rounded-xl px-2 py-1 md:px-3 md:py-1.5 shadow-md -rotate-2">
                   <Flame size={16} className="text-yellow-200 fill-yellow-300" />
