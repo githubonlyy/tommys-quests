@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Calculator, MessageCircle, BookOpen, Map as MapIcon, Coins, Check, X, Sparkles, Gift, Gamepad2, Lock, Trophy } from 'lucide-react'
+import { Calculator, MessageCircle, BookOpen, Map as MapIcon, Coins, Check, X, Sparkles, Gift, Gamepad2, Lock, Trophy, Clock, Banknote, FlaskConical, Grid3x3 } from 'lucide-react'
 import { EVENTS, MODES } from '../data/events.js'
 import { usePlayer, businessDate } from '../context/PlayerContext.jsx'
 import { sfx } from '../match/sounds.js'
@@ -10,16 +10,22 @@ const ICONS = {
   english: MessageCircle,
   hebrew: BookOpen,
   geography: MapIcon,
+  clock: Clock,
+  money: Banknote,
+  science: FlaskConical,
+  times: Grid3x3,
 }
 
 export default function EventBoard({ onStartMatch }) {
-  const { state, dispatch, playedToday } = usePlayer()
+  const { state, dispatch, playedToday, config } = usePlayer()
   const [preview, setPreview] = useState(null) // event shown in the pre-match modal
   const [chestOpen, setChestOpen] = useState(false)
   const [arcadeRun, setArcadeRun] = useState(0) // 0 = closed; >0 = round key (remount restarts)
 
+  const goal = config.dailyGoal
   const doneCount = EVENTS.filter((e) => playedToday(e.id)).length
-  const chestReady = doneCount === EVENTS.length
+  const goalDone = Math.min(doneCount, goal)
+  const chestReady = doneCount >= goal
   const chestClaimed = state.chestClaimed === businessDate()
 
   return (
@@ -54,13 +60,13 @@ export default function EventBoard({ onStartMatch }) {
               ? 'תיבת האוצר נאספה! נתראה מחר'
               : chestReady
                 ? 'תיבת האוצר מוכנה — פתחו אותה!'
-                : `סיימו את כל המשימות היום — ${doneCount}/4`}
+                : `שחקו ${goal} משימות שונות היום — ${goalDone}/${goal}`}
           </p>
           <div className="flex gap-1.5 mt-1.5" dir="ltr">
-            {EVENTS.map((e) => (
+            {Array.from({ length: goal }).map((_, i) => (
               <span
-                key={e.id}
-                className={`h-2.5 flex-1 max-w-16 rounded-full ${playedToday(e.id) ? e.color : 'bg-blue-950'}`}
+                key={i}
+                className={`h-2.5 flex-1 max-w-16 rounded-full ${i < goalDone ? 'bg-yellow-400' : 'bg-blue-950'}`}
               ></span>
             ))}
           </div>
@@ -89,7 +95,7 @@ export default function EventBoard({ onStartMatch }) {
             <p className="font-bold text-slate-500 text-sm mt-1" dir="rtl">
               {chestReady
                 ? 'תפסו מטבעות, תתחמקו מפצצות — בלי לימודים, רק כיף!'
-                : `נפתח אחרי שמסיימים את כל המשימות של היום (${doneCount}/4)`}
+                : `נפתח אחרי ${goal} משימות שונות היום (${goalDone}/${goal})`}
             </p>
           </div>
           {chestReady ? (

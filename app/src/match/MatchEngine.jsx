@@ -7,18 +7,30 @@ import englishQ from '../data/questions/english.json'
 import hebrewQ from '../data/questions/hebrew.json'
 import geographyQ from '../data/questions/geography.json'
 import oppositesQ from '../data/questions/opposites.json'
+import clockQ from '../data/questions/clock.json'
+import moneyQ from '../data/questions/money.json'
+import scienceQ from '../data/questions/science.json'
+import timesQ from '../data/questions/times.json'
 import NumberPad from './widgets/NumberPad.jsx'
 import LetterTiles from './widgets/LetterTiles.jsx'
 import WordTap from './widgets/WordTap.jsx'
 import MapGrid from './widgets/MapGrid.jsx'
 import BalloonPop from './widgets/BalloonPop.jsx'
+import ClockRead, { fmtTime } from './widgets/ClockRead.jsx'
+import MoneyCount, { moneySum } from './widgets/MoneyCount.jsx'
 import PairsBoard from './PairsBoard.jsx'
 import VaultReveal from './VaultReveal.jsx'
 import { PLACES, placeName } from './widgets/israelCities.js'
 import { TROPHIES } from '../data/trophies.js'
 
-const BANKS = { math: mathQ, english: englishQ, hebrew: hebrewQ, geography: geographyQ }
-const WIDGETS = { numberpad: NumberPad, lettertiles: LetterTiles, wordtap: WordTap, mapgrid: MapGrid }
+const BANKS = {
+  math: mathQ, english: englishQ, hebrew: hebrewQ, geography: geographyQ,
+  clock: clockQ, money: moneyQ, science: scienceQ, times: timesQ,
+}
+const WIDGETS = {
+  numberpad: NumberPad, lettertiles: LetterTiles, wordtap: WordTap, mapgrid: MapGrid,
+  clockread: ClockRead, moneycount: MoneyCount, balloon: BalloonPop,
+}
 
 function shuffle(arr) {
   const a = [...arr]
@@ -46,9 +58,12 @@ function mathDistractors(answer) {
 
 function buildBalloon(eventId, q, sourceBank) {
   let prompt, dir, emoji = null, correct, decoys
-  if (eventId === 'math') {
+  if (eventId === 'math' || eventId === 'times') {
     prompt = `${q.q} = ?`; dir = 'ltr'
     correct = q.a; decoys = mathDistractors(q.a)
+  } else if (eventId === 'science') {
+    prompt = q.q; dir = 'rtl'
+    correct = q.a; decoys = q.decoys
   } else if (eventId === 'english') {
     prompt = q.hint; dir = 'rtl'; emoji = q.emoji
     correct = q.word; decoys = pickOthers(sourceBank, q.word, 3, 'word')
@@ -74,25 +89,30 @@ function buildPairs(eventId, count) {
   if (eventId === 'english') {
     return sample(englishQ, count).map((q, i) => ({ id: i, a: q.word, b: q.hint }))
   }
-  // math: exercise <-> result; avoid two exercises sharing the same answer
+  // math/times: exercise <-> result; avoid two exercises sharing the same answer
+  const bank = eventId === 'times' ? timesQ : mathQ
   const seen = new Set()
-  const uniq = shuffle(mathQ).filter((q) => (seen.has(q.a) ? false : seen.add(q.a)))
+  const uniq = shuffle(bank).filter((q) => (seen.has(q.a) ? false : seen.add(q.a)))
   return uniq.slice(0, count).map((q, i) => ({ id: i, a: q.q, b: q.a }))
 }
 
 function classicAnswerText(eventId, q) {
-  if (eventId === 'math') return q.a
+  if (eventId === 'math' || eventId === 'times') return q.a
   if (eventId === 'english') return q.word
   if (eventId === 'hebrew') return q.sentence[q.target]
   if (eventId === 'geography') return placeName(q.answer)
+  if (eventId === 'clock') return fmtTime(q.h, q.m)
+  if (eventId === 'money') return `₪${moneySum(q.items)}`
   return ''
 }
 
 function classicPrompt(eventId, q) {
-  if (eventId === 'math') return { text: `${q.q} = ?`, dir: 'ltr' }
+  if (eventId === 'math' || eventId === 'times') return { text: `${q.q} = ?`, dir: 'ltr' }
   if (eventId === 'english') return { text: 'SPELL IT!', dir: 'ltr' }
   if (eventId === 'hebrew') return { text: 'קראו את המשפט', dir: 'rtl' }
   if (eventId === 'geography') return { text: q.q, dir: 'rtl' }
+  if (eventId === 'clock') return { text: 'מה השעה?', dir: 'rtl' }
+  if (eventId === 'money') return { text: 'כמה כסף יש כאן?', dir: 'rtl' }
   return { text: '', dir: 'ltr' }
 }
 
@@ -103,8 +123,9 @@ export default function MatchEngine({ event, mode = 'classic', practice, onExit,
 
   const [questions] = useState(() => {
     if (isPairs) return []
-    if (mode === 'balloon') {
-      const source = event.id === 'hebrew' ? oppositesQ : BANKS[event.id]
+    // science's classic widget IS the balloon picker — same prepared format
+    if (mode === 'balloon' || event.widget === 'balloon') {
+      const source = event.id === 'hebrew' && mode === 'balloon' ? oppositesQ : BANKS[event.id]
       return sample(source, N).map((q) => buildBalloon(event.id, q, source))
     }
     return sample(BANKS[event.id], N)
@@ -135,6 +156,7 @@ export default function MatchEngine({ event, mode = 'classic', practice, onExit,
 
   const total = questions.length
   const question = questions[qIndex]
+  const usesBalloon = mode === 'balloon' || event.widget === 'balloon'
   const Widget = mode === 'balloon' ? BalloonPop : WIDGETS[event.widget]
 
   // per-question countdown (question modes only)
@@ -174,7 +196,7 @@ export default function MatchEngine({ event, mode = 'classic', practice, onExit,
     }
 
     const showFeedback = () => {
-      if (mode !== 'balloon') (isCorrect ? sfx.ding : sfx.buzz)() // balloon pops/buzzes itself
+      if (!usesBalloon) (isCorrect ? sfx.ding : sfx.buzz)() // balloon pops/buzzes itself
       setFeedback({ correct: isCorrect, gained, timedOut })
       setPhase('feedback')
     }
@@ -268,9 +290,9 @@ export default function MatchEngine({ event, mode = 'classic', practice, onExit,
     .filter(Boolean)
   const timerPct = (remaining / config.questionTimerSec) * 100
   const prompt = !isPairs && question
-    ? mode === 'balloon' ? { text: question.prompt, dir: question.dir } : classicPrompt(event.id, question)
+    ? question.options ? { text: question.prompt, dir: question.dir } : classicPrompt(event.id, question)
     : { text: '', dir: 'ltr' }
-  const answerText = question ? (mode === 'balloon' ? question.answerText : classicAnswerText(event.id, question)) : ''
+  const answerText = question ? (question.options ? question.answerText : classicAnswerText(event.id, question)) : ''
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-blue-950/95 backdrop-blur-sm">
