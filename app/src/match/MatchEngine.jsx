@@ -15,6 +15,7 @@ import BalloonPop from './widgets/BalloonPop.jsx'
 import PairsBoard from './PairsBoard.jsx'
 import VaultReveal from './VaultReveal.jsx'
 import { PLACES, placeName } from './widgets/israelCities.js'
+import { TROPHIES } from '../data/trophies.js'
 
 const BANKS = { math: mathQ, english: englishQ, hebrew: hebrewQ, geography: geographyQ }
 const WIDGETS = { numberpad: NumberPad, lettertiles: LetterTiles, wordtap: WordTap, mapgrid: MapGrid }
@@ -130,6 +131,7 @@ export default function MatchEngine({ event, mode = 'classic', practice, onExit,
   const totalTimeRef = useRef(0)
   const reportedRef = useRef(false)
   const startLevelRef = useRef(state.level)
+  const startTrophiesRef = useRef(Object.keys(state.trophies ?? {}))
 
   const total = questions.length
   const question = questions[qIndex]
@@ -260,6 +262,10 @@ export default function MatchEngine({ event, mode = 'classic', practice, onExit,
   }, [phase])
 
   const leveledUp = state.level > startLevelRef.current
+  const newTrophies = Object.keys(state.trophies ?? {})
+    .filter((id) => !startTrophiesRef.current.includes(id))
+    .map((id) => TROPHIES.find((t) => t.id === id))
+    .filter(Boolean)
   const timerPct = (remaining / config.questionTimerSec) * 100
   const prompt = !isPairs && question
     ? mode === 'balloon' ? { text: question.prompt, dir: question.dir } : classicPrompt(event.id, question)
@@ -425,6 +431,13 @@ export default function MatchEngine({ event, mode = 'classic', practice, onExit,
                     <span className="font-black text-orange-600 text-xl uppercase">Level Up! LVL {state.level}</span>
                   </div>
                 )}
+
+                {newTrophies.map((t) => (
+                  <div key={t.id} className="flex items-center gap-2 bg-yellow-100 border-4 border-yellow-400 px-5 py-2 rounded-2xl anim-pop">
+                    <Trophy className="text-yellow-600 fill-yellow-300" size={24} />
+                    <span className="font-black text-yellow-700 uppercase">New Trophy! {t.title}</span>
+                  </div>
+                ))}
 
                 <div className="flex gap-3 w-full">
                   <div className="flex-1 bg-white border-4 border-slate-200 rounded-2xl p-3 text-center">

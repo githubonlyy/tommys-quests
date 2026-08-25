@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useReducer } from 'react'
 import config from '../data/config.json'
+import { evaluateTrophies } from '../data/trophies.js'
 
 const STORAGE_KEY = 'tommys-quests-v1'
 
@@ -12,6 +13,10 @@ const DEFAULT_STATE = {
   dailyPlays: {}, // eventId -> business date string of last PAID play
   battleLog: [], // newest first, capped at 100
   purchases: [], // newest first
+  stats: { totalWins: 0, perfectCount: 0, winsBySubject: {}, chestsOpened: 0 },
+  streak: { count: 0, best: 0, lastDate: null }, // paid-play daily streak
+  chestClaimed: null, // business date the daily chest was opened
+  trophies: {}, // trophyId -> earned timestamp
   corrupt: false,
 }
 
@@ -55,20 +60,57 @@ function reducer(state, action) {
         avgTimeSec,
         practice,
       }
-      return {
+      // aggregate counters (trophies read these — battleLog is capped at 100)
+      const isWin = result === 'WIN'
+      const stats = {
+        ...state.stats,
+        totalWins: state.stats.totalWins + (isWin ? 1 : 0),
+        perfectCount: state.stats.perfectCount + (correct === (total ?? 10) ? 1 : 0),
+        winsBySubject: isWin
+          ? { ...state.stats.winsBySubject, [eventId]: (state.stats.winsBySubject[eventId] || 0) + 1 }
+          : state.stats.winsBySubject,
+      }
+
+      // paid-play daily streak
+      let streak = state.streak
+      if (!practice) {
+        const today = businessDate()
+        if (streak.lastDate !== today) {
+          const yesterday = businessDate(new Date(Date.now() - 24 * 3600 * 1000))
+          const count = streak.lastDate === yesterday ? streak.count + 1 : 1
+          streak = { count, best: Math.max(streak.best, count), lastDate: today }
+        }
+      }
+
+      const next = {
         ...state,
         coins: practice ? state.coins : state.coins + coinsEarned,
         xp,
         level,
         dailyPlays: practice ? state.dailyPlays : { ...state.dailyPlays, [eventId]: businessDate() },
         battleLog: [entry, ...state.battleLog].slice(0, 100),
+        stats,
+        streak,
       }
+      return { ...next, trophies: evaluateTrophies(next) }
+    }
+    case 'CHEST_CLAIM': {
+      const today = businessDate()
+      if (state.chestClaimed === today) return state
+      const next = {
+        ...state,
+        coins: state.coins + action.amount,
+        chestClaimed: today,
+        stats: { ...state.stats, chestsOpened: state.stats.chestsOpened + 1 },
+      }
+      return { ...next, trophies: evaluateTrophies(next) }
     }
     case 'BUY': {
       const { item } = action
       if (state.coins < item.cost) return state // funds re-checked at dispatch time
       const purchase = { id: Date.now() + '-' + item.id, ts: Date.now(), title: item.title, cost: item.cost }
-      return { ...state, coins: state.coins - item.cost, purchases: [purchase, ...state.purchases] }
+      const next = { ...state, coins: state.coins - item.cost, purchases: [purchase, ...state.purchases] }
+      return { ...next, trophies: evaluateTrophies(next) }
     }
     case 'SET_PIN':
       return { ...state, pin: action.pin }
