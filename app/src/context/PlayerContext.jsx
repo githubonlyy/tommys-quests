@@ -19,6 +19,7 @@ const DEFAULT_STATE = {
   trophies: {}, // trophyId -> earned timestamp
   ownedGames: ['coinrush'], // arcade games bought with coins (coinrush is free)
   arcadeHighScores: {}, // gameId -> best score
+  lessonsRead: {}, // eventId -> business date the day's lesson cards were read
   corrupt: false,
 }
 
@@ -130,6 +131,8 @@ function reducer(state, action) {
         purchases: [purchase, ...state.purchases],
       }
     }
+    case 'LESSON_READ':
+      return { ...state, lessonsRead: { ...state.lessonsRead, [action.eventId]: businessDate() } }
     case 'SET_PIN':
       return { ...state, pin: action.pin }
     case 'CLEAR_CORRUPT_FLAG':
@@ -177,9 +180,10 @@ export function PlayerProvider({ children }) {
   }, [state])
 
   const playedToday = (eventId) => state.dailyPlays[eventId] === businessDate()
+  const lessonReadToday = (eventId) => state.lessonsRead[eventId] === businessDate()
 
   return (
-    <PlayerContext.Provider value={{ state, dispatch, playedToday, config }}>
+    <PlayerContext.Provider value={{ state, dispatch, playedToday, lessonReadToday, config }}>
       {children}
     </PlayerContext.Provider>
   )
