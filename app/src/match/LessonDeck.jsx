@@ -1,20 +1,7 @@
 import { useState } from 'react'
 import { X, ChevronLeft, BookOpen } from 'lucide-react'
-import LESSONS from '../data/lessons.json'
-import { businessDate } from '../context/PlayerContext.jsx'
 import { sfx } from './sounds.js'
-
-const CARDS_PER_DAY = 3
-
-// Today's 3 cards, rotating through the subject's pool by date —
-// stable all day, different tomorrow.
-export function lessonCardsForToday(eventId) {
-  const pool = LESSONS[eventId] ?? []
-  if (pool.length === 0) return []
-  const dayNumber = Math.floor(Date.parse(businessDate()) / 86400000)
-  const start = (dayNumber * CARDS_PER_DAY) % pool.length
-  return Array.from({ length: Math.min(CARDS_PER_DAY, pool.length) }, (_, i) => pool[(start + i) % pool.length])
-}
+import { lessonCardsForToday } from './lessonRotation.js'
 
 /**
  * Daily mini-lesson: short story cards Tommy taps through before the game.

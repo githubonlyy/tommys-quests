@@ -1,4 +1,6 @@
-# Rebuild and redeploy Tommy's Quests to GitHub Pages
+# FALLBACK deploy only — normal deploys happen automatically via GitHub
+# Actions on push to master (.github/workflows/ci.yml). Use this script only
+# if Actions is down. Note: it deploys the local working tree as-is.
 # Usage: .\deploy.ps1
 $ErrorActionPreference = 'Stop'
 $root = $PSScriptRoot
