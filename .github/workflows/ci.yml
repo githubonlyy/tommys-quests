@@ -37,6 +37,10 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          # publishable key only — RLS guards the data; never the secret key
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
       - name: Upload Pages artifact
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
