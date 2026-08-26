@@ -1,11 +1,13 @@
 import { useEffect, useState, createContext, useContext } from 'react'
-import { Gamepad2, Store, BarChart3, Zap, Star, Trophy, Coins, Lock, Skull, Flame, Music, Joystick } from 'lucide-react'
+import { Gamepad2, Store, BarChart3, Zap, Trophy, Coins, Lock, Skull, Flame, Music, Joystick } from 'lucide-react'
 import { usePlayer, levelCost } from './context/PlayerContext.jsx'
 import { playMusic, stopMusic, isMusicOn, setMusicOn } from './match/music.js'
 import EventBoard from './screens/EventBoard.jsx'
 import Shop from './screens/Shop.jsx'
 import Trophies from './screens/Trophies.jsx'
 import Arcade from './screens/Arcade.jsx'
+import AvatarPicker from './screens/AvatarPicker.jsx'
+import { avatarById, frameById } from './data/avatars.js'
 import CoachStats from './screens/CoachStats.jsx'
 import MatchEngine from './match/MatchEngine.jsx'
 
@@ -16,6 +18,7 @@ export default function App() {
   const { state, dispatch, playedToday } = usePlayer()
   const [activeTab, setActiveTab] = useState('events')
   const [toast, setToast] = useState(null)
+  const [avatarOpen, setAvatarOpen] = useState(false)
   // { event, practice } while a match is running
   const [match, setMatch] = useState(null)
   const [musicOn, setMusicOnState] = useState(isMusicOn())
@@ -120,12 +123,15 @@ export default function App() {
         <main className="flex-1 flex flex-col relative overflow-hidden min-h-0">
           <header className="h-16 md:h-24 shrink-0 bg-blue-800/80 backdrop-blur-md border-b-4 border-blue-900 flex items-center justify-between px-3 md:px-8 z-10 shadow-md">
             <div className="flex items-center gap-2 md:gap-4">
-              <div className="w-10 h-10 md:w-14 md:h-14 bg-slate-200 rounded-xl md:rounded-2xl border-4 border-slate-300 flex items-center justify-center shadow-lg relative overflow-hidden">
-                <Star className="text-slate-400 w-6 h-6 md:w-8 md:h-8 fill-current" />
-                <div className="absolute bottom-0 w-full h-1/2 bg-slate-300/50"></div>
-              </div>
+              <button
+                onClick={() => setAvatarOpen(true)}
+                className={`w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl border-4 flex items-center justify-center text-2xl md:text-3xl shadow-lg active:scale-95 transition-transform ${frameById(state.avatar.frameId).classes}`}
+                aria-label="Change avatar"
+              >
+                {avatarById(state.avatar.avatarId).emoji}
+              </button>
               <div className="flex flex-col">
-                <span className="text-base md:text-2xl text-white font-black drop-shadow-md tracking-wide leading-tight">TOMMY</span>
+                <span className="text-base md:text-2xl text-white font-black drop-shadow-md tracking-wide leading-tight">{state.avatar.name}</span>
                 <div className="flex items-center gap-1.5 md:gap-2 w-28 md:w-48">
                   <span className="text-[10px] md:text-xs font-black text-blue-300 whitespace-nowrap">LVL {state.level}</span>
                   <div className="flex-1 h-3 md:h-4 bg-blue-950 rounded-full border-2 border-blue-900 overflow-hidden relative">
@@ -222,6 +228,8 @@ export default function App() {
             onClick={() => setActiveTab('admin')}
           />
         </nav>
+
+        {avatarOpen && <AvatarPicker onClose={() => setAvatarOpen(false)} />}
 
         {/* MATCH OVERLAY */}
         {match && (
