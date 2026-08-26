@@ -3,6 +3,7 @@ import { Calculator, MessageCircle, BookOpen, Map as MapIcon, Coins, Check, X, S
 import { EVENTS, MODES } from '../data/events.js'
 import { usePlayer, businessDate } from '../context/PlayerContext.jsx'
 import { sfx } from '../match/sounds.js'
+import LessonDeck from '../match/LessonDeck.jsx'
 
 const ICONS = {
   math: Calculator,
@@ -16,8 +17,9 @@ const ICONS = {
 }
 
 export default function EventBoard({ onStartMatch }) {
-  const { state, playedToday, config } = usePlayer()
+  const { state, dispatch, playedToday, lessonReadToday, config } = usePlayer()
   const [preview, setPreview] = useState(null) // event shown in the pre-match modal
+  const [lesson, setLesson] = useState(null) // event whose daily lesson cards are open
   const [chestOpen, setChestOpen] = useState(false)
 
   const goal = config.dailyGoal
@@ -73,6 +75,19 @@ export default function EventBoard({ onStartMatch }) {
 
       {chestOpen && <ChestModal onClose={() => setChestOpen(false)} />}
 
+      {/* DAILY LESSON CARDS — gate before the first play of a subject each day */}
+      {lesson && (
+        <LessonDeck
+          event={lesson}
+          onDone={() => {
+            dispatch({ type: 'LESSON_READ', eventId: lesson.id })
+            setLesson(null)
+            setPreview(lesson)
+          }}
+          onClose={() => setLesson(null)}
+        />
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
         {EVENTS.map((event) => {
           const Icon = ICONS[event.id]
@@ -80,7 +95,7 @@ export default function EventBoard({ onStartMatch }) {
           return (
             <div
               key={event.id}
-              onClick={() => setPreview(event)}
+              onClick={() => (lessonReadToday(event.id) ? setPreview(event) : setLesson(event))}
               className={`group relative ${event.color} rounded-3xl border-b-8 ${event.borderColor} cursor-pointer hover:-translate-y-2 active:translate-y-2 active:border-b-0 transition-all duration-200 shadow-xl`}
             >
               <div className="bg-white m-1.5 rounded-[1.25rem] h-[calc(100%-12px)] flex flex-col overflow-hidden relative">
@@ -159,6 +174,13 @@ export default function EventBoard({ onStartMatch }) {
                     </p>
                   </div>
                 )}
+
+                <button
+                  onClick={() => { setPreview(null); setLesson(preview) }}
+                  className="flex items-center gap-1.5 text-sm font-black text-slate-400 hover:text-slate-600 uppercase mb-3 transition-colors"
+                >
+                  <BookOpen size={16} /> למדו שוב
+                </button>
 
                 {/* game mode picker */}
                 <div className="w-full space-y-3">
