@@ -1,10 +1,11 @@
 import { useEffect, useState, createContext, useContext } from 'react'
-import { Gamepad2, Store, BarChart3, Zap, Star, Trophy, Coins, Lock, Skull, Flame, Music } from 'lucide-react'
+import { Gamepad2, Store, BarChart3, Zap, Star, Trophy, Coins, Lock, Skull, Flame, Music, Joystick } from 'lucide-react'
 import { usePlayer, levelCost } from './context/PlayerContext.jsx'
 import { playMusic, stopMusic, isMusicOn, setMusicOn } from './match/music.js'
 import EventBoard from './screens/EventBoard.jsx'
 import Shop from './screens/Shop.jsx'
 import Trophies from './screens/Trophies.jsx'
+import Arcade from './screens/Arcade.jsx'
 import CoachStats from './screens/CoachStats.jsx'
 import MatchEngine from './match/MatchEngine.jsx'
 
@@ -83,6 +84,13 @@ export default function App() {
               isActive={activeTab === 'rewards'}
               onClick={() => setActiveTab('rewards')}
               color="bg-purple-500"
+            />
+            <NavItem
+              icon={<Joystick size={28} className="md:mr-3" />}
+              label="Arcade"
+              isActive={activeTab === 'arcade'}
+              onClick={() => setActiveTab('arcade')}
+              color="bg-pink-500"
             />
             <NavItem
               icon={<Trophy size={28} className="md:mr-3" />}
@@ -166,6 +174,7 @@ export default function App() {
                 />
               )}
               {activeTab === 'rewards' && <Shop />}
+              {activeTab === 'arcade' && <Arcade />}
               {activeTab === 'trophies' && <Trophies />}
               {activeTab === 'admin' && <CoachStats />}
             </div>
@@ -174,7 +183,7 @@ export default function App() {
 
         {/* BOTTOM NAV — phones only */}
         <nav
-          className="md:hidden shrink-0 grid grid-cols-4 bg-blue-900 border-t-4 border-blue-950 z-20 shadow-[0_-4px_12px_rgba(0,0,0,0.3)]"
+          className="md:hidden shrink-0 grid grid-cols-5 bg-blue-900 border-t-4 border-blue-950 z-20 shadow-[0_-4px_12px_rgba(0,0,0,0.3)]"
           style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
         >
           <BottomNavItem
@@ -190,6 +199,13 @@ export default function App() {
             isActive={activeTab === 'rewards'}
             activeColor="text-purple-400"
             onClick={() => setActiveTab('rewards')}
+          />
+          <BottomNavItem
+            icon={<Joystick size={24} />}
+            label="Arcade"
+            isActive={activeTab === 'arcade'}
+            activeColor="text-pink-400"
+            onClick={() => setActiveTab('arcade')}
           />
           <BottomNavItem
             icon={<Trophy size={24} />}
