@@ -17,7 +17,8 @@ const DEFAULT_STATE = {
   streak: { count: 0, best: 0, lastDate: null }, // paid-play daily streak
   chestClaimed: null, // business date the daily chest was opened
   trophies: {}, // trophyId -> earned timestamp
-  arcadeHighScore: 0,
+  ownedGames: ['coinrush'], // arcade games bought with coins (coinrush is free)
+  arcadeHighScores: {}, // gameId -> best score
   corrupt: false,
 }
 
@@ -113,8 +114,22 @@ function reducer(state, action) {
       const next = { ...state, coins: state.coins - item.cost, purchases: [purchase, ...state.purchases] }
       return { ...next, trophies: evaluateTrophies(next) }
     }
-    case 'ARCADE_SCORE':
-      return { ...state, arcadeHighScore: Math.max(state.arcadeHighScore, action.score) }
+    case 'ARCADE_SCORE': {
+      const prev = state.arcadeHighScores[action.game] || 0
+      if (action.score <= prev) return state
+      return { ...state, arcadeHighScores: { ...state.arcadeHighScores, [action.game]: action.score } }
+    }
+    case 'ARCADE_BUY': {
+      const { game } = action // { id, title, price }
+      if (state.ownedGames.includes(game.id) || state.coins < game.price) return state
+      const purchase = { id: Date.now() + '-' + game.id, ts: Date.now(), title: `🎮 ${game.title}`, cost: game.price }
+      return {
+        ...state,
+        coins: state.coins - game.price,
+        ownedGames: [...state.ownedGames, game.id],
+        purchases: [purchase, ...state.purchases],
+      }
+    }
     case 'SET_PIN':
       return { ...state, pin: action.pin }
     case 'CLEAR_CORRUPT_FLAG':
@@ -134,7 +149,14 @@ function loadInitial() {
     if (typeof parsed !== 'object' || parsed === null || parsed.version !== 1 || typeof parsed.coins !== 'number') {
       return { ...DEFAULT_STATE, corrupt: true }
     }
-    return { ...DEFAULT_STATE, ...parsed, corrupt: false }
+    const merged = { ...DEFAULT_STATE, ...parsed, corrupt: false }
+    // migrate pre-game-shop saves: single coinrush high score -> per-game map
+    if (typeof parsed.arcadeHighScore === 'number' && parsed.arcadeHighScore > 0 && !parsed.arcadeHighScores) {
+      merged.arcadeHighScores = { coinrush: parsed.arcadeHighScore }
+    }
+    delete merged.arcadeHighScore
+    if (!merged.ownedGames.includes('coinrush')) merged.ownedGames = ['coinrush', ...merged.ownedGames]
+    return merged
   } catch {
     return { ...DEFAULT_STATE, corrupt: true }
   }

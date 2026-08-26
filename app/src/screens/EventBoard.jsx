@@ -3,7 +3,8 @@ import { Calculator, MessageCircle, BookOpen, Map as MapIcon, Coins, Check, X, S
 import { EVENTS, MODES } from '../data/events.js'
 import { usePlayer, businessDate } from '../context/PlayerContext.jsx'
 import { sfx } from '../match/sounds.js'
-import CoinRush from '../arcade/CoinRush.jsx'
+import { ARCADE_GAMES } from '../data/arcadeGames.js'
+import { useToast } from '../App.jsx'
 
 const ICONS = {
   math: Calculator,
@@ -20,7 +21,9 @@ export default function EventBoard({ onStartMatch }) {
   const { state, dispatch, playedToday, config } = usePlayer()
   const [preview, setPreview] = useState(null) // event shown in the pre-match modal
   const [chestOpen, setChestOpen] = useState(false)
-  const [arcadeRun, setArcadeRun] = useState(0) // 0 = closed; >0 = round key (remount restarts)
+  const [play, setPlay] = useState(null) // { id, run } — run bumps to remount/restart
+  const [buying, setBuying] = useState(null) // arcade game pending purchase confirm
+  const showToast = useToast()
 
   const goal = config.dailyGoal
   const doneCount = EVENTS.filter((e) => playedToday(e.id)).length
@@ -75,53 +78,123 @@ export default function EventBoard({ onStartMatch }) {
 
       {chestOpen && <ChestModal onClose={() => setChestOpen(false)} />}
 
-      {/* ARCADE — unlocked after all daily events */}
-      <div
-        onClick={() => chestReady && setArcadeRun(1)}
-        className={`relative rounded-3xl border-b-8 transition-all duration-200 shadow-xl overflow-hidden
-          ${chestReady
-            ? 'bg-pink-500 border-pink-700 cursor-pointer hover:-translate-y-1 active:translate-y-1 active:border-b-0'
-            : 'bg-slate-600 border-slate-800 opacity-90'}`}
-      >
-        <div className="bg-white/95 m-1.5 rounded-[1.25rem] p-4 md:p-5 flex items-center gap-4">
-          <div className={`p-3 rounded-2xl border-4 shadow-inner -rotate-3 ${chestReady ? 'bg-pink-100 border-pink-600' : 'bg-slate-200 border-slate-500'}`}>
-            <Gamepad2 className={chestReady ? 'text-pink-500 w-10 h-10' : 'text-slate-400 w-10 h-10'} />
-          </div>
-          <div className="flex-1">
-            <div className="flex items-center gap-2">
-              <h3 className="text-xl md:text-2xl font-black text-slate-800 uppercase italic leading-tight">Coin Rush</h3>
-              <span className="px-2 py-0.5 bg-pink-100 border-2 border-pink-300 rounded-full text-pink-600 text-[10px] font-black uppercase">Arcade</span>
-            </div>
-            <p className="font-bold text-slate-500 text-sm mt-1" dir="rtl">
-              {chestReady
-                ? 'תפסו מטבעות, תתחמקו מפצצות — בלי לימודים, רק כיף!'
-                : `נפתח אחרי ${goal} משימות שונות היום (${goalDone}/${goal})`}
-            </p>
-          </div>
-          {chestReady ? (
-            <div className="flex flex-col items-center gap-1 shrink-0">
-              <span className="bg-pink-500 text-white font-black italic uppercase px-4 py-2 rounded-xl border-b-4 border-pink-700 anim-ready-pulse">PLAY</span>
-              {state.arcadeHighScore > 0 && (
-                <span className="flex items-center gap-1 text-xs font-black text-slate-400 tabular-nums">
-                  <Trophy size={12} className="text-yellow-500 fill-yellow-200" /> {state.arcadeHighScore}
-                </span>
-              )}
-            </div>
-          ) : (
-            <Lock className="text-slate-400 shrink-0" size={28} />
+      {/* ARCADE — playable after the daily study goal; new games bought with coins */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2 bg-blue-900/50 p-3 rounded-2xl border-4 border-blue-900 backdrop-blur-sm">
+          <Gamepad2 className="text-pink-400" size={24} />
+          <h2 className="text-xl md:text-2xl font-black text-white italic tracking-wide uppercase drop-shadow-md flex-1">Arcade</h2>
+          {!chestReady && (
+            <span className="text-blue-200 font-bold text-sm" dir="rtl">
+              נפתח אחרי {goal} משימות ({goalDone}/{goal})
+            </span>
           )}
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {ARCADE_GAMES.map((gm) => {
+            const owned = state.ownedGames.includes(gm.id)
+            const best = state.arcadeHighScores[gm.id] || 0
+            const playable = owned && chestReady
+            return (
+              <div
+                key={gm.id}
+                onClick={() => {
+                  if (playable) setPlay({ id: gm.id, run: 1 })
+                  else if (owned) showToast(`שחקו ${goal} משימות קודם!`, 'error')
+                  else setBuying(gm)
+                }}
+                className={`relative rounded-3xl border-b-8 shadow-xl cursor-pointer transition-all duration-200 overflow-hidden
+                  ${owned && !chestReady ? 'bg-slate-600 border-slate-800' : `${gm.color} ${gm.borderColor} hover:-translate-y-1 active:translate-y-1 active:border-b-0`}`}
+              >
+                <div className="bg-white/95 m-1.5 rounded-[1.25rem] p-3 flex flex-col items-center text-center gap-1.5">
+                  <div className={`p-2 rounded-xl border-4 -rotate-3 ${owned && chestReady ? `${gm.lightBg} ${gm.borderColor}` : 'bg-slate-200 border-slate-400'}`}>
+                    <Gamepad2 className={`w-7 h-7 ${owned && chestReady ? gm.textColor : 'text-slate-400'}`} />
+                  </div>
+                  <h3 className="font-black text-slate-800 uppercase italic leading-tight text-sm">{gm.title}</h3>
+                  {owned ? (
+                    playable ? (
+                      <span className={`${gm.color} text-white font-black italic uppercase text-xs px-3 py-1 rounded-lg border-b-2 border-black/30`}>PLAY</span>
+                    ) : (
+                      <Lock className="text-slate-400" size={18} />
+                    )
+                  ) : (
+                    <span className={`flex items-center gap-1 font-black text-xs px-2.5 py-1 rounded-lg border-b-2
+                      ${state.coins >= gm.price ? 'bg-yellow-400 border-yellow-600 text-yellow-900' : 'bg-slate-300 border-slate-400 text-slate-500'}`}>
+                      <Coins size={12} className="fill-current" /> {gm.price.toLocaleString()}
+                    </span>
+                  )}
+                  {best > 0 && (
+                    <span className="flex items-center gap-1 text-[10px] font-black text-slate-400 tabular-nums">
+                      <Trophy size={10} className="text-yellow-500 fill-yellow-200" /> {best}
+                    </span>
+                  )}
+                </div>
+              </div>
+            )
+          })}
         </div>
       </div>
 
-      {arcadeRun > 0 && (
-        <CoinRush
-          key={arcadeRun}
-          highScore={state.arcadeHighScore}
-          onScore={(score) => dispatch({ type: 'ARCADE_SCORE', score })}
-          onRestart={() => setArcadeRun((r) => r + 1)}
-          onClose={() => setArcadeRun(0)}
-        />
+      {/* BUY GAME CONFIRM */}
+      {buying && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-blue-950/90 backdrop-blur-sm p-4">
+          <div className="anim-zoom-in bg-white rounded-3xl border-8 border-slate-800 shadow-2xl w-full max-w-sm overflow-hidden text-center">
+            <div className={`p-4 ${buying.color} border-b-8 border-black/10`}>
+              <h2 className="text-2xl font-black text-white uppercase italic drop-shadow-md">{buying.title}</h2>
+            </div>
+            <div className="p-6 flex flex-col items-center gap-4 bg-slate-50">
+              <p className="font-bold text-slate-600" dir="rtl">{buying.he}</p>
+              <p className="font-black text-slate-800 text-lg" dir="rtl">
+                לקנות לתמיד ב-
+                <span className="text-yellow-600 tabular-nums"> {buying.price.toLocaleString()} </span>
+                מטבעות?
+              </p>
+              {state.coins < buying.price && (
+                <p className="font-bold text-red-500 text-sm" dir="rtl">
+                  חסרים {(buying.price - state.coins).toLocaleString()} מטבעות — המשיכו לשחק ולחסוך!
+                </p>
+              )}
+              <div className="flex gap-3 w-full">
+                <button
+                  onClick={() => {
+                    if (state.coins >= buying.price) {
+                      dispatch({ type: 'ARCADE_BUY', game: buying })
+                      sfx.fanfare()
+                      showToast(`EPIC UNLOCK! ${buying.title} is yours!`, 'success')
+                    }
+                    setBuying(null)
+                  }}
+                  disabled={state.coins < buying.price}
+                  className="flex-1 bg-yellow-400 text-yellow-950 text-lg font-black italic uppercase py-3 rounded-2xl border-b-8 border-yellow-600 active:border-b-0 active:translate-y-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  BUY!
+                </button>
+                <button
+                  onClick={() => setBuying(null)}
+                  className="flex-1 bg-slate-300 text-slate-700 text-lg font-black italic uppercase py-3 rounded-2xl border-b-8 border-slate-400 active:border-b-0 active:translate-y-2 transition-all"
+                >
+                  לא עכשיו
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
+
+      {/* ACTIVE ARCADE GAME */}
+      {play && (() => {
+        const gm = ARCADE_GAMES.find((g) => g.id === play.id)
+        const GameComponent = gm.Component
+        return (
+          <GameComponent
+            key={play.run}
+            highScore={state.arcadeHighScores[gm.id] || 0}
+            onScore={(score) => dispatch({ type: 'ARCADE_SCORE', game: gm.id, score })}
+            onRestart={() => setPlay((p) => ({ ...p, run: p.run + 1 }))}
+            onClose={() => setPlay(null)}
+          />
+        )
+      })()}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
         {EVENTS.map((event) => {
