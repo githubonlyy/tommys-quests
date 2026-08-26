@@ -4,7 +4,8 @@ import { evaluateTrophies } from '../data/trophies.js'
 
 const STORAGE_KEY = 'tommys-quests-v1'
 
-const DEFAULT_STATE = {
+// exported for tests
+export const DEFAULT_STATE = {
   version: 1,
   coins: 0,
   xp: 0, // progress inside current level
@@ -47,7 +48,8 @@ export function applyXp(state, gained) {
   return { xp, level, leveledUp: level > state.level }
 }
 
-function reducer(state, action) {
+// exported for tests
+export function reducer(state, action) {
   switch (action.type) {
     case 'MATCH_RESULT': {
       const { eventId, subject, result, correct, total, coinsEarned, xpEarned, avgTimeSec, practice } = action

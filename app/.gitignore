@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# Secrets — never commit environment files (Phase 2 backend keys live here)
+.env
+.env.*
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

@@ -9,4 +9,5 @@ export default defineConfig({
   // host:true so the tablet on the same WiFi can reach the dev server
   // allowedHosts lets Tailscale-served hostnames through Vite's host check
   server: { host: true, port: 5173, allowedHosts: ['.ts.net'] },
+  test: { environment: 'node' },
 })
