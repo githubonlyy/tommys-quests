@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useReducer } from 'react'
 import config from '../data/config.json'
 import { evaluateTrophies } from '../data/trophies.js'
+import { DEFAULT_AVATAR } from '../data/avatars.js'
 
 const STORAGE_KEY = 'tommys-quests-v1'
 
@@ -21,6 +22,7 @@ export const DEFAULT_STATE = {
   ownedGames: ['coinrush'], // arcade games bought with coins (coinrush is free)
   arcadeHighScores: {}, // gameId -> best score
   lessonsRead: {}, // eventId -> business date the day's lesson cards were read
+  avatar: { ...DEFAULT_AVATAR }, // { avatarId, frameId, name } — cosmetics unlock by level
   corrupt: false,
 }
 
@@ -133,6 +135,8 @@ export function reducer(state, action) {
         purchases: [purchase, ...state.purchases],
       }
     }
+    case 'SET_AVATAR':
+      return { ...state, avatar: { ...state.avatar, ...action.avatar } }
     case 'LESSON_READ':
       return { ...state, lessonsRead: { ...state.lessonsRead, [action.eventId]: businessDate() } }
     case 'SET_PIN':

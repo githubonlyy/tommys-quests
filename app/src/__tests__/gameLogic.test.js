@@ -188,6 +188,14 @@ describe('arcade', () => {
   })
 })
 
+describe('SET_AVATAR', () => {
+  it('patches avatar fields without dropping the others', () => {
+    let s = reducer(fresh(), { type: 'SET_AVATAR', avatar: { avatarId: 'fox' } })
+    s = reducer(s, { type: 'SET_AVATAR', avatar: { name: 'MELANIE' } })
+    expect(s.avatar).toMatchObject({ avatarId: 'fox', frameId: 'steel', name: 'MELANIE' })
+  })
+})
+
 describe('LESSON_READ + rotation', () => {
   it('marks the subject read for today', () => {
     const s = reducer(fresh(), { type: 'LESSON_READ', eventId: 'math' })
