@@ -1,19 +1,21 @@
 import { useMemo, useState } from 'react'
 import { BarChart3, Lock, Trophy, Zap, ShoppingBag, KeyRound, Delete } from 'lucide-react'
 import { usePlayer } from '../context/PlayerContext.jsx'
+import { useCloud } from '../context/CloudContext.jsx'
 import { useToast } from '../App.jsx'
+import CoachCloud from './CoachCloud.jsx'
 
 export default function CoachStats() {
-  const { state, config } = usePlayer()
+  const { verifyPin, config } = usePlayer()
   const [unlocked, setUnlocked] = useState(false)
 
-  if (!unlocked) return <PinGate pin={state.pin} config={config} onUnlock={() => setUnlocked(true)} />
+  if (!unlocked) return <PinGate verifyPin={verifyPin} config={config} onUnlock={() => setUnlocked(true)} />
   return <Dashboard />
 }
 
 /* ---------- PIN GATE ---------- */
 
-function PinGate({ pin, config, onUnlock }) {
+function PinGate({ verifyPin, config, onUnlock }) {
   const [entry, setEntry] = useState('')
   const [tries, setTries] = useState(0)
   const [lockedUntil, setLockedUntil] = useState(0)
@@ -23,12 +25,14 @@ function PinGate({ pin, config, onUnlock }) {
   const locked = now < lockedUntil
   const lockedSecs = Math.ceil((lockedUntil - now) / 1000)
 
-  const press = (d) => {
+  const press = async (d) => {
     if (locked || entry.length >= 4) return
     const next = entry + d
     setEntry(next)
     if (next.length === 4) {
-      if (next === pin) {
+      let ok = false
+      try { ok = await verifyPin(next) } catch { ok = false }
+      if (ok) {
         onUnlock()
       } else {
         const nextTries = tries + 1
@@ -111,6 +115,7 @@ function PinGate({ pin, config, onUnlock }) {
 
 function Dashboard() {
   const { state, dispatch } = usePlayer()
+  const cloud = useCloud()
   const showToast = useToast()
   const [newPin, setNewPin] = useState('')
 
@@ -250,6 +255,9 @@ function Dashboard() {
           </ul>
         )}
       </div>
+
+      {/* FAMILY / REMOTE CONTROLS (cloud mode) */}
+      {cloud.enabled && <CoachCloud />}
 
       {/* CHANGE PIN */}
       <div className="bg-white border-4 border-slate-200 rounded-3xl shadow-lg p-6">

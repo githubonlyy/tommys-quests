@@ -139,6 +139,7 @@ export default function MatchEngine({ event, mode = 'classic', practice, onExit,
   const [feedback, setFeedback] = useState(null)
   const [correctCount, setCorrectCount] = useState(0)
   const [coinsEarned, setCoinsEarned] = useState(0)
+  const [speedBonusCount, setSpeedBonusCount] = useState(0) // server recomputes rewards from this
   const [pairsOutcome, setPairsOutcome] = useState(null)
   const [revealDone, setRevealDone] = useState(false)
   const [streak, setStreak] = useState(0)
@@ -188,7 +189,9 @@ export default function MatchEngine({ event, mode = 'classic', practice, onExit,
 
     let gained = 0
     if (isCorrect) {
-      gained = config.coinsPerCorrect + (elapsed < config.speedThresholdSec ? config.speedBonusCoins : 0)
+      const fast = elapsed < config.speedThresholdSec
+      gained = config.coinsPerCorrect + (fast ? config.speedBonusCoins : 0)
+      if (fast) setSpeedBonusCount((c) => c + 1)
       setCorrectCount((c) => c + 1)
       setCoinsEarned((c) => c + gained)
       setStreak((s) => s + 1)
@@ -237,6 +240,8 @@ export default function MatchEngine({ event, mode = 'classic', practice, onExit,
       xp: pairs * pcfg.xpPerPair,
       resultLabel,
       avgTimeSec: Math.round((elapsedSec / Math.max(1, pairs)) * 10) / 10,
+      wrongFlips,
+      timedOut,
     })
     setPhase('results')
   }
@@ -280,6 +285,11 @@ export default function MatchEngine({ event, mode = 'classic', practice, onExit,
       xpEarned: unified.xpEarned,
       avgTimeSec: unified.avgTimeSec,
       practice,
+      // raw inputs so the server can recompute rewards without trusting the client
+      mode,
+      speedBonusCount,
+      wrongFlips: pairsOutcome?.wrongFlips ?? 0,
+      timedOut: pairsOutcome?.timedOut ?? false,
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase])

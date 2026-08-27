@@ -196,6 +196,25 @@ describe('SET_AVATAR', () => {
   })
 })
 
+describe('cloud hydration', () => {
+  it('HYDRATE overlays server fields, keeps local-only ones', () => {
+    let s = reducer(fresh(), match())
+    const logLen = s.battleLog.length
+    s = reducer(s, { type: 'HYDRATE', state: { coins: 999, level: 4, ownedGames: ['coinrush', 'flappy'] } })
+    expect(s.coins).toBe(999)
+    expect(s.level).toBe(4)
+    expect(s.ownedGames).toContain('flappy')
+    expect(s.battleLog).toHaveLength(logLen)
+  })
+
+  it('LOAD replaces state with another kid cache over defaults', () => {
+    const s = reducer({ ...fresh(), coins: 500 }, { type: 'LOAD', state: { coins: 20 } })
+    expect(s.coins).toBe(20)
+    expect(s.level).toBe(1)
+    expect(s.corrupt).toBe(false)
+  })
+})
+
 describe('LESSON_READ + rotation', () => {
   it('marks the subject read for today', () => {
     const s = reducer(fresh(), { type: 'LESSON_READ', eventId: 'math' })

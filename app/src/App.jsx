@@ -1,6 +1,9 @@
 import { useEffect, useState, createContext, useContext } from 'react'
-import { Gamepad2, Store, BarChart3, Zap, Trophy, Coins, Lock, Skull, Flame, Music, Joystick } from 'lucide-react'
+import { Gamepad2, Store, BarChart3, Zap, Trophy, Coins, Lock, Skull, Flame, Music, Joystick, Users, WifiOff } from 'lucide-react'
 import { usePlayer, levelCost } from './context/PlayerContext.jsx'
+import { useCloud } from './context/CloudContext.jsx'
+import SignIn from './screens/SignIn.jsx'
+import ProfilePicker from './screens/ProfilePicker.jsx'
 import { playMusic, stopMusic, isMusicOn, setMusicOn } from './match/music.js'
 import EventBoard from './screens/EventBoard.jsx'
 import Shop from './screens/Shop.jsx'
@@ -16,6 +19,7 @@ export const useToast = () => useContext(ToastContext)
 
 export default function App() {
   const { state, dispatch, playedToday } = usePlayer()
+  const cloud = useCloud()
   const [activeTab, setActiveTab] = useState('events')
   const [toast, setToast] = useState(null)
   const [avatarOpen, setAvatarOpen] = useState(false)
@@ -55,6 +59,19 @@ export default function App() {
   }, [])
 
   const xpPct = Math.min(100, Math.round((state.xp / levelCost(state.level)) * 100))
+
+  // cloud mode gates: parent sign-in, then pick the kid
+  if (cloud.enabled) {
+    if (cloud.loading) {
+      return (
+        <div className="h-dvh w-full flex items-center justify-center bg-blue-700">
+          <Zap className="text-yellow-400 fill-current w-16 h-16 animate-pulse" />
+        </div>
+      )
+    }
+    if (!cloud.session) return <SignIn />
+    if (!cloud.activePlayer) return <ProfilePicker />
+  }
 
   return (
     <ToastContext.Provider value={showToast}>
@@ -131,7 +148,22 @@ export default function App() {
                 {avatarById(state.avatar.avatarId).emoji}
               </button>
               <div className="flex flex-col">
-                <span className="text-base md:text-2xl text-white font-black drop-shadow-md tracking-wide leading-tight">{state.avatar.name}</span>
+                <span className="flex items-center gap-1.5 text-base md:text-2xl text-white font-black drop-shadow-md tracking-wide leading-tight">
+                  {state.avatar.name}
+                  {cloud.enabled && (
+                    <button
+                      onClick={() => cloud.setActivePlayerId(null)}
+                      className="text-blue-300 hover:text-white transition-colors"
+                      aria-label="Switch player"
+                      title="Switch player"
+                    >
+                      <Users size={16} />
+                    </button>
+                  )}
+                  {cloud.enabled && !cloud.online && (
+                    <span title="Offline — saving locally" className="text-orange-300"><WifiOff size={14} /></span>
+                  )}
+                </span>
                 <div className="flex items-center gap-1.5 md:gap-2 w-28 md:w-48">
                   <span className="text-[10px] md:text-xs font-black text-blue-300 whitespace-nowrap">LVL {state.level}</span>
                   <div className="flex-1 h-3 md:h-4 bg-blue-950 rounded-full border-2 border-blue-900 overflow-hidden relative">

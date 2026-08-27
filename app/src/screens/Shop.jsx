@@ -1,16 +1,31 @@
 import { useRef } from 'react'
 import { Award, Flag, Zap, Coins, Lock } from 'lucide-react'
-import shopItems from '../data/shop.json'
+import localShopItems from '../data/shop.json'
 import { usePlayer } from '../context/PlayerContext.jsx'
+import { useCloud } from '../context/CloudContext.jsx'
 import { useToast } from '../App.jsx'
 
 const ICONS = { award: Award, flag: Flag, zap: Zap }
 const ICON_COLORS = { award: 'text-blue-500', flag: 'text-purple-500', zap: 'text-yellow-500 fill-current' }
+const RARITY_STYLE = {
+  RARE: { bgColor: 'bg-blue-500', borderColor: 'border-blue-700' },
+  EPIC: { bgColor: 'bg-purple-500', borderColor: 'border-purple-700' },
+  LEGENDARY: { bgColor: 'bg-yellow-400', borderColor: 'border-yellow-600' },
+}
+
+// cloud shop_items row -> the local shop.json item shape
+const fromCloud = (r) => ({
+  id: r.id, title: r.title, type: r.type, desc: r.desc_he, cost: r.cost, rarity: r.rarity,
+  icon: ICONS[r.icon] ? r.icon : 'award',
+  ...(RARITY_STYLE[r.rarity] ?? RARITY_STYLE.RARE),
+})
 
 export default function Shop() {
   const { state, dispatch } = usePlayer()
+  const cloud = useCloud()
   const showToast = useToast()
   const lastBuyRef = useRef(0) // double-tap protection
+  const shopItems = cloud.enabled ? cloud.shopItems.filter((r) => r.active).map(fromCloud) : localShopItems
 
   const handleBuy = (item) => {
     const now = Date.now()

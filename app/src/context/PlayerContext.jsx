@@ -1,5 +1,7 @@
-import { createContext, useContext, useEffect, useReducer } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useReducer } from 'react'
 import config from '../data/config.json'
+import { useCloud } from './CloudContext.jsx'
+import { rowToState } from '../lib/cloud.js'
 import { evaluateTrophies } from '../data/trophies.js'
 import { DEFAULT_AVATAR } from '../data/avatars.js'
 
@@ -141,6 +143,12 @@ export function reducer(state, action) {
       return { ...state, lessonsRead: { ...state.lessonsRead, [action.eventId]: businessDate() } }
     case 'SET_PIN':
       return { ...state, pin: action.pin }
+    // cloud: server row is authoritative for economy/progress fields
+    case 'HYDRATE':
+      return { ...state, ...action.state }
+    // cloud: switch to another kid's cached state (or defaults)
+    case 'LOAD':
+      return { ...DEFAULT_STATE, ...action.state, corrupt: false }
     case 'CLEAR_CORRUPT_FLAG':
       return { ...state, corrupt: false }
     case 'RESET_ALL':
@@ -174,22 +182,58 @@ function loadInitial() {
 const PlayerContext = createContext(null)
 
 export function PlayerProvider({ children }) {
-  const [state, dispatch] = useReducer(reducer, undefined, loadInitial)
+  const cloud = useCloud()
+  const [state, localDispatch] = useReducer(reducer, undefined, loadInitial)
+  const activeId = cloud.enabled ? cloud.activePlayerId : null
+  // per-kid cache key in cloud mode; single key in local-only mode
+  const storageKey = activeId ? `${STORAGE_KEY}:${activeId}` : STORAGE_KEY
+
+  // cloud: switching kids loads that kid's cached state (battle log etc.)
+  useEffect(() => {
+    if (!activeId) return
+    let cached = {}
+    try { cached = JSON.parse(localStorage.getItem(storageKey) || '{}') } catch { /* fresh */ }
+    localDispatch({ type: 'LOAD', state: cached })
+  }, [activeId, storageKey])
+
+  // cloud: server row is authoritative — hydrate whenever it refreshes
+  useEffect(() => {
+    if (!cloud.enabled || !cloud.activePlayer) return
+    localDispatch({ type: 'HYDRATE', state: rowToState(cloud.activePlayer) })
+  }, [cloud.enabled, cloud.activePlayer])
 
   useEffect(() => {
     try {
       const { corrupt, ...toSave } = state
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave))
+      localStorage.setItem(storageKey, JSON.stringify(toSave))
     } catch {
       // storage full/unavailable — app keeps working in-memory
     }
-  }, [state])
+  }, [state, storageKey])
+
+  // optimistic local update, then server sync (queued offline)
+  const dispatch = useCallback((action) => {
+    localDispatch(action)
+    if (!cloud.enabled || !activeId) return
+    const a = action.type === 'LESSON_READ' ? { ...action, date: businessDate() } : action
+    cloud.sync(a, activeId).then((row) => {
+      if (row) localDispatch({ type: 'HYDRATE', state: rowToState(row) })
+    })
+  }, [cloud, activeId])
+
+  // parent-tunable settings override config.json in cloud mode
+  const effectiveConfig = useMemo(() => ({
+    ...config,
+    dailyGoal: cloud.settings?.daily_goal ?? config.dailyGoal,
+    dailyChestCoins: cloud.settings?.daily_chest_coins ?? config.dailyChestCoins,
+  }), [cloud.settings])
 
   const playedToday = (eventId) => state.dailyPlays[eventId] === businessDate()
   const lessonReadToday = (eventId) => state.lessonsRead[eventId] === businessDate()
+  const verifyPin = async (pin) => (cloud.enabled ? cloud.api.verifyPin(pin) : pin === state.pin)
 
   return (
-    <PlayerContext.Provider value={{ state, dispatch, playedToday, lessonReadToday, config }}>
+    <PlayerContext.Provider value={{ state, dispatch, playedToday, lessonReadToday, verifyPin, config: effectiveConfig }}>
       {children}
     </PlayerContext.Provider>
   )
