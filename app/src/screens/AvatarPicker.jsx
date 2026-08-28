@@ -2,10 +2,12 @@ import { useState } from 'react'
 import { X, Lock, Check } from 'lucide-react'
 import { AVATARS, FRAMES, frameById } from '../data/avatars.js'
 import { usePlayer } from '../context/PlayerContext.jsx'
+import { useLang } from '../context/LangContext.jsx'
 import { sfx } from '../match/sounds.js'
 
 // Pick character + frame (level-gated) and edit the display name.
 export default function AvatarPicker({ onClose }) {
+  const { t } = useLang()
   const { state, dispatch } = usePlayer()
   const [name, setName] = useState(state.avatar.name)
   const level = state.level
@@ -28,7 +30,7 @@ export default function AvatarPicker({ onClose }) {
           <div className={`w-14 h-14 rounded-2xl border-4 flex items-center justify-center text-3xl shadow-lg ${frame.classes}`}>
             {AVATARS.find((a) => a.id === state.avatar.avatarId)?.emoji}
           </div>
-          <h2 className="flex-1 text-2xl font-black text-white uppercase italic drop-shadow-md">My Hero</h2>
+          <h2 className="flex-1 text-2xl font-black text-white uppercase italic drop-shadow-md">{t('avatar.title')}</h2>
           <button onClick={onClose} className="w-10 h-10 bg-black/20 hover:bg-black/30 text-white rounded-full flex items-center justify-center">
             <X size={24} strokeWidth={3} />
           </button>
@@ -37,7 +39,7 @@ export default function AvatarPicker({ onClose }) {
         <div className="p-5 bg-slate-50 overflow-y-auto space-y-5">
           {/* name */}
           <div>
-            <label className="text-xs font-black text-slate-400 uppercase tracking-wider">Name</label>
+            <label className="text-xs font-black text-slate-400 uppercase tracking-wider">{t('avatar.name')}</label>
             <div className="flex gap-2 mt-1">
               <input
                 value={name}
@@ -54,7 +56,7 @@ export default function AvatarPicker({ onClose }) {
 
           {/* characters */}
           <div>
-            <p className="text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Character · <span dir="rtl">נפתחים לפי רמה</span></p>
+            <p className="text-xs font-black text-slate-400 uppercase tracking-wider mb-2">{t('avatar.character')} · <span dir="rtl">{t('avatar.byLevel')}</span></p>
             <div className="grid grid-cols-5 gap-2">
               {AVATARS.map((a) => {
                 const locked = level < a.level
@@ -81,7 +83,7 @@ export default function AvatarPicker({ onClose }) {
 
           {/* frames */}
           <div>
-            <p className="text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Frame</p>
+            <p className="text-xs font-black text-slate-400 uppercase tracking-wider mb-2">{t('avatar.frame')}</p>
             <div className="grid grid-cols-5 gap-2">
               {FRAMES.map((f) => {
                 const locked = level < f.level
@@ -108,7 +110,7 @@ export default function AvatarPicker({ onClose }) {
           </div>
 
           <p className="text-sm font-bold text-slate-500 text-center" dir="rtl">
-            רמה {level} · עוד דמויות ומסגרות נפתחות ככל שעולים ברמה!
+            {t('avatar.levelHint', { level })}
           </p>
         </div>
       </div>

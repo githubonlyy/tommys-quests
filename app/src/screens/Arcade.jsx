@@ -3,12 +3,14 @@ import { Gamepad2, Coins, Lock, Trophy } from 'lucide-react'
 import { EVENTS } from '../data/events.js'
 import { ARCADE_GAMES } from '../data/arcadeGames.js'
 import { usePlayer } from '../context/PlayerContext.jsx'
+import { useLang } from '../context/LangContext.jsx'
 import { useToast } from '../App.jsx'
 import { sfx } from '../match/sounds.js'
 
 // Arcade tab: fun-only games. New games are bought with coins; playing any
 // of them still requires finishing the daily study goal first.
 export default function Arcade() {
+  const { t } = useLang()
   const { state, dispatch, playedToday, config } = usePlayer()
   const [play, setPlay] = useState(null) // { id, run } — run bumps to remount/restart
   const [buying, setBuying] = useState(null)
@@ -23,10 +25,10 @@ export default function Arcade() {
     <div className="space-y-6">
       <div className="flex items-center gap-3 bg-blue-900/50 p-4 rounded-2xl border-4 border-blue-900 backdrop-blur-sm">
         <Gamepad2 className="text-pink-400" size={28} />
-        <h2 className="text-2xl md:text-3xl font-black text-white italic tracking-wide uppercase drop-shadow-md flex-1">Arcade</h2>
+        <h2 className="text-2xl md:text-3xl font-black text-white italic tracking-wide uppercase drop-shadow-md flex-1">{t('arcade.title')}</h2>
         {!unlocked && (
           <span className="text-blue-200 font-bold text-sm" dir="rtl">
-            נפתח אחרי {goal} משימות ({goalDone}/{goal})
+            {t('arcade.lockedShort', { done: goalDone, goal })}
           </span>
         )}
       </div>
@@ -35,7 +37,7 @@ export default function Arcade() {
         <div className="flex items-center gap-3 bg-slate-800/80 border-4 border-slate-900 rounded-2xl p-4" dir="rtl">
           <Lock className="text-slate-400 shrink-0" size={24} />
           <p className="text-slate-200 font-bold">
-            קודם לומדים, אחר כך משחקים! סיימו {goal} משימות שונות במסך Events — ואז הארקייד נפתח להיום.
+            {t('arcade.lockedLong', { goal })}
           </p>
         </div>
       )}
@@ -50,7 +52,7 @@ export default function Arcade() {
               key={gm.id}
               onClick={() => {
                 if (playable) setPlay({ id: gm.id, run: 1 })
-                else if (owned) showToast(`שחקו ${goal} משימות קודם!`, 'error')
+                else if (owned) showToast(t('arcade.playFirst', { goal }), 'error')
                 else setBuying(gm)
               }}
               className={`relative rounded-3xl border-b-8 shadow-xl cursor-pointer transition-all duration-200 overflow-hidden
@@ -64,7 +66,7 @@ export default function Arcade() {
                 <p className="font-bold text-slate-500 text-xs leading-snug" dir="rtl">{gm.he}</p>
                 {owned ? (
                   playable ? (
-                    <span className={`${gm.color} text-white font-black italic uppercase text-sm px-5 py-1.5 rounded-xl border-b-4 border-black/30 anim-ready-pulse`}>PLAY</span>
+                    <span className={`${gm.color} text-white font-black italic uppercase text-sm px-5 py-1.5 rounded-xl border-b-4 border-black/30 anim-ready-pulse`}>{t('arcade.play')}</span>
                   ) : (
                     <Lock className="text-slate-400" size={22} />
                   )
@@ -95,13 +97,11 @@ export default function Arcade() {
             <div className="p-6 flex flex-col items-center gap-4 bg-slate-50">
               <p className="font-bold text-slate-600" dir="rtl">{buying.he}</p>
               <p className="font-black text-slate-800 text-lg" dir="rtl">
-                לקנות לתמיד ב-
-                <span className="text-yellow-600 tabular-nums"> {buying.price.toLocaleString()} </span>
-                מטבעות?
+                {t('arcade.buyTitle', { price: buying.price.toLocaleString() })}
               </p>
               {state.coins < buying.price && (
                 <p className="font-bold text-red-500 text-sm" dir="rtl">
-                  חסרים {(buying.price - state.coins).toLocaleString()} מטבעות — המשיכו לשחק ולחסוך!
+                  {t('arcade.missing', { missing: (buying.price - state.coins).toLocaleString() })}
                 </p>
               )}
               <div className="flex gap-3 w-full">
@@ -110,20 +110,20 @@ export default function Arcade() {
                     if (state.coins >= buying.price) {
                       dispatch({ type: 'ARCADE_BUY', game: buying })
                       sfx.fanfare()
-                      showToast(`EPIC UNLOCK! ${buying.title} is yours!`, 'success')
+                      showToast(t('shop.unlock', { title: buying.title }), 'success')
                     }
                     setBuying(null)
                   }}
                   disabled={state.coins < buying.price}
                   className="flex-1 bg-yellow-400 text-yellow-950 text-lg font-black italic uppercase py-3 rounded-2xl border-b-8 border-yellow-600 active:border-b-0 active:translate-y-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  BUY!
+                  {t('arcade.buy')}
                 </button>
                 <button
                   onClick={() => setBuying(null)}
                   className="flex-1 bg-slate-300 text-slate-700 text-lg font-black italic uppercase py-3 rounded-2xl border-b-8 border-slate-400 active:border-b-0 active:translate-y-2 transition-all"
                 >
-                  לא עכשיו
+                  {t('arcade.notNow')}
                 </button>
               </div>
             </div>

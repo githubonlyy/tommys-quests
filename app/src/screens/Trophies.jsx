@@ -1,6 +1,7 @@
 import { Trophy, Target, Flame, Crown, Calculator, MessageCircle, BookOpen, Map as MapIcon, Coins, ShoppingBag, Gift, Lock } from 'lucide-react'
 import { TROPHIES } from '../data/trophies.js'
 import { usePlayer } from '../context/PlayerContext.jsx'
+import { useLang } from '../context/LangContext.jsx'
 
 const ICONS = {
   trophy: Trophy,
@@ -17,13 +18,14 @@ const ICONS = {
 }
 
 export default function Trophies() {
+  const { t } = useLang()
   const { state } = usePlayer()
   const earnedCount = Object.keys(state.trophies).length
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center bg-blue-900/50 p-4 rounded-2xl border-4 border-blue-900 backdrop-blur-sm">
-        <h2 className="text-2xl md:text-3xl font-black text-white italic tracking-wide uppercase drop-shadow-md">Trophies</h2>
+        <h2 className="text-2xl md:text-3xl font-black text-white italic tracking-wide uppercase drop-shadow-md">{t('trophies.title')}</h2>
         <div className="px-3 py-1.5 bg-yellow-400 text-yellow-900 rounded-xl border-b-4 border-yellow-600 font-black text-sm uppercase tabular-nums">
           {earnedCount}/{TROPHIES.length}
         </div>

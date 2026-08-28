@@ -2,12 +2,14 @@ import { useRef } from 'react'
 import { Award, Flag, Zap, Coins, Lock } from 'lucide-react'
 import shopItems from '../data/shop.json'
 import { usePlayer } from '../context/PlayerContext.jsx'
+import { useLang } from '../context/LangContext.jsx'
 import { useToast } from '../App.jsx'
 
 const ICONS = { award: Award, flag: Flag, zap: Zap }
 const ICON_COLORS = { award: 'text-blue-500', flag: 'text-purple-500', zap: 'text-yellow-500 fill-current' }
 
 export default function Shop() {
+  const { t } = useLang()
   const { state, dispatch } = usePlayer()
   const showToast = useToast()
   const lastBuyRef = useRef(0) // double-tap protection
@@ -19,18 +21,18 @@ export default function Shop() {
 
     if (state.coins >= item.cost) {
       dispatch({ type: 'BUY', item })
-      showToast(`EPIC UNLOCK! ${item.title} is yours!`, 'success')
+      showToast(t('shop.unlock', { title: item.title }), 'success')
     } else {
-      showToast(`NOT ENOUGH COINS! Need ${(item.cost - state.coins).toLocaleString()} more.`, 'error')
+      showToast(t('shop.notEnough', { missing: (item.cost - state.coins).toLocaleString() }), 'error')
     }
   }
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center bg-blue-900/50 p-4 rounded-2xl border-4 border-blue-900 backdrop-blur-sm">
-        <h2 className="text-2xl md:text-3xl font-black text-white italic tracking-wide uppercase drop-shadow-md">The Shop</h2>
+        <h2 className="text-2xl md:text-3xl font-black text-white italic tracking-wide uppercase drop-shadow-md">{t('shop.title')}</h2>
         <div className="hidden md:flex items-center gap-2 bg-black/20 px-4 py-2 rounded-xl">
-          <span className="text-blue-200 font-bold uppercase text-sm">Your Coins:</span>
+          <span className="text-(--t-text-soft) font-bold uppercase text-sm">{t('shop.yourCoins')}</span>
           <span className="text-yellow-400 font-black text-xl">{state.coins.toLocaleString()}</span>
         </div>
       </div>
@@ -45,7 +47,7 @@ export default function Shop() {
                 <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px] z-20 flex items-center justify-center rounded-[1.25rem]">
                   <div className="bg-red-500 px-4 py-2 rounded-xl border-b-4 border-red-700 rotate-12 flex items-center gap-2 shadow-xl">
                     <Lock className="text-white" size={20} strokeWidth={3} />
-                    <span className="font-black text-white uppercase text-lg">Locked</span>
+                    <span className="font-black text-white uppercase text-lg">{t('shop.locked')}</span>
                   </div>
                 </div>
               )}

@@ -2,12 +2,14 @@ import { useState } from 'react'
 import { X, ChevronLeft, BookOpen } from 'lucide-react'
 import { sfx } from './sounds.js'
 import { lessonCardsForToday } from './lessonRotation.js'
+import { useLang } from '../context/LangContext.jsx'
 
 /**
  * Daily mini-lesson: short story cards Tommy taps through before the game.
  * onDone fires after the last card (the read-gate); onClose aborts.
  */
 export default function LessonDeck({ event, onDone, onClose }) {
+  const { t } = useLang()
   const [cards] = useState(() => lessonCardsForToday(event.id))
   const [idx, setIdx] = useState(0)
 
@@ -51,7 +53,7 @@ export default function LessonDeck({ event, onDone, onClose }) {
           className="anim-slide-in-q w-full bg-white rounded-3xl border-8 border-slate-800 shadow-2xl overflow-hidden cursor-pointer select-none"
         >
           <div className={`p-4 text-center border-b-8 border-black/10 ${event.headerColor}`}>
-            <span className="text-white font-black uppercase italic tracking-wider drop-shadow-sm">{event.type} · שיעור קצר</span>
+            <span className="text-white font-black uppercase italic tracking-wider drop-shadow-sm">{event.type} · {t('lesson.header')}</span>
           </div>
           <div className="p-7 flex flex-col items-center text-center gap-4 bg-slate-50 min-h-72 justify-center">
             <span className="text-6xl">{card.emoji}</span>
@@ -74,7 +76,7 @@ export default function LessonDeck({ event, onDone, onClose }) {
             className={`flex-1 text-white text-xl font-black italic uppercase py-3.5 rounded-2xl border-b-8 active:border-b-0 active:translate-y-2 transition-all shadow-lg
               ${isLast ? 'bg-green-500 hover:bg-green-400 border-green-700' : 'bg-blue-500 hover:bg-blue-400 border-blue-700'}`}
           >
-            {isLast ? '!PLAY — סיימתי לקרוא' : 'הבא ←'}
+            {isLast ? t('lesson.done') : t('lesson.next')}
           </button>
         </div>
       </div>

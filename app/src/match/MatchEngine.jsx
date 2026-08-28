@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { X, Coins, Trophy, Skull, Minus, Sparkles, ChevronUp, Flame, Volume2, VolumeX } from 'lucide-react'
 import { sfx, isMuted, setMuted } from './sounds.js'
 import { usePlayer } from '../context/PlayerContext.jsx'
+import { useLang } from '../context/LangContext.jsx'
 import mathQ from '../data/questions/math.json'
 import englishQ from '../data/questions/english.json'
 import hebrewQ from '../data/questions/hebrew.json'
@@ -109,15 +110,16 @@ function classicAnswerText(eventId, q) {
 
 function classicPrompt(eventId, q) {
   if (eventId === 'math' || eventId === 'times') return { text: `${q.q} = ?`, dir: 'ltr' }
-  if (eventId === 'english') return { text: 'SPELL IT!', dir: 'ltr' }
-  if (eventId === 'hebrew') return { text: 'קראו את המשפט', dir: 'rtl' }
+  if (eventId === 'english') return { key: 'match.spellIt', dir: 'ltr' }
+  if (eventId === 'hebrew') return { key: 'match.readSentence', dir: 'rtl' }
   if (eventId === 'geography') return { text: q.q, dir: 'rtl' }
-  if (eventId === 'clock') return { text: 'מה השעה?', dir: 'rtl' }
-  if (eventId === 'money') return { text: 'כמה כסף יש כאן?', dir: 'rtl' }
+  if (eventId === 'clock') return { key: 'match.whatTime', dir: 'rtl' }
+  if (eventId === 'money') return { key: 'match.howMuch', dir: 'rtl' }
   return { text: '', dir: 'ltr' }
 }
 
 export default function MatchEngine({ event, mode = 'classic', practice, onExit, onPlayAgain }) {
+  const { t } = useLang()
   const { state, dispatch, config } = usePlayer()
   const N = config.questionsPerMatch
   const isPairs = mode === 'pairs'
@@ -323,7 +325,7 @@ export default function MatchEngine({ event, mode = 'classic', practice, onExit,
               </>
             )}
             {isPairs && (
-              <span className="flex-1 text-white font-black text-lg uppercase italic tracking-wide">Pairs Match</span>
+              <span className="flex-1 text-white font-black text-lg uppercase italic tracking-wide">{t('match.pairs')}</span>
             )}
             {!isPairs && streak >= 3 && (
               <span key={streak} className="anim-streak-pop flex items-center gap-1 bg-orange-500 text-white text-sm font-black px-2.5 py-1 rounded-full border-2 border-orange-300 shrink-0">
@@ -332,7 +334,7 @@ export default function MatchEngine({ event, mode = 'classic', practice, onExit,
             )}
             {practice && (
               <span className="bg-blue-500 text-white text-xs font-black px-3 py-1 rounded-full border-2 border-blue-300 shrink-0">
-                PRACTICE
+                {t('match.practice')}
               </span>
             )}
             <button
@@ -383,7 +385,7 @@ export default function MatchEngine({ event, mode = 'classic', practice, onExit,
               </div>
 
               <p className="text-2xl md:text-4xl lg:text-5xl font-black text-slate-800 text-center" dir={prompt.dir}>
-                {prompt.text}
+                {prompt.key ? t(prompt.key) : prompt.text}
               </p>
 
               <Widget key={qIndex} question={question} disabled={phase !== 'ask'} onAnswer={(ok, fxDelay = 0) => handleAnswer(ok, false, fxDelay)} />
@@ -404,12 +406,12 @@ export default function MatchEngine({ event, mode = 'classic', practice, onExit,
                 >
                   {feedback.correct ? (
                     <span className="flex items-center justify-center gap-2">
-                      מעולה! {!practice && <span className="flex items-center gap-1"><Coins size={20} className="fill-yellow-200 text-yellow-200" /> +{feedback.gained}</span>}
+                      {t('match.great')} {!practice && <span className="flex items-center gap-1"><Coins size={20} className="fill-yellow-200 text-yellow-200" /> +{feedback.gained}</span>}
                     </span>
                   ) : feedback.timedOut ? (
-                    <span>נגמר הזמן! התשובה: {answerText}</span>
+                    <span>{t('match.timeUp', { answer: answerText })}</span>
                   ) : (
-                    <span>לא נורא! התשובה: {answerText}</span>
+                    <span>{t('match.wrong', { answer: answerText })}</span>
                   )}
                 </div>
               )}
@@ -430,7 +432,7 @@ export default function MatchEngine({ event, mode = 'classic', practice, onExit,
             >
               <h2 className="text-4xl font-black text-white uppercase italic tracking-wide drop-shadow-md flex items-center justify-center gap-3">
                 {isWin ? <Trophy className="fill-yellow-200 text-yellow-400" size={34} /> : isDraw ? <Minus size={34} strokeWidth={4} /> : <Skull size={34} />}
-                {unified.resultLabel}!
+                {t(`result.${unified.resultLabel.toLowerCase()}`)}
               </h2>
             </div>
 
@@ -445,18 +447,18 @@ export default function MatchEngine({ event, mode = 'classic', practice, onExit,
 
               <div className={`flex flex-col items-center gap-3 w-full transition-opacity duration-500 ${revealDone ? 'opacity-100' : 'opacity-30'}`}>
                 <p className="text-xl font-black text-slate-700" dir="rtl">
-                  {unified.correct} מתוך {unified.totalUnits} {isPairs ? 'זוגות' : 'נכונות'}!
+                  {t('result.score', { correct: unified.correct, total: unified.totalUnits, unit: t(isPairs ? 'result.unit.pairs' : 'result.unit.correct') })}
                 </p>
 
                 {leveledUp && (
                   <div className="flex flex-col items-center gap-1 bg-orange-100 border-4 border-orange-300 px-5 py-2 rounded-2xl anim-pop">
                     <div className="flex items-center gap-2">
                       <ChevronUp className="text-orange-500" size={26} strokeWidth={4} />
-                      <span className="font-black text-orange-600 text-xl uppercase">Level Up! LVL {state.level}</span>
+                      <span className="font-black text-orange-600 text-xl uppercase">{t('result.levelUp', { level: state.level })}</span>
                     </div>
                     {unlocksAtLevel(state.level).length > 0 && (
                       <span className="text-sm font-bold text-orange-700" dir="rtl">
-                        🔓 נפתח: {unlocksAtLevel(state.level).map((u) => u.emoji ?? u.name).join(' ')}
+                        🔓 {t('result.unlocked')}: {unlocksAtLevel(state.level).map((u) => u.emoji ?? u.name).join(' ')}
                       </span>
                     )}
                   </div>
@@ -474,21 +476,21 @@ export default function MatchEngine({ event, mode = 'classic', practice, onExit,
                     <div className="flex items-center justify-center gap-1 text-yellow-500 font-black text-2xl tabular-nums">
                       <Coins size={22} className="fill-yellow-200" /> {practice ? 0 : unified.finalCoins}
                     </div>
-                    <span className="text-xs font-bold text-slate-400 uppercase">Coins</span>
+                    <span className="text-xs font-bold text-slate-400 uppercase">{t('common.coins')}</span>
                   </div>
                   <div className="flex-1 bg-white border-4 border-slate-200 rounded-2xl p-3 text-center">
                     <div className="flex items-center justify-center gap-1 text-blue-500 font-black text-2xl tabular-nums">
                       <Sparkles size={22} /> {unified.xpEarned}
                     </div>
-                    <span className="text-xs font-bold text-slate-400 uppercase">XP</span>
+                    <span className="text-xs font-bold text-slate-400 uppercase">{t('common.xp')}</span>
                   </div>
                 </div>
 
                 {practice && (
-                  <p className="text-sm font-bold text-blue-600" dir="rtl">משחק אימון — בלי מטבעות, רק XP</p>
+                  <p className="text-sm font-bold text-blue-600" dir="rtl">{t('result.practiceNote')}</p>
                 )}
                 {isWin && !practice && (
-                  <p className="text-sm font-bold text-green-600" dir="rtl">כולל בונוס ניצחון +{config.winBonusCoins}!</p>
+                  <p className="text-sm font-bold text-green-600" dir="rtl">{t('result.winBonus', { bonus: config.winBonusCoins })}</p>
                 )}
               </div>
 
@@ -497,13 +499,13 @@ export default function MatchEngine({ event, mode = 'classic', practice, onExit,
                   onClick={onPlayAgain}
                   className="flex-1 bg-blue-500 hover:bg-blue-400 text-white text-lg font-black italic uppercase py-3 rounded-2xl border-b-8 border-blue-700 active:border-b-0 active:translate-y-2 transition-all"
                 >
-                  Again?
+                  {t('result.again')}
                 </button>
                 <button
                   onClick={onExit}
                   className="flex-1 bg-green-500 hover:bg-green-400 text-white text-lg font-black italic uppercase py-3 rounded-2xl border-b-8 border-green-700 active:border-b-0 active:translate-y-2 transition-all"
                 >
-                  Exit
+                  {t('result.exit')}
                 </button>
               </div>
             </div>
