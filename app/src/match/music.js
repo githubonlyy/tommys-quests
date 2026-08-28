@@ -72,17 +72,46 @@ export function setMusicOn(v) {
 }
 
 export function stopMusic() {
+  pendingName = null
   if (!current) return
   clearInterval(current.timer)
   current = null
 }
 
+/* ---- background behavior ----
+   Phone locked, app switched or tab hidden: silence everything and let the
+   AudioContext suspend. Coming back resumes the track that was playing. */
+let pendingName = null
+
+function clearCurrent() {
+  if (!current) return
+  clearInterval(current.timer)
+  current = null
+}
+
+if (typeof document !== 'undefined') {
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      const wasPlaying = current?.name ?? pendingName
+      if (current) { clearInterval(current.timer); current = null }
+      pendingName = wasPlaying
+      if (ctx && ctx.state === 'running') ctx.suspend()
+    } else {
+      const resumeName = pendingName
+      pendingName = null
+      if (ctx && ctx.state === 'suspended') ctx.resume()
+      if (enabled && resumeName) playMusic(resumeName)
+    }
+  })
+}
+
 export function playMusic(name) {
   if (!enabled) return
+  if (typeof document !== 'undefined' && document.hidden) { pendingName = name; return }
   if (current?.name === name) return
   const c = ac()
   if (!c) return
-  stopMusic()
+  clearCurrent()
 
   const track = TRACKS[name]
   if (!track) return

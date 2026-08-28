@@ -13,7 +13,11 @@ export function setMuted(v) {
   try { localStorage.setItem(MUTE_KEY, v ? '1' : '0') } catch { /* ignore */ }
 }
 
+// never make noise while the app is backgrounded (phone locked, tab hidden)
+const backgrounded = () => typeof document !== 'undefined' && document.hidden
+
 function ac() {
+  if (backgrounded()) return null
   if (!ctx) {
     const AC = window.AudioContext || window.webkitAudioContext
     if (!AC) return null
