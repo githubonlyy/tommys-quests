@@ -25,6 +25,7 @@ export const DEFAULT_STATE = {
   lessonsRead: {}, // eventId -> business date the day's lesson cards were read
   avatar: { ...DEFAULT_AVATAR }, // { avatarId, frameId, name, gear } — cosmetics unlock by level
   ownedGear: [], // accessory ids bought with coins or unlocked by level
+  playTime: { date: null, usedMs: 0 }, // fun-tab time spent on the current game day
   corrupt: false,
 }
 
@@ -157,6 +158,11 @@ export function reducer(state, action) {
     case 'SET_GEAR':
       // null clears the slot
       return { ...state, avatar: { ...state.avatar, gear: { ...(state.avatar.gear ?? {}), [action.slot]: action.id } } }
+    case 'PLAY_TIME_SPEND': {
+      const today = businessDate()
+      const used = state.playTime.date === today ? state.playTime.usedMs : 0
+      return { ...state, playTime: { date: today, usedMs: used + Math.max(0, action.ms) } }
+    }
     case 'SET_AVATAR':
       return { ...state, avatar: { ...state.avatar, ...action.avatar } }
     case 'LESSON_READ':
@@ -193,6 +199,29 @@ function loadInitial() {
   }
 }
 
+/**
+ * Play-time budget for the fun tab. Every `matchesPerSession` subjects played
+ * today grants one session, capped per day; time already spent is subtracted.
+ * Pure so the rules can be tested without React.
+ */
+export function computePlayClock(state, cfg = config, today = businessDate()) {
+  const { minutesPerSession, matchesPerSession, maxSessionsPerDay } = cfg.playTime
+  const doneToday = Object.values(state.dailyPlays).filter((d) => d === today).length
+  const earnedSessions = Math.min(maxSessionsPerDay, Math.floor(doneToday / matchesPerSession))
+  const earnedMs = earnedSessions * minutesPerSession * 60000
+  const usedMs = state.playTime?.date === today ? state.playTime.usedMs : 0
+  const nextAt = Math.min(maxSessionsPerDay * matchesPerSession, (earnedSessions + 1) * matchesPerSession)
+  return {
+    earnedSessions,
+    maxSessions: maxSessionsPerDay,
+    msLeft: Math.max(0, earnedMs - usedMs),
+    doneToday,
+    // how many more subjects until the next session unlocks (0 when capped out)
+    matchesToNext: earnedSessions >= maxSessionsPerDay ? 0 : nextAt - doneToday,
+    cappedOut: earnedSessions >= maxSessionsPerDay && earnedMs - usedMs <= 0,
+  }
+}
+
 const PlayerContext = createContext(null)
 
 export function PlayerProvider({ children }) {
@@ -208,10 +237,12 @@ export function PlayerProvider({ children }) {
   }, [state])
 
   const playedToday = (eventId) => state.dailyPlays[eventId] === businessDate()
+
+  const playClock = computePlayClock(state)
   const lessonReadToday = (eventId) => state.lessonsRead[eventId] === businessDate()
 
   return (
-    <PlayerContext.Provider value={{ state, dispatch, playedToday, lessonReadToday, config }}>
+    <PlayerContext.Provider value={{ state, dispatch, playedToday, lessonReadToday, playClock, config }}>
       {children}
     </PlayerContext.Provider>
   )
