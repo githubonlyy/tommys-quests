@@ -10,6 +10,7 @@ export const MODES = {
 export const EVENTS = [
   {
     id: 'math',
+    emoji: '🔢',
     title: 'Vault Heist',
     type: 'Math Madness',
     description: 'פצחו את הכספת! פתרו את התרגילים לפני שנגמר הזמן.',
@@ -22,6 +23,7 @@ export const EVENTS = [
   },
   {
     id: 'english',
+    emoji: '🔤',
     title: 'Alien Decode',
     type: 'English Comm',
     description: 'פענחו את שידורי החייזרים! אייתו את המילה הנכונה באנגלית.',
@@ -34,6 +36,7 @@ export const EVENTS = [
   },
   {
     id: 'hebrew',
+    emoji: '📜',
     title: 'Ancient Scroll',
     type: 'Hebrew Heroes',
     description: 'מצאו את המילים הנסתרות במגילה העתיקה!',
@@ -46,6 +49,7 @@ export const EVENTS = [
   },
   {
     id: 'geography',
+    emoji: '🗺️',
     title: 'Map Maker',
     type: 'Moledet',
     description: 'נווטו במפת ישראל ומצאו את המקום הנכון!',
@@ -58,6 +62,7 @@ export const EVENTS = [
   },
   {
     id: 'clock',
+    emoji: '🕐',
     title: 'Time Keeper',
     type: 'שעון',
     description: 'קראו את השעון ומצאו את השעה הנכונה!',
@@ -70,6 +75,7 @@ export const EVENTS = [
   },
   {
     id: 'money',
+    emoji: '💰',
     title: 'Cash Grab',
     type: 'כסף',
     description: 'ספרו את השקלים — כמה כסף יש כאן?',
@@ -82,6 +88,7 @@ export const EVENTS = [
   },
   {
     id: 'science',
+    emoji: '🔬',
     title: 'Brain Blast',
     type: 'מדעים',
     description: 'טריוויה על חיות, גוף האדם, חלל וטבע!',
@@ -94,6 +101,7 @@ export const EVENTS = [
   },
   {
     id: 'times',
+    emoji: '✖️',
     title: 'Multiplier',
     type: 'לוח הכפל',
     description: 'שולטים בלוח הכפל? הוכיחו את זה!',
@@ -106,6 +114,7 @@ export const EVENTS = [
   },
   {
     id: 'listening',
+    emoji: '🎧',
     title: 'Listen Up',
     type: 'English · האזנה',
     description: 'הקשיבו למילה באנגלית ובחרו את הפירוש הנכון.',
@@ -118,6 +127,7 @@ export const EVENTS = [
   },
   {
     id: 'reading',
+    emoji: '📖',
     title: 'Story Time',
     type: 'English · קריאה',
     description: 'קראו משפט באנגלית וענו על השאלה.',
@@ -130,6 +140,7 @@ export const EVENTS = [
   },
   {
     id: 'sentences',
+    emoji: '🧩',
     title: 'Word Builder',
     type: 'English · משפטים',
     description: 'סדרו את המילים למשפט נכון באנגלית.',

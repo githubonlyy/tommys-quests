@@ -1,25 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
-import { ChevronDown, ChevronUp, Headphones, BookText, Type, Calculator, MessageCircle, BookOpen, Map as MapIcon, Coins, Check, X, Sparkles, Gift, Clock, Banknote, FlaskConical, Grid3x3 } from 'lucide-react'
+import { ChevronDown, ChevronUp, Coins, Check, X, Sparkles, Gift } from 'lucide-react'
 import { EVENTS, MODES } from '../data/events.js'
 import { dailySubjects } from '../data/board.js'
 import { usePlayer, businessDate } from '../context/PlayerContext.jsx'
 import { useLang } from '../context/LangContext.jsx'
 import { sfx } from '../match/sounds.js'
 import LessonDeck from '../match/LessonDeck.jsx'
-
-const ICONS = {
-  math: Calculator,
-  english: MessageCircle,
-  hebrew: BookOpen,
-  geography: MapIcon,
-  clock: Clock,
-  money: Banknote,
-  science: FlaskConical,
-  times: Grid3x3,
-  listening: Headphones,
-  reading: BookText,
-  sentences: Type,
-}
 
 export default function EventBoard({ onStartMatch }) {
   const { t } = useLang()
@@ -103,7 +89,6 @@ export default function EventBoard({ onStartMatch }) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
         {visible.map((event) => {
-          const Icon = ICONS[event.id]
           const practice = playedToday(event.id)
           return (
             <div
@@ -119,8 +104,8 @@ export default function EventBoard({ onStartMatch }) {
                 </div>
 
                 <div className="p-4 md:p-6 pb-12 md:pb-14 flex items-start gap-3 md:gap-4 flex-1">
-                  <div className={`p-2.5 md:p-3 rounded-2xl bg-slate-100 border-4 ${event.borderColor} shadow-inner -rotate-3 group-hover:rotate-0 transition-transform`}>
-                    <Icon className={`${event.textColor} w-10 h-10 md:w-12 md:h-12`} />
+                  <div className={`w-16 h-16 md:w-20 md:h-20 shrink-0 rounded-2xl bg-slate-100 border-4 ${event.borderColor} shadow-inner rotate-3 group-hover:rotate-0 transition-transform flex items-center justify-center text-4xl md:text-5xl leading-none`}>
+                    {event.emoji}
                   </div>
                   <div className="flex-1">
                     <h3 className="text-xl md:text-2xl font-black text-slate-800 uppercase italic leading-tight mb-2">
@@ -162,7 +147,6 @@ export default function EventBoard({ onStartMatch }) {
       {/* CHEST + PRE-MATCH MODALS below */}
       {/* PRE-MATCH MODAL */}
       {preview && (() => {
-        const Icon = ICONS[preview.id]
         const practice = playedToday(preview.id)
         return (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-blue-950/90 backdrop-blur-sm p-4">
@@ -175,7 +159,7 @@ export default function EventBoard({ onStartMatch }) {
                   <X size={24} strokeWidth={3} />
                 </button>
                 <div className="w-24 h-24 mx-auto bg-white rounded-2xl border-4 border-slate-200 flex items-center justify-center mb-2 shadow-lg rotate-3">
-                  <Icon className={`${preview.textColor} w-12 h-12`} />
+                  <span className="text-6xl leading-none">{preview.emoji}</span>
                 </div>
                 <h2 className="text-3xl font-black text-white uppercase tracking-wide drop-shadow-md italic mt-2">
                   {preview.title}

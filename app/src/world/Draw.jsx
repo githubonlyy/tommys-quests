@@ -13,8 +13,7 @@ import { X, Undo2, Trash2, Save, Images, Brush, Eraser, PaintBucket, Rainbow, Ch
 import { useTheme } from '../context/ThemeContext.jsx'
 import { speak } from '../match/speak.js'
 import { sfx } from '../match/sounds.js'
-import { usePlayer } from '../context/PlayerContext.jsx'
-import { avatarById } from '../data/avatars.js'
+import Avatar from '../avatar/Avatar.jsx'
 import { TEMPLATES, TEMPLATE_VIEW, TEMPLATE_STROKE, templateById } from './draw/templates.js'
 import {
   FAMILY_PAGES,
@@ -63,8 +62,6 @@ const TOOLS = [
 ]
 
 export default function Draw({ onClose }) {
-  const { state } = usePlayer()
-  const heroEmoji = avatarById(state.avatar.avatarId).emoji
   const { theme } = useTheme()
   const palette = buildPalette(theme)
   const stickers = stickerList(theme)
@@ -574,7 +571,7 @@ export default function Draw({ onClose }) {
               <span className="text-2xl leading-none">{sticker}</span>
             </ToolBtn>
             <ToolBtn ref={dollBtnRef} active={tool === 'doll'} label="הוסיפי אותי" onClick={dollTool}>
-              <span className="text-2xl leading-none">{heroEmoji}</span>
+              <Avatar size={34} />
             </ToolBtn>
             <ToolBtn
               active={template.id !== 'blank'}

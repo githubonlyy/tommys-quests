@@ -1,0 +1,965 @@
+[
+  {
+    "id": "skin-light",
+    "slot": "skin",
+    "name": "עור בהיר",
+    "theme": "all",
+    "price": 0,
+    "rarity": "FREE",
+    "variant": "light",
+    "colors": {
+      "skin": "#fcd9c4",
+      "eyes": "#4f7fe0"
+    }
+  },
+  {
+    "id": "skin-medium",
+    "slot": "skin",
+    "name": "עור זהוב",
+    "theme": "all",
+    "price": 0,
+    "rarity": "FREE",
+    "variant": "medium",
+    "colors": {
+      "skin": "#e8b48c",
+      "eyes": "#3f8f5f"
+    }
+  },
+  {
+    "id": "skin-deep",
+    "slot": "skin",
+    "name": "עור חום",
+    "theme": "all",
+    "price": 0,
+    "rarity": "FREE",
+    "variant": "deep",
+    "colors": {
+      "skin": "#9c6644",
+      "eyes": "#5b3a1e"
+    }
+  },
+  {
+    "id": "hair-short-brown",
+    "slot": "hair",
+    "name": "שיער קצר חום",
+    "theme": "all",
+    "price": 0,
+    "rarity": "FREE",
+    "variant": "short",
+    "colors": {
+      "hair": "#6b3f1d"
+    }
+  },
+  {
+    "id": "hair-spiky-black",
+    "slot": "hair",
+    "name": "קוצים שחורים",
+    "theme": "dino",
+    "price": 0,
+    "rarity": "FREE",
+    "variant": "spiky",
+    "colors": {
+      "hair": "#241c16",
+      "accent": "#4b5563"
+    }
+  },
+  {
+    "id": "hair-short-black",
+    "slot": "hair",
+    "name": "שיער קצר שחור",
+    "theme": "space",
+    "price": 0,
+    "rarity": "FREE",
+    "variant": "short",
+    "colors": {
+      "hair": "#241c16"
+    }
+  },
+  {
+    "id": "hair-spiky-blond",
+    "slot": "hair",
+    "name": "קוצים בלונדיניים",
+    "theme": "all",
+    "price": 150,
+    "rarity": "RARE",
+    "variant": "spiky",
+    "colors": {
+      "hair": "#f0c14b",
+      "accent": "#fff1c1"
+    }
+  },
+  {
+    "id": "hair-buzz-black",
+    "slot": "hair",
+    "name": "תספורת מכונה",
+    "theme": "all",
+    "price": 150,
+    "rarity": "RARE",
+    "variant": "buzz",
+    "colors": {
+      "hair": "#241c16"
+    }
+  },
+  {
+    "id": "hair-curly-brown",
+    "slot": "hair",
+    "name": "תלתלים חומים",
+    "theme": "all",
+    "price": 200,
+    "rarity": "RARE",
+    "variant": "curly",
+    "colors": {
+      "hair": "#6b3f1d"
+    }
+  },
+  {
+    "id": "hair-wavy-brown",
+    "slot": "hair",
+    "name": "גלים חומים",
+    "theme": "all",
+    "price": 200,
+    "rarity": "RARE",
+    "variant": "wavy",
+    "colors": {
+      "hair": "#7c4a1e"
+    }
+  },
+  {
+    "id": "hair-curly-black",
+    "slot": "hair",
+    "name": "תלתלים שחורים",
+    "theme": "all",
+    "price": 250,
+    "rarity": "RARE",
+    "variant": "curly",
+    "colors": {
+      "hair": "#241c16"
+    }
+  },
+  {
+    "id": "hair-wavy-blond",
+    "slot": "hair",
+    "name": "גלים בלונדיניים",
+    "theme": "all",
+    "price": 250,
+    "rarity": "RARE",
+    "variant": "wavy",
+    "colors": {
+      "hair": "#f0c14b"
+    }
+  },
+  {
+    "id": "hair-mohawk-red",
+    "slot": "hair",
+    "name": "מוהוק אדום",
+    "theme": "soccer",
+    "price": 300,
+    "rarity": "RARE",
+    "variant": "mohawk",
+    "colors": {
+      "hair": "#7f1d1d",
+      "accent": "#ef4444"
+    }
+  },
+  {
+    "id": "outfit-tshirt-blue",
+    "slot": "outfit",
+    "name": "חולצה כחולה",
+    "theme": "all",
+    "price": 0,
+    "rarity": "FREE",
+    "variant": "tshirt",
+    "colors": {
+      "main": "#3b82f6",
+      "accent": "#1f2937",
+      "trim": "#ffffff"
+    }
+  },
+  {
+    "id": "outfit-racer-red",
+    "slot": "outfit",
+    "name": "חליפת מרוץ אדומה",
+    "theme": "soccer",
+    "price": 0,
+    "rarity": "FREE",
+    "variant": "racer",
+    "colors": {
+      "main": "#ef4444",
+      "accent": "#ffffff",
+      "trim": "#facc15"
+    }
+  },
+  {
+    "id": "outfit-dino-suit",
+    "slot": "outfit",
+    "name": "חליפת דינוזאור",
+    "theme": "dino",
+    "price": 0,
+    "rarity": "FREE",
+    "variant": "dinosuit",
+    "colors": {
+      "main": "#22c55e",
+      "accent": "#dcfce7",
+      "trim": "#15803d"
+    }
+  },
+  {
+    "id": "outfit-spacesuit",
+    "slot": "outfit",
+    "name": "חליפת אסטרונאוט",
+    "theme": "space",
+    "price": 0,
+    "rarity": "FREE",
+    "variant": "spacesuit",
+    "colors": {
+      "main": "#e2e8f0",
+      "accent": "#38bdf8",
+      "trim": "#f97316"
+    }
+  },
+  {
+    "id": "outfit-tshirt-green",
+    "slot": "outfit",
+    "name": "חולצה ירוקה",
+    "theme": "all",
+    "price": 150,
+    "rarity": "RARE",
+    "variant": "tshirt",
+    "colors": {
+      "main": "#22c55e",
+      "accent": "#166534",
+      "trim": "#fde047"
+    }
+  },
+  {
+    "id": "outfit-tshirt-yellow",
+    "slot": "outfit",
+    "name": "חולצה צהובה",
+    "theme": "all",
+    "price": 150,
+    "rarity": "RARE",
+    "variant": "tshirt",
+    "colors": {
+      "main": "#fde047",
+      "accent": "#1f2937",
+      "trim": "#f97316"
+    }
+  },
+  {
+    "id": "outfit-hoodie-gray",
+    "slot": "outfit",
+    "name": "קפוצ'ון אפור",
+    "theme": "all",
+    "price": 250,
+    "rarity": "RARE",
+    "variant": "hoodie",
+    "colors": {
+      "main": "#64748b",
+      "accent": "#334155",
+      "trim": "#fde047"
+    }
+  },
+  {
+    "id": "outfit-hoodie-blue",
+    "slot": "outfit",
+    "name": "קפוצ'ון כחול",
+    "theme": "all",
+    "price": 250,
+    "rarity": "RARE",
+    "variant": "hoodie",
+    "colors": {
+      "main": "#2563eb",
+      "accent": "#1e3a8a",
+      "trim": "#ffffff"
+    }
+  },
+  {
+    "id": "outfit-overalls-denim",
+    "slot": "outfit",
+    "name": "אוברול ג'ינס",
+    "theme": "all",
+    "price": 300,
+    "rarity": "RARE",
+    "variant": "overalls",
+    "colors": {
+      "main": "#3b82f6",
+      "accent": "#fef08a",
+      "trim": "#fbbf24"
+    }
+  },
+  {
+    "id": "outfit-jersey-blue",
+    "slot": "outfit",
+    "name": "מדי כדורגל",
+    "theme": "all",
+    "price": 350,
+    "rarity": "RARE",
+    "variant": "jersey",
+    "colors": {
+      "main": "#0ea5e9",
+      "accent": "#1e3a8a",
+      "trim": "#ffffff"
+    }
+  },
+  {
+    "id": "outfit-pajamas-stars",
+    "slot": "outfit",
+    "name": "פיג'מת כוכבים",
+    "theme": "space",
+    "price": 400,
+    "rarity": "RARE",
+    "variant": "pajamas",
+    "colors": {
+      "main": "#4338ca",
+      "accent": "#a5b4fc",
+      "trim": "#fde047"
+    }
+  },
+  {
+    "id": "outfit-racer-black",
+    "slot": "outfit",
+    "name": "חליפת מרוץ שחורה",
+    "theme": "soccer",
+    "price": 500,
+    "rarity": "EPIC",
+    "variant": "racer",
+    "colors": {
+      "main": "#111827",
+      "accent": "#f97316",
+      "trim": "#facc15"
+    }
+  },
+  {
+    "id": "outfit-dino-orange",
+    "slot": "outfit",
+    "name": "חליפת דינו כתומה",
+    "theme": "dino",
+    "price": 600,
+    "rarity": "EPIC",
+    "variant": "dinosuit",
+    "colors": {
+      "main": "#f97316",
+      "accent": "#fed7aa",
+      "trim": "#b45309"
+    }
+  },
+  {
+    "id": "outfit-space-silver",
+    "slot": "outfit",
+    "name": "חליפת חלל כסופה",
+    "theme": "space",
+    "price": 800,
+    "rarity": "EPIC",
+    "variant": "spacesuit",
+    "colors": {
+      "main": "#cbd5e1",
+      "accent": "#6366f1",
+      "trim": "#f43f5e"
+    }
+  },
+  {
+    "id": "shoes-sneakers-white",
+    "slot": "shoes",
+    "name": "סניקרס לבנות",
+    "theme": "all",
+    "price": 0,
+    "rarity": "FREE",
+    "variant": "sneakers",
+    "colors": {
+      "main": "#ffffff",
+      "accent": "#3b82f6"
+    }
+  },
+  {
+    "id": "shoes-flat-black",
+    "slot": "shoes",
+    "name": "נעליים שחורות",
+    "theme": "all",
+    "price": 150,
+    "rarity": "RARE",
+    "variant": "flat",
+    "colors": {
+      "main": "#1f2937"
+    }
+  },
+  {
+    "id": "shoes-sandals",
+    "slot": "shoes",
+    "name": "סנדלים",
+    "theme": "all",
+    "price": 150,
+    "rarity": "RARE",
+    "variant": "sandals",
+    "colors": {
+      "main": "#d97706",
+      "accent": "#fde047"
+    }
+  },
+  {
+    "id": "shoes-sneakers-red",
+    "slot": "shoes",
+    "name": "סניקרס אדומות",
+    "theme": "soccer",
+    "price": 200,
+    "rarity": "RARE",
+    "variant": "sneakers",
+    "colors": {
+      "main": "#ef4444",
+      "accent": "#ffffff"
+    }
+  },
+  {
+    "id": "shoes-sneakers-blue",
+    "slot": "shoes",
+    "name": "סניקרס כחולות",
+    "theme": "all",
+    "price": 200,
+    "rarity": "RARE",
+    "variant": "sneakers",
+    "colors": {
+      "main": "#2563eb",
+      "accent": "#ffffff"
+    }
+  },
+  {
+    "id": "shoes-boots-green",
+    "slot": "shoes",
+    "name": "מגפי יער",
+    "theme": "dino",
+    "price": 300,
+    "rarity": "RARE",
+    "variant": "boots",
+    "colors": {
+      "main": "#166534",
+      "accent": "#65a30d"
+    }
+  },
+  {
+    "id": "shoes-cleats",
+    "slot": "shoes",
+    "name": "נעלי כדורגל",
+    "theme": "all",
+    "price": 350,
+    "rarity": "RARE",
+    "variant": "cleats",
+    "colors": {
+      "main": "#0ea5e9",
+      "accent": "#fde047"
+    }
+  },
+  {
+    "id": "shoes-space-boots",
+    "slot": "shoes",
+    "name": "מגפי חלל",
+    "theme": "space",
+    "price": 500,
+    "rarity": "EPIC",
+    "variant": "spaceboots",
+    "colors": {
+      "main": "#e2e8f0",
+      "accent": "#6366f1",
+      "trim": "#f97316"
+    }
+  },
+  {
+    "id": "head-racing-helmet",
+    "slot": "head",
+    "name": "קסדת מרוץ",
+    "theme": "soccer",
+    "price": 0,
+    "rarity": "FREE",
+    "variant": "helmet",
+    "colors": {
+      "main": "#ef4444",
+      "accent": "#ffffff"
+    }
+  },
+  {
+    "id": "head-dino-hood",
+    "slot": "head",
+    "name": "ברדס דינו",
+    "theme": "dino",
+    "price": 0,
+    "rarity": "FREE",
+    "variant": "dinohood",
+    "colors": {
+      "main": "#22c55e",
+      "accent": "#15803d"
+    }
+  },
+  {
+    "id": "head-cap-red",
+    "slot": "head",
+    "name": "כובע מצחייה אדום",
+    "theme": "all",
+    "price": 150,
+    "rarity": "RARE",
+    "variant": "cap",
+    "colors": {
+      "main": "#ef4444",
+      "accent": "#b91c1c",
+      "trim": "#fde047"
+    }
+  },
+  {
+    "id": "head-cap-blue",
+    "slot": "head",
+    "name": "כובע מצחייה כחול",
+    "theme": "all",
+    "price": 150,
+    "rarity": "RARE",
+    "variant": "cap",
+    "colors": {
+      "main": "#2563eb",
+      "accent": "#1e3a8a",
+      "trim": "#ffffff"
+    }
+  },
+  {
+    "id": "head-beanie",
+    "slot": "head",
+    "name": "כובע צמר",
+    "theme": "all",
+    "price": 200,
+    "rarity": "RARE",
+    "variant": "beanie",
+    "colors": {
+      "main": "#0ea5e9",
+      "accent": "#0369a1",
+      "trim": "#fde047"
+    }
+  },
+  {
+    "id": "head-goggles",
+    "slot": "head",
+    "name": "משקפי מירוץ",
+    "theme": "soccer",
+    "price": 250,
+    "rarity": "RARE",
+    "variant": "goggles",
+    "colors": {
+      "main": "#f59e0b",
+      "accent": "#b45309"
+    }
+  },
+  {
+    "id": "head-headphones",
+    "slot": "head",
+    "name": "אוזניות",
+    "theme": "all",
+    "price": 300,
+    "rarity": "RARE",
+    "variant": "headphones",
+    "colors": {
+      "main": "#8b5cf6",
+      "accent": "#fde047"
+    }
+  },
+  {
+    "id": "head-space-helmet",
+    "slot": "head",
+    "name": "קסדת אסטרונאוט",
+    "theme": "space",
+    "price": 0,
+    "rarity": "FREE",
+    "variant": "spacehelmet",
+    "colors": {
+      "main": "#e2e8f0",
+      "accent": "#f97316"
+    }
+  },
+  {
+    "id": "head-crown",
+    "slot": "head",
+    "name": "כתר מלכותי",
+    "theme": "all",
+    "price": 1000,
+    "rarity": "LEGENDARY",
+    "variant": "crown",
+    "colors": {
+      "main": "#facc15",
+      "accent": "#ef4444"
+    }
+  },
+  {
+    "id": "hand-ball",
+    "slot": "hand",
+    "name": "כדורגל",
+    "theme": "all",
+    "price": 150,
+    "rarity": "RARE",
+    "variant": "ball",
+    "colors": {
+      "main": "#ffffff",
+      "accent": "#111827"
+    }
+  },
+  {
+    "id": "hand-toycar",
+    "slot": "hand",
+    "name": "מכונית צעצוע",
+    "theme": "soccer",
+    "price": 200,
+    "rarity": "RARE",
+    "variant": "toycar",
+    "colors": {
+      "main": "#ef4444",
+      "accent": "#38bdf8",
+      "trim": "#fde047"
+    }
+  },
+  {
+    "id": "hand-icecream",
+    "slot": "hand",
+    "name": "גלידה",
+    "theme": "all",
+    "price": 250,
+    "rarity": "RARE",
+    "variant": "icecream",
+    "colors": {
+      "main": "#fbcfe8",
+      "accent": "#d6a06b"
+    }
+  },
+  {
+    "id": "hand-wrench",
+    "slot": "hand",
+    "name": "מפתח ברגים",
+    "theme": "soccer",
+    "price": 250,
+    "rarity": "RARE",
+    "variant": "wrench",
+    "colors": {
+      "main": "#94a3b8",
+      "accent": "#ef4444"
+    }
+  },
+  {
+    "id": "hand-flag",
+    "slot": "hand",
+    "name": "דגל סיום",
+    "theme": "soccer",
+    "price": 300,
+    "rarity": "RARE",
+    "variant": "flag",
+    "colors": {
+      "main": "#111827"
+    }
+  },
+  {
+    "id": "hand-bone",
+    "slot": "hand",
+    "name": "עצם דינוזאור",
+    "theme": "dino",
+    "price": 300,
+    "rarity": "RARE",
+    "variant": "bone",
+    "colors": {
+      "main": "#f5f5f4"
+    }
+  },
+  {
+    "id": "hand-raygun",
+    "slot": "hand",
+    "name": "רובה לייזר",
+    "theme": "space",
+    "price": 350,
+    "rarity": "RARE",
+    "variant": "raygun",
+    "colors": {
+      "main": "#38bdf8",
+      "accent": "#a855f7",
+      "trim": "#fde047"
+    }
+  },
+  {
+    "id": "back-jetpack",
+    "slot": "back",
+    "name": "מנוע סילון",
+    "theme": "space",
+    "price": 0,
+    "rarity": "FREE",
+    "variant": "jetpack",
+    "colors": {
+      "main": "#94a3b8",
+      "accent": "#38bdf8"
+    }
+  },
+  {
+    "id": "back-backpack-red",
+    "slot": "back",
+    "name": "תיק גב אדום",
+    "theme": "all",
+    "price": 200,
+    "rarity": "RARE",
+    "variant": "backpack",
+    "colors": {
+      "main": "#ef4444",
+      "accent": "#fca5a5"
+    }
+  },
+  {
+    "id": "back-backpack-blue",
+    "slot": "back",
+    "name": "תיק גב כחול",
+    "theme": "all",
+    "price": 200,
+    "rarity": "RARE",
+    "variant": "backpack",
+    "colors": {
+      "main": "#2563eb",
+      "accent": "#93c5fd"
+    }
+  },
+  {
+    "id": "back-dinotail",
+    "slot": "back",
+    "name": "זנב דינוזאור",
+    "theme": "dino",
+    "price": 400,
+    "rarity": "RARE",
+    "variant": "dinotail",
+    "colors": {
+      "main": "#22c55e",
+      "accent": "#15803d"
+    }
+  },
+  {
+    "id": "back-cape-red",
+    "slot": "back",
+    "name": "גלימת גיבור",
+    "theme": "all",
+    "price": 500,
+    "rarity": "EPIC",
+    "variant": "cape",
+    "colors": {
+      "main": "#ef4444",
+      "accent": "#facc15"
+    }
+  },
+  {
+    "id": "back-wings",
+    "slot": "back",
+    "name": "כנפי חלל",
+    "theme": "space",
+    "price": 600,
+    "rarity": "EPIC",
+    "variant": "wings",
+    "colors": {
+      "main": "#a5b4fc",
+      "accent": "#ffffff"
+    }
+  },
+  {
+    "id": "pet-puppy",
+    "slot": "pet",
+    "name": "כלבלב",
+    "theme": "all",
+    "price": 400,
+    "rarity": "RARE",
+    "variant": "puppy",
+    "emoji": "🐶",
+    "colors": {}
+  },
+  {
+    "id": "pet-kitten",
+    "slot": "pet",
+    "name": "חתלתול",
+    "theme": "all",
+    "price": 400,
+    "rarity": "RARE",
+    "variant": "kitten",
+    "emoji": "🐱",
+    "colors": {}
+  },
+  {
+    "id": "pet-parrot",
+    "slot": "pet",
+    "name": "תוכי",
+    "theme": "dino",
+    "price": 500,
+    "rarity": "EPIC",
+    "variant": "parrot",
+    "emoji": "🦜",
+    "colors": {}
+  },
+  {
+    "id": "pet-dino",
+    "slot": "pet",
+    "name": "דינו קטן",
+    "theme": "dino",
+    "price": 700,
+    "rarity": "EPIC",
+    "variant": "dino",
+    "emoji": "🦖",
+    "colors": {}
+  },
+  {
+    "id": "pet-robot",
+    "slot": "pet",
+    "name": "רובוט",
+    "theme": "space",
+    "price": 700,
+    "rarity": "EPIC",
+    "variant": "robot",
+    "emoji": "🤖",
+    "colors": {}
+  },
+  {
+    "id": "pet-alien",
+    "slot": "pet",
+    "name": "חייזר ידידותי",
+    "theme": "space",
+    "price": 1200,
+    "rarity": "LEGENDARY",
+    "variant": "alien",
+    "emoji": "👽",
+    "colors": {}
+  },
+  {
+    "id": "outfit-ninja-black",
+    "slot": "outfit",
+    "name": "חליפת נינג׳ה",
+    "theme": "ninja",
+    "price": 0,
+    "rarity": "FREE",
+    "variant": "tshirt",
+    "colors": {
+      "main": "#1e293b",
+      "accent": "#f87171",
+      "trim": "#0f172a"
+    }
+  },
+  {
+    "id": "hair-ninja-band",
+    "slot": "hair",
+    "name": "שיער נינג׳ה",
+    "theme": "ninja",
+    "price": 0,
+    "rarity": "FREE",
+    "variant": "short",
+    "colors": {
+      "hair": "#241c16"
+    }
+  },
+  {
+    "id": "head-ninja-mask",
+    "slot": "head",
+    "name": "מסכת נינג׳ה",
+    "theme": "ninja",
+    "price": 350,
+    "rarity": "RARE",
+    "variant": "helmet",
+    "colors": {
+      "main": "#1e293b",
+      "accent": "#f87171"
+    }
+  },
+  {
+    "id": "outfit-keeper-green",
+    "slot": "outfit",
+    "name": "חולצת שוער",
+    "theme": "soccer",
+    "price": 300,
+    "rarity": "RARE",
+    "variant": "tshirt",
+    "colors": {
+      "main": "#22c55e",
+      "accent": "#fde047",
+      "trim": "#065f46"
+    }
+  },
+  {
+    "id": "hair-ninja-topknot",
+    "slot": "hair",
+    "name": "קוקו נינג׳ה",
+    "theme": "ninja",
+    "price": 200,
+    "rarity": "RARE",
+    "variant": "mohawk",
+    "colors": {
+      "hair": "#241c16",
+      "accent": "#f87171"
+    }
+  },
+  {
+    "id": "outfit-ninja-hoodie",
+    "slot": "outfit",
+    "name": "קפוצ׳ון נינג׳ה",
+    "theme": "ninja",
+    "price": 700,
+    "rarity": "EPIC",
+    "variant": "hoodie",
+    "colors": {
+      "main": "#0f172a",
+      "accent": "#f87171",
+      "trim": "#334155"
+    }
+  },
+  {
+    "id": "shoes-ninja-boots",
+    "slot": "shoes",
+    "name": "מגפי נינג׳ה",
+    "theme": "ninja",
+    "price": 250,
+    "rarity": "RARE",
+    "variant": "boots",
+    "colors": {
+      "main": "#1e293b",
+      "dark": "#0f172a",
+      "accent": "#f87171"
+    }
+  },
+  {
+    "id": "head-ninja-hood",
+    "slot": "head",
+    "name": "ברדס לילה",
+    "theme": "ninja",
+    "price": 300,
+    "rarity": "RARE",
+    "variant": "beanie",
+    "colors": {
+      "main": "#1e293b",
+      "accent": "#f87171"
+    }
+  },
+  {
+    "id": "hand-ninja-flag",
+    "slot": "hand",
+    "name": "דגל השבט",
+    "theme": "ninja",
+    "price": 300,
+    "rarity": "RARE",
+    "variant": "flag",
+    "colors": {
+      "main": "#f87171",
+      "accent": "#0f172a"
+    }
+  },
+  {
+    "id": "back-ninja-cape",
+    "slot": "back",
+    "name": "גלימת נינג׳ה",
+    "theme": "ninja",
+    "price": 600,
+    "rarity": "EPIC",
+    "variant": "cape",
+    "colors": {
+      "main": "#0f172a",
+      "accent": "#f87171"
+    }
+  },
+  {
+    "id": "pet-ninja-cat",
+    "slot": "pet",
+    "name": "חתול צללים",
+    "theme": "ninja",
+    "price": 550,
+    "rarity": "EPIC",
+    "variant": "kitten",
+    "colors": {
+      "main": "#334155"
+    },
+    "emoji": "🐈‍⬛"
+  }
+]

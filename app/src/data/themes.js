@@ -48,6 +48,7 @@ export const THEMES = {
       bricks: { emoji: '🛸', title: 'פלישת חייזרים', he: 'נפצו את צי החייזרים עם הכדור!', bricks: ['#67e8f9', '#a78bfa', '#38bdf8', '#f472b6', '#facc15', '#34d399'] },
       moles: { good: '👾', bad: '☄️', title: 'תפסו חייזרים', he: 'תפסו חייזרים — לא מטאורים!' },
     },
+    avatarPreset: { hair: 'hair-short-black', outfit: 'outfit-spacesuit', head: 'head-space-helmet', back: 'back-jetpack' },
   },
   dino: {
     id: 'dino',
@@ -77,6 +78,7 @@ export const THEMES = {
       bricks: { emoji: '🪨', title: 'שוברים סלעים', he: 'נפצו את כל הסלעים עם הכדור!', bricks: ['#84cc16', '#fbbf24', '#f97316', '#a16207', '#22c55e', '#65a30d'] },
       moles: { good: '🦖', bad: '🌋', title: 'תפסו דינוזאור', he: 'תפסו דינוזאורים — לא הרי געש!' },
     },
+    avatarPreset: { hair: 'hair-spiky-black', outfit: 'outfit-dino-suit', head: 'head-dino-hood' },
   },
   soccer: {
     id: 'soccer',
@@ -106,6 +108,7 @@ export const THEMES = {
       bricks: { emoji: '🥅', title: 'קיר הגנה', he: 'פרצו את קיר ההגנה עם הכדור!', bricks: ['#fde047', '#ffffff', '#22c55e', '#38bdf8', '#ef4444', '#f97316'] },
       moles: { good: '⚽', bad: '🟥', title: 'תפסו את הכדור', he: 'תפסו כדורים — לא כרטיסים אדומים!' },
     },
+    avatarPreset: { outfit: 'outfit-racer-red', head: 'head-racing-helmet' },
   },
   ninja: {
     id: 'ninja',
@@ -135,6 +138,7 @@ export const THEMES = {
       bricks: { emoji: '🏯', title: 'פריצת המצודה', he: 'שברו את חומות המצודה!', bricks: ['#f87171', '#facc15', '#ffffff', '#64748b', '#38bdf8', '#dc2626'] },
       moles: { good: '🥷', bad: '💣', title: 'תפסו נינג׳ה', he: 'תפסו נינג׳ות — לא פצצות!' },
     },
+    avatarPreset: { hair: 'hair-ninja-band', outfit: 'outfit-ninja-black' },
   },
 }
 

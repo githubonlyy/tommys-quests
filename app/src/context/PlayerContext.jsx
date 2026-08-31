@@ -1,10 +1,44 @@
 import { createContext, useContext, useEffect, useReducer } from 'react'
 import config from '../data/config.json'
 import { evaluateTrophies } from '../data/trophies.js'
-import { DEFAULT_AVATAR } from '../data/avatars.js'
-import { gearById } from '../data/gear.js'
+import wardrobe from '../data/wardrobe.json'
+import { THEME_IDS, DEFAULT_THEME } from '../data/themes.js'
 
 const STORAGE_KEY = 'tommys-quests-v1'
+
+// Avatar slots. Required slots always have something equipped; optional ones
+// may be null (nothing on his head, no jetpack, no pet).
+export const AVATAR_SLOTS = ['skin', 'hair', 'outfit', 'shoes', 'head', 'hand', 'back', 'pet']
+export const REQUIRED_SLOTS = ['skin', 'hair', 'outfit', 'shoes']
+
+// Each world dresses its own doll: free items tagged for that world win over
+// generic free items, so the three starter dolls already look different.
+export function defaultEquipped(themeId, items = wardrobe) {
+  const free = items.filter((i) => i.price === 0)
+  const equipped = {}
+  for (const slot of AVATAR_SLOTS) {
+    // optional slots stay empty unless this world (or 'all') offers a free item —
+    // otherwise the space jetpack would end up on the racing driver's back
+    equipped[slot] =
+      free.find((i) => i.slot === slot && i.theme === themeId)?.id ??
+      free.find((i) => i.slot === slot && i.theme === 'all')?.id ??
+      (REQUIRED_SLOTS.includes(slot) ? (free.find((i) => i.slot === slot)?.id ?? null) : null)
+  }
+  return equipped
+}
+
+// exported for tests: wardrobe items are shared (bought once), outfits are per world
+export function defaultAvatar(items = wardrobe) {
+  const equippedByTheme = {}
+  for (const id of THEME_IDS) equippedByTheme[id] = defaultEquipped(id, items)
+  return { owned: items.filter((i) => i.price === 0).map((i) => i.id), equippedByTheme }
+}
+
+export const getEquipped = (state, themeId) =>
+  state.avatar.equippedByTheme[themeId] ?? state.avatar.equippedByTheme[DEFAULT_THEME]
+
+// exported for tests
+
 
 // exported for tests
 export const DEFAULT_STATE = {
@@ -23,8 +57,8 @@ export const DEFAULT_STATE = {
   ownedGames: ['coinrush'], // arcade games bought with coins (coinrush is free)
   arcadeHighScores: {}, // gameId -> best score
   lessonsRead: {}, // eventId -> business date the day's lesson cards were read
-  avatar: { ...DEFAULT_AVATAR }, // { avatarId, frameId, name, gear } — cosmetics unlock by level
-  ownedGear: [], // accessory ids bought with coins or unlocked by level
+  name: 'TOMMY',
+  avatar: defaultAvatar(), // { owned: [itemId], equippedByTheme: { themeId: { slot: itemId|null } } }
   playTime: { date: null, usedMs: 0, bonusMs: 0 }, // fun-tab budget for the current game day
   corrupt: false,
 }
@@ -51,6 +85,17 @@ export function applyXp(state, gained) {
     level += 1
   }
   return { xp, level, leveledUp: level > state.level }
+}
+
+function withEquip(avatar, themeId, slot, itemId) {
+  const id = THEME_IDS.includes(themeId) ? themeId : DEFAULT_THEME
+  return {
+    ...avatar,
+    equippedByTheme: {
+      ...avatar.equippedByTheme,
+      [id]: { ...avatar.equippedByTheme[id], [slot]: itemId },
+    },
+  }
 }
 
 // exported for tests
@@ -138,45 +183,46 @@ export function reducer(state, action) {
         purchases: [purchase, ...state.purchases],
       }
     }
-    case 'GEAR_BUY': {
-      const g = gearById(action.id)
-      if (!g || state.ownedGear.includes(g.id)) return state
-      // level-locked gear is earned, never sold
-      if (g.level) {
-        if (state.level < g.level) return state
-        return { ...state, ownedGear: [...state.ownedGear, g.id] }
-      }
-      if (state.coins < g.cost) return state
-      const purchase = { id: Date.now() + '-' + g.id, ts: Date.now(), title: `${g.emoji} ${g.en}`, cost: g.cost }
-      return {
+    case 'WARDROBE_BUY': {
+      const { item, themeId = DEFAULT_THEME } = action // item = { id, slot, name, price }
+      if (state.avatar.owned.includes(item.id) || state.coins < item.price) return state
+      const purchase = { id: Date.now() + '-' + item.id, ts: Date.now(), title: `👕 ${item.name}`, cost: item.price, kind: 'wardrobe' }
+      const next = {
         ...state,
-        coins: state.coins - g.cost,
-        ownedGear: [...state.ownedGear, g.id],
+        coins: state.coins - item.price,
         purchases: [purchase, ...state.purchases],
+        // wear it right away in the world she bought it in
+        avatar: withEquip({ ...state.avatar, owned: [...state.avatar.owned, item.id] }, themeId, item.slot, item.id),
       }
+      return { ...next, trophies: evaluateTrophies(next) }
     }
-    case 'SET_GEAR':
-      // null clears the slot
-      return { ...state, avatar: { ...state.avatar, gear: { ...(state.avatar.gear ?? {}), [action.slot]: action.id } } }
+    case 'AVATAR_EQUIP': {
+      const { themeId = DEFAULT_THEME, slot, itemId } = action // itemId null = take it off (optional slots only)
+      if (!AVATAR_SLOTS.includes(slot)) return state
+      if (itemId === null && REQUIRED_SLOTS.includes(slot)) return state
+      if (itemId !== null && !state.avatar.owned.includes(itemId)) return state
+      if (getEquipped(state, themeId)[slot] === itemId) return state
+      return { ...state, avatar: withEquip(state.avatar, themeId, slot, itemId) }
+    }
     case 'PLAY_TIME_SPEND': {
       const today = businessDate()
-      const fresh = state.playTime.date === today ? state.playTime : { date: today, usedMs: 0, bonusMs: 0 }
-      return { ...state, playTime: { ...fresh, date: today, usedMs: fresh.usedMs + Math.max(0, action.ms) } }
+      const day = state.playTime.date === today ? state.playTime : { date: today, usedMs: 0, bonusMs: 0 }
+      return { ...state, playTime: { ...day, date: today, usedMs: day.usedMs + Math.max(0, action.ms) } }
     }
     // parent override from the coach screen: extra minutes on top of what he earned
     case 'PLAY_TIME_GRANT': {
       const today = businessDate()
-      const fresh = state.playTime.date === today ? state.playTime : { date: today, usedMs: 0, bonusMs: 0 }
-      return { ...state, playTime: { ...fresh, date: today, bonusMs: Math.max(0, (fresh.bonusMs ?? 0) + action.ms) } }
+      const day = state.playTime.date === today ? state.playTime : { date: today, usedMs: 0, bonusMs: 0 }
+      return { ...state, playTime: { ...day, date: today, bonusMs: Math.max(0, (day.bonusMs ?? 0) + action.ms) } }
     }
     // parent override: end play now by spending whatever is left
     case 'PLAY_TIME_END': {
       const today = businessDate()
-      const fresh = state.playTime.date === today ? state.playTime : { date: today, usedMs: 0, bonusMs: 0 }
-      return { ...state, playTime: { ...fresh, date: today, usedMs: fresh.usedMs + Math.max(0, action.msLeft) } }
+      const day = state.playTime.date === today ? state.playTime : { date: today, usedMs: 0, bonusMs: 0 }
+      return { ...state, playTime: { ...day, date: today, usedMs: day.usedMs + Math.max(0, action.msLeft) } }
     }
-    case 'SET_AVATAR':
-      return { ...state, avatar: { ...state.avatar, ...action.avatar } }
+    case 'SET_NAME':
+      return { ...state, name: action.name }
     case 'LESSON_READ':
       return { ...state, lessonsRead: { ...state.lessonsRead, [action.eventId]: businessDate() } }
     case 'SET_PIN':
@@ -190,6 +236,29 @@ export function reducer(state, action) {
   }
 }
 
+// Items can be renamed/removed in wardrobe.json between releases, and saves
+// from before per-world outfits hold a single `equipped` map. Make every world
+// valid: equipped ids exist, sit in the right slot, are owned; required slots
+// are never empty.
+export function repairAvatar(avatar, items = wardrobe) {
+  const byId = new Map(items.map((i) => [i.id, i]))
+  const fresh = defaultAvatar(items)
+  const owned = [...new Set([...fresh.owned, ...(avatar?.owned ?? []).filter((id) => byId.has(id))])]
+  const legacy = avatar?.equipped // pre-per-world shape
+  const equippedByTheme = {}
+  for (const themeId of THEME_IDS) {
+    const src = avatar?.equippedByTheme?.[themeId] ?? legacy
+    const out = {}
+    for (const slot of AVATAR_SLOTS) {
+      const cur = src?.[slot]
+      const valid = cur && byId.get(cur)?.slot === slot && owned.includes(cur)
+      out[slot] = valid ? cur : REQUIRED_SLOTS.includes(slot) ? fresh.equippedByTheme[themeId][slot] : null
+    }
+    equippedByTheme[themeId] = out
+  }
+  return { owned, equippedByTheme }
+}
+
 function loadInitial() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
@@ -199,6 +268,8 @@ function loadInitial() {
       return { ...DEFAULT_STATE, corrupt: true }
     }
     const merged = { ...DEFAULT_STATE, ...parsed, corrupt: false }
+    // wardrobe.json changes between releases, and old saves predate per-world outfits
+    merged.avatar = repairAvatar(parsed.avatar)
     // migrate pre-game-shop saves: single coinrush high score -> per-game map
     if (typeof parsed.arcadeHighScore === 'number' && parsed.arcadeHighScore > 0 && !parsed.arcadeHighScores) {
       merged.arcadeHighScores = { coinrush: parsed.arcadeHighScore }

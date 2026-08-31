@@ -28,7 +28,6 @@ import MoneyCount, { moneySum } from './widgets/MoneyCount.jsx'
 import PairsBoard from './PairsBoard.jsx'
 import VaultReveal from './VaultReveal.jsx'
 import { PLACES, placeName } from './widgets/israelCities.js'
-import { unlocksAtLevel } from '../data/avatars.js'
 import { TROPHIES } from '../data/trophies.js'
 
 const BANKS = {
@@ -516,11 +515,7 @@ export default function MatchEngine({ event, mode = 'classic', practice, onExit,
                       <ChevronUp className="text-orange-500" size={26} strokeWidth={4} />
                       <span className="font-black text-orange-600 text-xl uppercase">{t('result.levelUp', { level: state.level })}</span>
                     </div>
-                    {unlocksAtLevel(state.level).length > 0 && (
-                      <span className="text-sm font-bold text-orange-700" dir="rtl">
-                        🔓 {t('result.unlocked')}: {unlocksAtLevel(state.level).map((u) => u.emoji ?? u.name).join(' ')}
-                      </span>
-                    )}
+
                   </div>
                 )}
 
