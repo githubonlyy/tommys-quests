@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { ChevronDown, ChevronUp, Coins, Check, X, Sparkles, Gift } from 'lucide-react'
+import { ChevronDown, ChevronUp, Coins, Check, X, Sparkles, Gift, BookOpen } from 'lucide-react'
 import { EVENTS, MODES } from '../data/events.js'
 import { dailySubjects } from '../data/board.js'
 import { usePlayer, businessDate } from '../context/PlayerContext.jsx'

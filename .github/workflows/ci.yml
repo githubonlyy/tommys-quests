@@ -32,6 +32,11 @@ jobs:
         run: npm audit --audit-level=high
         continue-on-error: true
 
+      # a JSX identifier that is imported nowhere builds and tests fine, then
+      # white-screens the app — fail the build on it
+      - name: Lint (undefined JSX blocks the build)
+        run: npx oxlint src --deny jsx-no-undef --deny no-undef
+
       - name: Test
         run: npm test
 

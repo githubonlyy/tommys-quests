@@ -1,5 +1,5 @@
 import { useEffect, useState, createContext, useContext } from 'react'
-import { Gamepad2, Store, BarChart3, Zap, Trophy, Coins, Lock, Skull, Flame, Music, Joystick, Palette, Shirt, Volume2, Globe2 } from 'lucide-react'
+import { Gamepad2, Store, BarChart3, Zap, Trophy, Coins, Lock, Skull, Flame, Music, Joystick, Palette, Shirt, Volume2, Globe2, Languages } from 'lucide-react'
 import { usePlayer, getEquipped, levelCost } from './context/PlayerContext.jsx'
 import wardrobe from './data/wardrobe.json'
 import { useLang } from './context/LangContext.jsx'
@@ -36,7 +36,6 @@ export default function App() {
   const { theme, clearTheme } = useTheme()
   const [activeTab, setActiveTab] = useState('events')
   const [toast, setToast] = useState(null)
-  const [avatarOpen, setAvatarOpen] = useState(false)
   // { event, practice } while a match is running
   const [match, setMatch] = useState(null)
   const [musicOn, setMusicOnState] = useState(isMusicOn())
@@ -159,7 +158,7 @@ export default function App() {
           <header className="h-16 lg:h-24 shrink-0 bg-(--t-side)/80 backdrop-blur-md border-b-4 border-(--t-side-deep) flex items-center justify-between px-3 lg:px-8 z-10 shadow-md">
             <div className="flex items-center gap-2 lg:gap-4">
               <button
-                onClick={() => setAvatarOpen(true)}
+                onClick={() => setActiveTab('closet')}
                 className="active:scale-95 transition-transform"
                 aria-label={t('header.avatar')}
               >
