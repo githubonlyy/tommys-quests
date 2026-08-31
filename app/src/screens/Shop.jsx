@@ -29,7 +29,7 @@ export default function Shop() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center bg-blue-900/50 p-4 rounded-2xl border-4 border-blue-900 backdrop-blur-sm">
+      <div className="flex justify-between items-center bg-(--t-panel) p-4 rounded-2xl border-4 border-(--t-panel-border) backdrop-blur-sm">
         <h2 className="text-2xl md:text-3xl font-black text-white italic tracking-wide uppercase drop-shadow-md">{t('shop.title')}</h2>
         <div className="hidden md:flex items-center gap-2 bg-black/20 px-4 py-2 rounded-xl">
           <span className="text-(--t-text-soft) font-bold uppercase text-sm">{t('shop.yourCoins')}</span>

@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react'
-import { Calculator, MessageCircle, BookOpen, Map as MapIcon, Coins, Check, X, Sparkles, Gift, Clock, Banknote, FlaskConical, Grid3x3 } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+import { ChevronDown, ChevronUp, Calculator, MessageCircle, BookOpen, Map as MapIcon, Coins, Check, X, Sparkles, Gift, Clock, Banknote, FlaskConical, Grid3x3 } from 'lucide-react'
 import { EVENTS, MODES } from '../data/events.js'
+import { dailySubjects } from '../data/board.js'
 import { usePlayer, businessDate } from '../context/PlayerContext.jsx'
 import { useLang } from '../context/LangContext.jsx'
 import { sfx } from '../match/sounds.js'
@@ -23,6 +24,13 @@ export default function EventBoard({ onStartMatch }) {
   const [preview, setPreview] = useState(null) // event shown in the pre-match modal
   const [lesson, setLesson] = useState(null) // event whose daily lesson cards are open
   const [chestOpen, setChestOpen] = useState(false)
+  const [showAll, setShowAll] = useState(false)
+
+  const today = businessDate()
+  const daily = useMemo(() => new Set(dailySubjects(today, EVENTS, config.boardSize).map((e) => e.id)), [today, config.boardSize])
+  const visible = showAll ? EVENTS : EVENTS.filter((e) => daily.has(e.id) || playedToday(e.id))
+  // what a flawless match is worth, so the badge never drifts from the economy
+  const maxCoins = config.questionsPerMatch * (config.coinsPerCorrect + config.speedBonusCoins) + config.winBonusCoins
 
   const goal = config.dailyGoal
   const doneCount = EVENTS.filter((e) => playedToday(e.id)).length
@@ -32,7 +40,7 @@ export default function EventBoard({ onStartMatch }) {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center bg-blue-900/50 p-4 rounded-2xl border-4 border-blue-900 backdrop-blur-sm">
+      <div className="flex justify-between items-center bg-(--t-panel) p-4 rounded-2xl border-4 border-(--t-panel-border) backdrop-blur-sm">
         <h2 className="text-2xl md:text-3xl font-black text-white italic tracking-wide uppercase drop-shadow-md">{t('events.title')}</h2>
         <div className="px-3 py-1.5 bg-green-500 text-white rounded-xl border-b-4 border-green-700 font-bold text-sm uppercase flex items-center gap-1">
           <Check size={16} strokeWidth={3} /> {t('events.new')}
@@ -40,7 +48,7 @@ export default function EventBoard({ onStartMatch }) {
       </div>
 
       {/* DAILY CHEST STRIP */}
-      <div className="flex items-center gap-3 bg-blue-900/50 p-3 md:p-4 rounded-2xl border-4 border-blue-900 backdrop-blur-sm">
+      <div className="flex items-center gap-3 bg-(--t-panel) p-3 md:p-4 rounded-2xl border-4 border-(--t-panel-border) backdrop-blur-sm">
         <button
           onClick={() => chestReady && !chestClaimed && setChestOpen(true)}
           disabled={!chestReady || chestClaimed}
@@ -49,7 +57,7 @@ export default function EventBoard({ onStartMatch }) {
               ? 'bg-green-500 border-green-700'
               : chestReady
                 ? 'bg-yellow-400 border-yellow-600 anim-ready-pulse cursor-pointer shadow-[0_0_18px_rgba(250,204,21,0.7)]'
-                : 'bg-blue-950 border-blue-900'}`}
+                : 'bg-(--t-side-deep) border-(--t-panel-border)'}`}
           aria-label="Daily chest"
         >
           {chestClaimed
@@ -91,7 +99,7 @@ export default function EventBoard({ onStartMatch }) {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
-        {EVENTS.map((event) => {
+        {visible.map((event) => {
           const Icon = ICONS[event.id]
           const practice = playedToday(event.id)
           return (
@@ -129,7 +137,7 @@ export default function EventBoard({ onStartMatch }) {
                 ) : (
                   <div className="absolute bottom-4 right-4 bg-yellow-400 px-3 py-1 rounded-full border-2 border-yellow-600 flex items-center gap-1 shadow-md">
                     <Coins className="text-yellow-900 fill-current" size={14} />
-                    <span className="font-black text-yellow-900 text-sm">{t('events.reward')}</span>
+                    <span className="font-black text-yellow-900 text-sm tabular-nums">{t('events.reward', { max: maxCoins })}</span>
                   </div>
                 )}
               </div>
@@ -137,6 +145,16 @@ export default function EventBoard({ onStartMatch }) {
           )
         })}
       </div>
+
+      {EVENTS.length > visible.length || showAll ? (
+        <button
+          onClick={() => setShowAll((v) => !v)}
+          className="w-full min-h-14 flex items-center justify-center gap-2 bg-(--t-panel) hover:bg-(--t-nav) text-white font-black text-lg rounded-2xl border-4 border-(--t-panel-border) backdrop-blur-sm transition-colors"
+        >
+          {showAll ? <ChevronUp size={22} /> : <ChevronDown size={22} />}
+          {t(showAll ? 'events.showLess' : 'events.showAll')}
+        </button>
+      ) : null}
 
       {/* CHEST + PRE-MATCH MODALS below */}
       {/* PRE-MATCH MODAL */}

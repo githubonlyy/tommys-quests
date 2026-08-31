@@ -20,5 +20,6 @@
     "xpPerPair": 15,
     "timerSec": 90,
     "maxWrongForWin": 5
-  }
+  },
+  "boardSize": 5
 }
