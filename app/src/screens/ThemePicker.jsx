@@ -3,7 +3,7 @@ import { THEMES, THEME_IDS } from '../data/themes.js'
 import { useTheme } from '../context/ThemeContext.jsx'
 import { useLang } from '../context/LangContext.jsx'
 import { usePlayer } from '../context/PlayerContext.jsx'
-import { avatarById, frameById } from '../data/avatars.js'
+import HeroAvatar from '../components/HeroAvatar.jsx'
 import { speak } from '../match/speak.js'
 import { sfx } from '../match/sounds.js'
 
@@ -73,11 +73,7 @@ export default function ThemePicker() {
               <div className="bg-white/90 rounded-[1.6rem] flex flex-col items-center gap-1.5 md:gap-2.5 py-4 md:py-6 px-3">
                 {/* his hero stands in the world he is about to enter */}
                 <div className="relative flex items-center justify-center group-hover:scale-105 transition-transform">
-                  <span
-                    className={`w-16 h-16 md:w-20 md:h-20 rounded-2xl border-4 flex items-center justify-center text-4xl md:text-5xl anim-float-bob ${frameById(state.avatar.frameId).classes}`}
-                  >
-                    {avatarById(state.avatar.avatarId).emoji}
-                  </span>
+                  <HeroAvatar size="lg" className="anim-float-bob" />
                   <span className="absolute -top-2 -end-3 text-3xl md:text-4xl drop-shadow-md">{th.emoji}</span>
                 </div>
                 <span className="text-xl md:text-2xl font-black text-slate-800">{isHe ? th.label : th.en}</span>

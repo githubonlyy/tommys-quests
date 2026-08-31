@@ -9,6 +9,7 @@ import {
 import { lessonCardsForToday, CARDS_PER_DAY } from '../match/lessonRotation.js'
 import LESSONS from '../data/lessons.json'
 import config from '../data/config.json'
+import { GEAR } from '../data/gear.js'
 
 const fresh = () => structuredClone(DEFAULT_STATE)
 
@@ -193,6 +194,50 @@ describe('SET_AVATAR', () => {
     let s = reducer(fresh(), { type: 'SET_AVATAR', avatar: { avatarId: 'fox' } })
     s = reducer(s, { type: 'SET_AVATAR', avatar: { name: 'MELANIE' } })
     expect(s.avatar).toMatchObject({ avatarId: 'fox', frameId: 'steel', name: 'MELANIE' })
+  })
+})
+
+describe('hero gear', () => {
+  const cap = { type: 'GEAR_BUY', id: 'cap' } // 150 coins
+  const falcon = { type: 'GEAR_BUY', id: 'falcon' } // level 5, never for sale
+
+  it('buys priced gear, deducts coins and logs it for the parent', () => {
+    const s = reducer({ ...fresh(), coins: 500 }, cap)
+    expect(s.coins).toBe(350)
+    expect(s.ownedGear).toContain('cap')
+    expect(s.purchases[0].cost).toBe(150)
+  })
+
+  it('refuses a second purchase and refuses when short', () => {
+    const owned = reducer({ ...fresh(), coins: 500 }, cap)
+    expect(reducer(owned, cap)).toBe(owned)
+    const poor = { ...fresh(), coins: 10 }
+    expect(reducer(poor, cap)).toBe(poor)
+  })
+
+  it('level-locked gear is earned, not sold', () => {
+    const tooLow = { ...fresh(), coins: 9999, level: 2 }
+    expect(reducer(tooLow, falcon)).toBe(tooLow)
+
+    const ready = { ...fresh(), coins: 9999, level: 5 }
+    const s = reducer(ready, falcon)
+    expect(s.ownedGear).toContain('falcon')
+    expect(s.coins).toBe(9999) // costs nothing
+    expect(s.purchases).toHaveLength(0)
+  })
+
+  it('equips and clears a slot', () => {
+    let s = reducer(fresh(), { type: 'SET_GEAR', slot: 'head', id: 'cap' })
+    expect(s.avatar.gear.head).toBe('cap')
+    s = reducer(s, { type: 'SET_GEAR', slot: 'head', id: null })
+    expect(s.avatar.gear.head).toBeNull()
+  })
+
+  it('stays cheap next to the real-world shop', () => {
+    const priced = GEAR.filter((g) => g.cost != null)
+    expect(priced.length).toBeGreaterThan(8)
+    for (const g of priced) expect(g.cost, g.id).toBeLessThan(1000)
+    expect(GEAR.every((g) => (g.cost == null) !== (g.level == null))).toBe(true)
   })
 })
 
