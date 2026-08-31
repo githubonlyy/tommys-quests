@@ -30,39 +30,38 @@ export function Body({ skin }) {
 function Eye({ cx, cy, iris }) {
   return (
     <g>
-      <ellipse cx={cx} cy={cy} rx="12" ry="14" fill="#ffffff" stroke="#3b2b3a" strokeWidth="2" />
+      <ellipse cx={cx} cy={cy} rx="11" ry="11.5" fill="#ffffff" stroke="#3b2b3a" strokeWidth="2" />
       <circle cx={cx} cy={cy + 1.5} r="8.5" fill={iris} />
       <circle cx={cx} cy={cy + 2} r="5" fill="#1f2340" />
       <circle cx={cx - 3.5} cy={cy - 4} r="3.5" fill="#ffffff" />
       <circle cx={cx + 3} cy={cy + 4.5} r="1.7" fill="#ffffff" opacity="0.9" />
-      {/* upper lid line, kept thin */}
-      <path d={`M ${cx - 10} ${cy - 8} Q ${cx} ${cy - 18} ${cx + 10} ${cy - 8}`} stroke="#3b2b3a" strokeWidth="2" fill="none" strokeLinecap="round" />
+      {/* flat upper lid — a curved one reads as lashes */}
+      <path d={`M ${cx - 10} ${cy - 9} Q ${cx} ${cy - 13} ${cx + 10} ${cy - 9}`} stroke="#3b2b3a" strokeWidth="2" fill="none" strokeLinecap="round" />
     </g>
   )
 }
 
 export function Head({ skin, eyes = '#4f7fe0' }) {
   const dark = shade(skin, -0.28)
+  const brow = shade(skin, -0.62)
   return (
     <g>
       <circle cx="46" cy="102" r="9" fill={skin} stroke={dark} strokeWidth="2.5" />
       <circle cx="154" cy="102" r="9" fill={skin} stroke={dark} strokeWidth="2.5" />
       <path
-        d="M 45 85 C 45 30 155 30 155 85 C 155 120 130 145 100 145 C 70 145 45 120 45 85 Z"
+        d="M 45 85 C 45 32 155 32 155 85 C 155 122 136 147 100 147 C 64 147 45 122 45 85 Z"
         fill={skin}
         stroke={dark}
         strokeWidth="2.5"
         strokeLinejoin="round"
       />
-      <ellipse cx="63" cy="118" rx="9" ry="5" fill="#ff8da1" opacity="0.3" />
-      <ellipse cx="137" cy="118" rx="9" ry="5" fill="#ff8da1" opacity="0.3" />
-      {/* brows */}
-      <path d="M 68 80 Q 78 74 89 79" stroke={dark} strokeWidth="3.5" fill="none" strokeLinecap="round" />
-      <path d="M 111 79 Q 122 74 132 80" stroke={dark} strokeWidth="3.5" fill="none" strokeLinecap="round" />
+      {/* heavier, flatter brows sit closer to the eyes */}
+      <path d="M 67 82 Q 78 78 90 81" stroke={brow} strokeWidth="5" fill="none" strokeLinecap="round" />
+      <path d="M 110 81 Q 122 78 133 82" stroke={brow} strokeWidth="5" fill="none" strokeLinecap="round" />
       <Eye cx={78} cy={100} iris={eyes} />
       <Eye cx={122} cy={100} iris={eyes} />
       <circle cx="100" cy="113" r="1.8" fill={dark} opacity="0.6" />
-      <path d="M 90 123 Q 100 133 110 123" stroke="#c0405f" strokeWidth="3" strokeLinecap="round" fill="none" />
+      <path d="M 91 124 Q 100 131 109 124" stroke={shade(skin, -0.55)} strokeWidth="3" strokeLinecap="round" fill="none" />
     </g>
   )
 }
