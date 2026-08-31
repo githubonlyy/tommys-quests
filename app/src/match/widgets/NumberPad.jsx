@@ -20,7 +20,7 @@ export default function NumberPad({ question, disabled, onAnswer }) {
   const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
 
   return (
-    <div className="flex flex-col items-center gap-4 w-full max-w-xs mx-auto">
+    <div dir="ltr" className="flex flex-col items-center gap-4 w-full max-w-xs mx-auto">
       <div className="w-full bg-slate-900 text-yellow-400 font-black text-4xl text-center py-3 rounded-2xl border-4 border-slate-700 shadow-inner min-h-[64px] tracking-widest">
         {value || <span className="text-slate-600">?</span>}
       </div>
