@@ -24,7 +24,7 @@ export default function Trophies() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center bg-blue-900/50 p-4 rounded-2xl border-4 border-blue-900 backdrop-blur-sm">
+      <div className="flex justify-between items-center bg-(--t-panel) p-4 rounded-2xl border-4 border-(--t-panel-border) backdrop-blur-sm">
         <h2 className="text-2xl md:text-3xl font-black text-white italic tracking-wide uppercase drop-shadow-md">{t('trophies.title')}</h2>
         <div className="px-3 py-1.5 bg-yellow-400 text-yellow-900 rounded-xl border-b-4 border-yellow-600 font-black text-sm uppercase tabular-nums">
           {earnedCount}/{TROPHIES.length}
@@ -41,13 +41,13 @@ export default function Trophies() {
               className={`rounded-3xl border-4 p-4 flex flex-col items-center text-center gap-2 shadow-lg transition-transform
                 ${earnedTs
                   ? 'bg-white border-yellow-400 hover:scale-105'
-                  : 'bg-blue-900/40 border-blue-900 backdrop-blur-sm'}`}
+                  : 'bg-(--t-panel) border-(--t-panel-border) backdrop-blur-sm'}`}
             >
               <div
                 className={`w-16 h-16 rounded-2xl border-4 flex items-center justify-center -rotate-3 relative
                   ${earnedTs
                     ? 'bg-gradient-to-br from-yellow-300 to-amber-500 border-yellow-600 shadow-md'
-                    : 'bg-blue-950 border-blue-900'}`}
+                    : 'bg-(--t-side-deep) border-(--t-panel-border)'}`}
               >
                 <Icon className={earnedTs ? 'text-yellow-900 w-8 h-8' : 'text-blue-700 w-8 h-8'} />
                 {!earnedTs && (

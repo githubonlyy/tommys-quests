@@ -23,11 +23,11 @@ export default function Arcade() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3 bg-blue-900/50 p-4 rounded-2xl border-4 border-blue-900 backdrop-blur-sm">
+      <div className="flex items-center gap-3 bg-(--t-panel) p-4 rounded-2xl border-4 border-(--t-panel-border) backdrop-blur-sm">
         <Gamepad2 className="text-pink-400" size={28} />
         <h2 className="text-2xl md:text-3xl font-black text-white italic tracking-wide uppercase drop-shadow-md flex-1">{t('arcade.title')}</h2>
         {!unlocked && (
-          <span className="text-blue-200 font-bold text-sm" dir="rtl">
+          <span className="text-(--t-text-soft) font-bold text-sm" dir="rtl">
             {t('arcade.lockedShort', { done: goalDone, goal })}
           </span>
         )}
