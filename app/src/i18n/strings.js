@@ -11,6 +11,17 @@ export const STRINGS = {
     'nav.arcade': 'ארקייד',
     'nav.trophies': 'גביעים',
     'nav.coach': 'הורים',
+    'nav.world': 'העולם',
+
+    'world.title': 'העולם שלי',
+    'world.draw': 'ציור',
+    'world.drawHe': 'מציירים וצובעים!',
+    'world.drive': 'נהיגה',
+    'world.driveHe': 'נוסעים ואוספים!',
+
+    'theme.choose': 'איזה עולם היום?',
+    'theme.last': 'הבחירה האחרונה',
+    'theme.enter': 'קדימה!',
 
     'header.level': 'רמה',
     'header.music.on': 'כיבוי מוזיקה',
@@ -125,6 +136,17 @@ export const STRINGS = {
     'nav.arcade': 'Arcade',
     'nav.trophies': 'Trophies',
     'nav.coach': 'Coach',
+    'nav.world': 'World',
+
+    'world.title': 'My World',
+    'world.draw': 'Draw',
+    'world.drawHe': 'Draw and color!',
+    'world.drive': 'Drive',
+    'world.driveHe': 'Drive and collect!',
+
+    'theme.choose': 'Which world today?',
+    'theme.last': 'Last pick',
+    'theme.enter': 'GO!',
 
     'header.level': 'LVL',
     'header.music.on': 'Turn music off',
