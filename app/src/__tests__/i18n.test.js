@@ -20,12 +20,16 @@ function jsxFiles(dir, out = []) {
 
 // Keys look like `group.name` — enough to tell an i18n call from `setSheet('gallery')`
 const KEY_CALL = /\bt\('([a-z][a-zA-Z]*(?:\.[a-zA-Z]+)+)'/g
+// Keys also travel as data (a nav table holds `key: 'nav.world'` and renders
+// `t(tab.key)`) — that shape shipped a raw "NAV.WORLD" label to the tablet twice.
+const KEY_DATA = /key: '([a-z][a-zA-Z]*(?:\.[a-zA-Z]+)+)'/g
 
 const usedKeys = (() => {
   const keys = new Set()
   for (const file of jsxFiles(SRC)) {
     const src = readFileSync(file, 'utf8')
     for (const m of src.matchAll(KEY_CALL)) keys.add(m[1])
+    for (const m of src.matchAll(KEY_DATA)) keys.add(m[1])
   }
   return [...keys].sort()
 })()

@@ -6,7 +6,8 @@ import { shade } from './util.js'
 // cap hugging the skull, with a boyish side-swept fringe over the forehead
 const CAP_FRONT = 'M 44 100 C 40 20 160 20 156 100 C 150 80 140 70 126 76 Q 108 88 84 78 C 70 72 50 80 44 100 Z'
 // what shows behind the head: a short shell down to the nape
-const SHORT_BACK = 'M 42 96 C 38 22 162 22 158 96 L 158 124 Q 100 136 42 124 Z'
+// stops above the jaw — hair past it reads as a bob
+const SHORT_BACK = 'M 44 94 C 42 26 158 26 156 94 L 156 108 Q 100 118 44 108 Z'
 const BUZZ_BACK = 'M 46 94 C 44 32 156 32 154 94 L 154 110 Q 100 120 46 110 Z'
 
 function paint(item) {
@@ -33,8 +34,8 @@ const short = {
     return (
       <g>
         <path d={CAP_FRONT} fill={p.fill} {...o(p.dark)} />
-        {/* side part */}
-        <path d="M 118 40 Q 128 60 126 78" stroke={p.light} strokeWidth="3" fill="none" strokeLinecap="round" opacity="0.8" />
+        {/* short fringe sweep, not a side part */}
+        <path d="M 74 44 Q 100 34 126 44" stroke={p.light} strokeWidth="3" fill="none" strokeLinecap="round" opacity="0.7" />
       </g>
     )
   },
