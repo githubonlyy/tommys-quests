@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { BarChart3, Lock, Trophy, Zap, ShoppingBag, KeyRound, Delete } from 'lucide-react'
+import { BarChart3, Lock, Trophy, Zap, ShoppingBag, KeyRound, Delete, Timer, Plus, Square } from 'lucide-react'
 import { usePlayer } from '../context/PlayerContext.jsx'
 import { useLang } from '../context/LangContext.jsx'
 import { useToast } from '../App.jsx'
@@ -113,7 +113,7 @@ function PinGate({ pin, config, onUnlock }) {
 
 function Dashboard() {
   const { t } = useLang()
-  const { state, dispatch } = usePlayer()
+  const { state, dispatch, playClock } = usePlayer()
   const showToast = useToast()
   const [newPin, setNewPin] = useState('')
 
@@ -252,6 +252,51 @@ function Dashboard() {
             ))}
           </ul>
         )}
+      </div>
+
+      {/* PLAY TIME — parent override */}
+      <div className="bg-white border-4 border-slate-200 rounded-3xl shadow-lg p-6">
+        <h3 className="text-lg font-black text-slate-600 uppercase tracking-wide mb-4 flex items-center gap-2">
+          <Timer size={20} /> {t('coach.playTime')}
+        </h3>
+        <div className="flex flex-wrap items-center gap-3 mb-4">
+          <span className="px-3 py-1.5 rounded-xl bg-slate-100 border-2 border-slate-200 font-black text-slate-700 tabular-nums">
+            {t('coach.playLeft')}: {Math.ceil(playClock.msLeft / 60000)}′
+          </span>
+          <span className="px-3 py-1.5 rounded-xl bg-slate-100 border-2 border-slate-200 font-bold text-slate-500 tabular-nums">
+            {t('coach.playEarned', { n: playClock.earnedSessions, max: playClock.maxSessions })}
+          </span>
+          {playClock.bonusMs > 0 && (
+            <span className="px-3 py-1.5 rounded-xl bg-green-100 border-2 border-green-300 font-black text-green-700 tabular-nums">
+              {t('coach.playBonus', { mins: Math.round(playClock.bonusMs / 60000) })}
+            </span>
+          )}
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {[5, 15, 30].map((mins) => (
+            <button
+              key={mins}
+              onClick={() => {
+                dispatch({ type: 'PLAY_TIME_GRANT', ms: mins * 60000 })
+                showToast(t('coach.playGranted', { mins }), 'success')
+              }}
+              className="flex items-center gap-1 bg-green-500 text-white font-black uppercase px-4 py-2.5 rounded-xl border-b-4 border-green-700 active:border-b-0 active:translate-y-1 transition-all"
+            >
+              <Plus size={16} strokeWidth={3} /> {mins}′
+            </button>
+          ))}
+          <button
+            onClick={() => {
+              dispatch({ type: 'PLAY_TIME_END', msLeft: playClock.msLeft })
+              showToast(t('coach.playEnded'), 'success')
+            }}
+            disabled={playClock.msLeft <= 0}
+            className="flex items-center gap-1 bg-slate-700 text-white font-black uppercase px-4 py-2.5 rounded-xl border-b-4 border-slate-900 active:border-b-0 active:translate-y-1 transition-all disabled:opacity-40"
+          >
+            <Square size={14} strokeWidth={3} /> {t('coach.playEnd')}
+          </button>
+        </div>
+        <p className="text-xs font-bold text-slate-400 mt-3" dir="rtl">{t('coach.playHint')}</p>
       </div>
 
       {/* CHANGE PIN */}

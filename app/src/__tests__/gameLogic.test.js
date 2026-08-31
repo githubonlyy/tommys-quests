@@ -250,6 +250,51 @@ describe('play-time budget', () => {
   })
 })
 
+describe('parent play-time override', () => {
+  const withPlays = (n, usedMs = 0, bonusMs = 0) => {
+    const today = businessDate()
+    return {
+      ...fresh(),
+      dailyPlays: Object.fromEntries(Array.from({ length: n }, (_, i) => [`e${i}`, today])),
+      playTime: { date: today, usedMs, bonusMs },
+    }
+  }
+  const SESSION = config.playTime.minutesPerSession * 60000
+  const grant = (mins) => ({ type: 'PLAY_TIME_GRANT', ms: mins * 60000 })
+
+  it('opens play even when nothing was earned', () => {
+    const s = reducer(withPlays(0), grant(15))
+    expect(computePlayClock(s).msLeft).toBe(15 * 60000)
+  })
+
+  it('stacks on top of the daily cap', () => {
+    const capped = withPlays(11, config.playTime.maxSessionsPerDay * SESSION)
+    expect(computePlayClock(capped).msLeft).toBe(0)
+    const s = reducer(capped, grant(30))
+    expect(computePlayClock(s).msLeft).toBe(30 * 60000)
+    expect(computePlayClock(s).cappedOut).toBe(false)
+  })
+
+  it('grants accumulate and are still spent down by playing', () => {
+    let s = reducer(reducer(withPlays(0), grant(5)), grant(10))
+    expect(computePlayClock(s).msLeft).toBe(15 * 60000)
+    s = reducer(s, { type: 'PLAY_TIME_SPEND', ms: 5 * 60000 })
+    expect(computePlayClock(s).msLeft).toBe(10 * 60000)
+  })
+
+  it('ending play now zeroes whatever is left', () => {
+    const before = withPlays(2, 0, 10 * 60000)
+    const left = computePlayClock(before).msLeft
+    const s = reducer(before, { type: 'PLAY_TIME_END', msLeft: left })
+    expect(computePlayClock(s).msLeft).toBe(0)
+  })
+
+  it('bonus minutes do not survive to the next day', () => {
+    const stale = { ...fresh(), playTime: { date: '2020-01-01', usedMs: 0, bonusMs: 99 * 60000 } }
+    expect(computePlayClock(stale).msLeft).toBe(0)
+  })
+})
+
 describe('hero gear', () => {
   const cap = { type: 'GEAR_BUY', id: 'cap' } // 150 coins
   const falcon = { type: 'GEAR_BUY', id: 'falcon' } // level 5, never for sale

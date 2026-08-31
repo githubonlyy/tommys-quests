@@ -25,7 +25,7 @@ export const DEFAULT_STATE = {
   lessonsRead: {}, // eventId -> business date the day's lesson cards were read
   avatar: { ...DEFAULT_AVATAR }, // { avatarId, frameId, name, gear } — cosmetics unlock by level
   ownedGear: [], // accessory ids bought with coins or unlocked by level
-  playTime: { date: null, usedMs: 0 }, // fun-tab time spent on the current game day
+  playTime: { date: null, usedMs: 0, bonusMs: 0 }, // fun-tab budget for the current game day
   corrupt: false,
 }
 
@@ -160,8 +160,20 @@ export function reducer(state, action) {
       return { ...state, avatar: { ...state.avatar, gear: { ...(state.avatar.gear ?? {}), [action.slot]: action.id } } }
     case 'PLAY_TIME_SPEND': {
       const today = businessDate()
-      const used = state.playTime.date === today ? state.playTime.usedMs : 0
-      return { ...state, playTime: { date: today, usedMs: used + Math.max(0, action.ms) } }
+      const fresh = state.playTime.date === today ? state.playTime : { date: today, usedMs: 0, bonusMs: 0 }
+      return { ...state, playTime: { ...fresh, date: today, usedMs: fresh.usedMs + Math.max(0, action.ms) } }
+    }
+    // parent override from the coach screen: extra minutes on top of what he earned
+    case 'PLAY_TIME_GRANT': {
+      const today = businessDate()
+      const fresh = state.playTime.date === today ? state.playTime : { date: today, usedMs: 0, bonusMs: 0 }
+      return { ...state, playTime: { ...fresh, date: today, bonusMs: Math.max(0, (fresh.bonusMs ?? 0) + action.ms) } }
+    }
+    // parent override: end play now by spending whatever is left
+    case 'PLAY_TIME_END': {
+      const today = businessDate()
+      const fresh = state.playTime.date === today ? state.playTime : { date: today, usedMs: 0, bonusMs: 0 }
+      return { ...state, playTime: { ...fresh, date: today, usedMs: fresh.usedMs + Math.max(0, action.msLeft) } }
     }
     case 'SET_AVATAR':
       return { ...state, avatar: { ...state.avatar, ...action.avatar } }
@@ -208,17 +220,21 @@ export function computePlayClock(state, cfg = config, today = businessDate()) {
   const { minutesPerSession, matchesPerSession, maxSessionsPerDay } = cfg.playTime
   const doneToday = Object.values(state.dailyPlays).filter((d) => d === today).length
   const earnedSessions = Math.min(maxSessionsPerDay, Math.floor(doneToday / matchesPerSession))
-  const earnedMs = earnedSessions * minutesPerSession * 60000
-  const usedMs = state.playTime?.date === today ? state.playTime.usedMs : 0
+  const sameDay = state.playTime?.date === today
+  const bonusMs = sameDay ? (state.playTime.bonusMs ?? 0) : 0
+  const earnedMs = earnedSessions * minutesPerSession * 60000 + bonusMs
+  const usedMs = sameDay ? state.playTime.usedMs : 0
   const nextAt = Math.min(maxSessionsPerDay * matchesPerSession, (earnedSessions + 1) * matchesPerSession)
   return {
     earnedSessions,
     maxSessions: maxSessionsPerDay,
+    bonusMs,
+    usedMs,
     msLeft: Math.max(0, earnedMs - usedMs),
     doneToday,
     // how many more subjects until the next session unlocks (0 when capped out)
     matchesToNext: earnedSessions >= maxSessionsPerDay ? 0 : nextAt - doneToday,
-    cappedOut: earnedSessions >= maxSessionsPerDay && earnedMs - usedMs <= 0,
+    cappedOut: earnedSessions >= maxSessionsPerDay && bonusMs === 0 && earnedMs - usedMs <= 0,
   }
 }
 
