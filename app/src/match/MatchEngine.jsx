@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { X, Coins, Trophy, Skull, Minus, Sparkles, ChevronUp, Flame, Volume2, VolumeX } from 'lucide-react'
 import { sfx, isMuted, setMuted } from './sounds.js'
+import { speak, stopSpeaking } from './speak.js'
 import { usePlayer } from '../context/PlayerContext.jsx'
 import { useLang } from '../context/LangContext.jsx'
 import mathQ from '../data/questions/math.json'
@@ -181,6 +182,14 @@ export default function MatchEngine({ event, mode = 'classic', practice, onExit,
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, qIndex])
 
+  // English vocabulary: say the word itself once it is revealed, so a miss
+  // still teaches the pronunciation
+  useEffect(() => {
+    if (phase !== 'feedback' || event.id !== 'english' || !answerText) return
+    speak(answerText, { delay: 350, lang: 'en', rate: 0.85 })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase])
+
   // fxDelay: widget is playing its own effect (pop, pin drop...) — the answer is
   // locked in NOW (timer frozen), feedback overlay appears after the fx finishes.
   function handleAnswer(isCorrect, timedOut = false, fxDelay = 0) {
@@ -296,6 +305,18 @@ export default function MatchEngine({ event, mode = 'classic', practice, onExit,
     ? question.options ? { text: question.prompt, dir: question.dir } : classicPrompt(event.id, question)
     : { text: '', dir: 'ltr' }
   const answerText = question ? (question.options ? question.answerText : classicAnswerText(event.id, question)) : ''
+
+  // read the prompt aloud: Hebrew by default, English voice for Latin text
+  // (so the vocabulary he hears in Alien Decode is pronounced correctly)
+  useEffect(() => {
+    if (phase !== 'ask' || !question) return
+    const text = prompt.key ? t(prompt.key) : prompt.text
+    if (!text) return
+    const latinOnly = !/[֐-׿]/.test(text)
+    speak(text, { delay: 250, lang: latinOnly ? 'en' : 'he' })
+    return () => stopSpeaking()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase, qIndex])
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-blue-950/95 backdrop-blur-sm">
