@@ -8,7 +8,7 @@ import { sfx } from '../match/sounds.js'
 import LessonDeck from '../match/LessonDeck.jsx'
 
 export default function EventBoard({ onStartMatch }) {
-  const { t } = useLang()
+  const { t, name } = useLang()
   const { state, dispatch, playedToday, lessonReadToday, config } = usePlayer()
   const [preview, setPreview] = useState(null) // event shown in the pre-match modal
   const [lesson, setLesson] = useState(null) // event whose daily lesson cards are open
@@ -109,7 +109,7 @@ export default function EventBoard({ onStartMatch }) {
                   </div>
                   <div className="flex-1">
                     <h3 className="text-xl md:text-2xl font-black text-slate-800 uppercase italic leading-tight mb-2">
-                      {event.title}
+                      {name(event)}
                     </h3>
                     <div className="bg-slate-100 p-2 rounded-xl border-2 border-slate-200" dir="rtl">
                       <p className="font-bold text-slate-600 text-sm">{event.description}</p>
@@ -162,7 +162,7 @@ export default function EventBoard({ onStartMatch }) {
                   <span className="text-6xl leading-none">{preview.emoji}</span>
                 </div>
                 <h2 className="text-3xl font-black text-white uppercase tracking-wide drop-shadow-md italic mt-2">
-                  {preview.title}
+                  {name(preview)}
                 </h2>
               </div>
 
@@ -195,7 +195,7 @@ export default function EventBoard({ onStartMatch }) {
                     onClick={() => { setPreview(null); onStartMatch(preview, 'classic') }}
                     className="w-full bg-green-500 hover:bg-green-400 text-white text-2xl font-black italic uppercase py-4 rounded-2xl border-b-8 border-green-700 active:border-b-0 active:translate-y-2 transition-all shadow-lg"
                   >
-                    {t('events.play')} · {preview.title}
+                    {t('events.play')} · {name(preview)}
                   </button>
                   {preview.modes.filter((m) => m !== 'classic').map((m) => (
                     <button

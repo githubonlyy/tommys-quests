@@ -10,8 +10,7 @@ import { isSpeechOn, setSpeechOn, stopSpeaking, canSpeak } from './match/speak.j
 import EventBoard from './screens/EventBoard.jsx'
 import Shop from './screens/Shop.jsx'
 import Trophies from './screens/Trophies.jsx'
-import Arcade from './screens/Arcade.jsx'
-import World from './screens/World.jsx'
+import Fun from './screens/Fun.jsx'
 import Closet from './screens/Closet.jsx'
 import HeroAvatar from './components/HeroAvatar.jsx'
 import CoachStats from './screens/CoachStats.jsx'
@@ -21,9 +20,8 @@ import MatchEngine from './match/MatchEngine.jsx'
 const TABS = [
   { id: 'events', key: 'nav.events', Icon: Gamepad2, color: 'bg-green-500', active: 'text-green-300' },
   { id: 'closet', key: 'nav.closet', Icon: Shirt, color: 'bg-pink-500', active: 'text-pink-300' },
-  { id: 'world', key: 'nav.world', Icon: Palette, color: 'bg-amber-500', active: 'text-amber-300' },
+  { id: 'fun', key: 'nav.fun', Icon: Joystick, color: 'bg-sky-500', active: 'text-sky-300' },
   { id: 'rewards', key: 'nav.shop', Icon: Store, color: 'bg-purple-500', active: 'text-purple-300' },
-  { id: 'arcade', key: 'nav.arcade', Icon: Joystick, color: 'bg-sky-500', active: 'text-sky-300' },
   { id: 'trophies', key: 'nav.trophies', Icon: Trophy, color: 'bg-yellow-500', active: 'text-yellow-300' },
 ]
 
@@ -32,7 +30,7 @@ export const useToast = () => useContext(ToastContext)
 
 export default function App() {
   const { state, dispatch, playedToday } = usePlayer()
-  const { t, dir, toggleLang } = useLang()
+  const { t, dir, isHe, toggleLang } = useLang()
   const { theme, clearTheme } = useTheme()
   const [activeTab, setActiveTab] = useState('events')
   const [toast, setToast] = useState(null)
@@ -115,7 +113,7 @@ export default function App() {
               <Zap className="text-yellow-950 h-8 w-8 lg:h-10 lg:w-10 fill-current" />
             </div>
             <h1 className="text-2xl font-black text-white italic tracking-wider drop-shadow-md leading-tight">
-              TOMMY'S<br /><span className="text-(--t-accent)">QUESTS</span>
+              {isHe ? <>המסע של<br /><span className="text-(--t-accent)">תומי</span></> : <>TOMMY&apos;S<br /><span className="text-(--t-accent)">QUESTS</span></>}
             </h1>
             <button
               onClick={clearTheme}
@@ -233,8 +231,7 @@ export default function App() {
               )}
               {activeTab === 'rewards' && <Shop />}
               {activeTab === 'closet' && <Closet />}
-              {activeTab === 'world' && <World />}
-              {activeTab === 'arcade' && <Arcade />}
+              {activeTab === 'fun' && <Fun />}
               {activeTab === 'trophies' && <Trophies />}
               {activeTab === 'admin' && <CoachStats />}
             </div>
@@ -243,7 +240,7 @@ export default function App() {
 
         {/* BOTTOM NAV — phones only */}
         <nav
-          className="lg:hidden shrink-0 grid grid-cols-7 bg-(--t-side) border-t-4 border-(--t-side-deep) z-20 shadow-[0_-4px_12px_rgba(0,0,0,0.3)]"
+          className="lg:hidden shrink-0 grid grid-cols-6 bg-(--t-side) border-t-4 border-(--t-side-deep) z-20 shadow-[0_-4px_12px_rgba(0,0,0,0.3)]"
           style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
         >
           {TABS.map((tab) => (

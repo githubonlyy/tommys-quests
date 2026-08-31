@@ -219,7 +219,7 @@ function Dashboard() {
                       : log.result === 'DRAW' ? 'bg-slate-200 text-slate-600 border-2 border-slate-300'
                       : 'bg-green-100 text-green-600 border-2 border-green-200'
                     }`}>
-                      {log.result}
+                      {t(`log.${log.result}`)}
                     </span>
                   </td>
                   <td className="px-6 py-3 text-slate-600 tabular-nums">{log.correct}/{log.total ?? 10}</td>

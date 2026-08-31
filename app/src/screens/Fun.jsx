@@ -1,67 +1,100 @@
 import { useState } from 'react'
-import { Gamepad2, Coins, Lock, Trophy } from 'lucide-react'
+import { Gamepad2, Coins, Lock, Trophy, Palette, Car as CarIcon } from 'lucide-react'
 import { ARCADE_GAMES } from '../data/arcadeGames.js'
 import { usePlayer } from '../context/PlayerContext.jsx'
 import { useLang } from '../context/LangContext.jsx'
+import { useTheme } from '../context/ThemeContext.jsx'
 import { useToast } from '../App.jsx'
 import { sfx } from '../match/sounds.js'
+import Avatar from '../avatar/Avatar.jsx'
+import Draw from '../world/Draw.jsx'
+import Drive from '../world/Drive.jsx'
 import { PlayClockChip, PlayClockBanner, PlayClockOverlay, usePlayClockTicker } from '../components/PlayClock.jsx'
 
-// The arcade games. Playing spends the play time he earned by learning; buying
-// a new game spends coins.
-export default function Arcade() {
+// Everything fun in one place: drawing is always open, the driving game and
+// the arcade games spend the play time he earned by learning.
+export default function Fun() {
   const { state, dispatch, playClock } = usePlayer()
-  const { t } = useLang()
+  const { t, name } = useLang()
+  const { theme } = useTheme()
   const showToast = useToast()
-  const [open, setOpen] = useState(null) // { id, run } — run bumps to restart
+  const [open, setOpen] = useState(null) // { kind: 'draw'|'drive'|'arcade', id, run }
   const [buying, setBuying] = useState(null)
   const [msLeft, setMsLeft] = useState(playClock.msLeft)
 
-  usePlayClockTicker(Boolean(open), msLeft, setMsLeft)
+  const timed = Boolean(open) && open.kind !== 'draw'
+  usePlayClockTicker(timed, msLeft, setMsLeft)
   const hasTime = msLeft > 0
 
-  const start = (gm) => {
-    if (!hasTime) {
+  const start = (next) => {
+    if (next.kind !== 'draw' && !hasTime) {
       showToast(t('fun.needMore', { n: playClock.matchesToNext }), 'error')
       return
     }
     sfx.click()
-    setOpen({ id: gm.id, run: 1 })
+    setOpen(next)
   }
+
+  const games = [
+    { id: 'drive', drive: true, title: t('world.drive'), heTitle: t('world.drive'), he: t('world.driveHe'), price: 0, color: 'bg-sky-500', borderColor: 'border-sky-700', textColor: 'text-sky-500', lightBg: 'bg-sky-100' },
+    ...ARCADE_GAMES,
+  ]
 
   return (
     <div className="space-y-5">
       <div className="flex items-center gap-3 bg-(--t-panel) p-4 rounded-2xl border-4 border-(--t-panel-border) backdrop-blur-sm">
-        <Gamepad2 className="text-(--t-accent)" size={28} />
-        <h2 className="flex-1 text-2xl lg:text-3xl font-black text-white italic tracking-wide uppercase drop-shadow-md">
-          {t('nav.arcade')}
+        <Avatar size={64} />
+        <h2 className="flex-1 text-2xl lg:text-3xl font-black text-white italic tracking-wide drop-shadow-md">
+          {t('nav.fun')}
         </h2>
+        {theme && <span className="text-3xl">{theme.emoji}</span>}
         <PlayClockChip msLeft={msLeft} />
+      </div>
+
+      {/* drawing — never on the clock */}
+      <div
+        onClick={() => start({ kind: 'draw' })}
+        className="rounded-3xl border-b-8 bg-amber-400 border-amber-600 shadow-xl cursor-pointer hover:-translate-y-1 active:translate-y-1 active:border-b-0 transition-all"
+      >
+        <div className="bg-white/95 m-1.5 rounded-[1.25rem] p-4 flex items-center gap-4">
+          <div className="p-3 rounded-2xl border-4 bg-amber-100 border-amber-600 -rotate-3">
+            <Palette className="w-9 h-9 text-amber-500" />
+          </div>
+          <div className="flex-1" dir="rtl">
+            <h3 className="font-black text-slate-800 italic text-lg">{t('world.draw')}</h3>
+            <p className="font-bold text-slate-500 text-sm">{t('fun.drawFree')}</p>
+          </div>
+          <span className="bg-amber-400 text-amber-950 font-black italic px-4 py-1.5 rounded-xl border-b-4 border-amber-600">
+            {t('arcade.play')}
+          </span>
+        </div>
       </div>
 
       <PlayClockBanner msLeft={msLeft} />
 
+      {/* timed games */}
       <div className="grid grid-cols-2 gap-3 md:gap-4">
-        {ARCADE_GAMES.map((gm) => {
-          const owned = state.ownedGames.includes(gm.id)
+        {games.map((gm) => {
+          const owned = gm.drive || state.ownedGames.includes(gm.id)
           const best = state.arcadeHighScores?.[gm.id] ?? 0
           const playable = owned && hasTime
+          const Icon = gm.drive ? CarIcon : Gamepad2
           return (
             <div
               key={gm.id}
-              onClick={() => (owned ? start(gm) : setBuying(gm))}
+              onClick={() => (owned ? start({ kind: gm.drive ? 'drive' : 'arcade', id: gm.id, run: 1 }) : setBuying(gm))}
               className={`relative rounded-3xl border-b-8 shadow-xl cursor-pointer transition-all duration-200 overflow-hidden
                 ${owned && !hasTime ? 'bg-slate-600 border-slate-800' : `${gm.color} ${gm.borderColor} hover:-translate-y-1 active:translate-y-1 active:border-b-0`}`}
             >
               <div className="bg-white/95 m-1.5 rounded-[1.25rem] p-3 md:p-4 flex flex-col items-center text-center gap-1.5">
                 <div className={`p-2.5 rounded-2xl border-4 -rotate-3 ${playable ? `${gm.lightBg} ${gm.borderColor}` : 'bg-slate-200 border-slate-400'}`}>
-                  <Gamepad2 className={`w-8 h-8 ${playable ? gm.textColor : 'text-slate-400'}`} />
+                  <Icon className={`w-8 h-8 ${playable ? gm.textColor : 'text-slate-400'}`} />
                 </div>
-                <h3 className="font-black text-slate-800 uppercase italic text-sm md:text-base leading-tight">{gm.title}</h3>
+                <h3 className="font-black text-slate-800 italic text-sm md:text-base leading-tight">{name(gm)}</h3>
                 <p className="font-bold text-slate-500 text-xs leading-snug" dir="rtl">{gm.he}</p>
                 {owned ? (
                   playable ? (
-                    <span className={`${gm.color} text-white font-black italic uppercase text-xs px-4 py-1 rounded-lg border-b-2 border-black/30`}>
+                    <span className={`${gm.color} text-white font-black italic text-xs px-4 py-1 rounded-lg border-b-2 border-black/30`}>
                       {t('arcade.play')}
                     </span>
                   ) : (
@@ -88,7 +121,7 @@ export default function Arcade() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-(--t-overlay) backdrop-blur-sm p-4">
           <div className="anim-zoom-in bg-white rounded-3xl border-8 border-slate-800 shadow-2xl w-full max-w-sm overflow-hidden text-center">
             <div className={`p-4 ${buying.color} border-b-8 border-black/10`}>
-              <h2 className="text-2xl font-black text-white uppercase italic drop-shadow-md">{buying.title}</h2>
+              <h2 className="text-2xl font-black text-white italic drop-shadow-md">{name(buying)}</h2>
             </div>
             <div className="p-6 flex flex-col items-center gap-4 bg-slate-50">
               <p className="font-bold text-slate-600" dir="rtl">{buying.he}</p>
@@ -104,18 +137,18 @@ export default function Arcade() {
                     if (state.coins >= buying.price) {
                       dispatch({ type: 'ARCADE_BUY', game: buying })
                       sfx.fanfare()
-                      showToast(t('shop.unlock', { title: buying.title }), 'success')
+                      showToast(t('shop.unlock', { title: name(buying) }), 'success')
                     }
                     setBuying(null)
                   }}
                   disabled={state.coins < buying.price}
-                  className="flex-1 bg-yellow-400 text-yellow-950 text-lg font-black italic uppercase py-3 rounded-2xl border-b-8 border-yellow-600 active:border-b-0 active:translate-y-2 transition-all disabled:opacity-50"
+                  className="flex-1 bg-yellow-400 text-yellow-950 text-lg font-black italic py-3 rounded-2xl border-b-8 border-yellow-600 active:border-b-0 active:translate-y-2 transition-all disabled:opacity-50"
                 >
                   {t('arcade.buy')}
                 </button>
                 <button
                   onClick={() => setBuying(null)}
-                  className="flex-1 bg-slate-300 text-slate-700 text-lg font-black italic uppercase py-3 rounded-2xl border-b-8 border-slate-400 active:border-b-0 active:translate-y-2 transition-all"
+                  className="flex-1 bg-slate-300 text-slate-700 text-lg font-black italic py-3 rounded-2xl border-b-8 border-slate-400 active:border-b-0 active:translate-y-2 transition-all"
                 >
                   {t('arcade.notNow')}
                 </button>
@@ -125,7 +158,20 @@ export default function Arcade() {
         </div>
       )}
 
-      {open && (() => {
+      {open?.kind === 'draw' && <Draw onClose={() => setOpen(null)} />}
+      {open?.kind === 'drive' && (
+        <>
+          <Drive
+            key={open.run}
+            highScore={state.arcadeHighScores?.drive ?? 0}
+            onScore={(score) => dispatch({ type: 'ARCADE_SCORE', game: 'drive', score })}
+            onRestart={() => hasTime && setOpen((o) => ({ ...o, run: o.run + 1 }))}
+            onClose={() => setOpen(null)}
+          />
+          <PlayClockOverlay msLeft={msLeft} />
+        </>
+      )}
+      {open?.kind === 'arcade' && (() => {
         const gm = ARCADE_GAMES.find((g) => g.id === open.id)
         const GameComponent = gm.Component
         return (

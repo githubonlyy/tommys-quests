@@ -151,7 +151,7 @@ function classicPrompt(eventId, q) {
 }
 
 export default function MatchEngine({ event, mode = 'classic', practice, onExit, onPlayAgain }) {
-  const { t } = useLang()
+  const { t, name } = useLang()
   const { state, dispatch, config } = usePlayer()
   const N = config.questionsPerMatch
   const isPairs = mode === 'pairs'
@@ -439,7 +439,7 @@ export default function MatchEngine({ event, mode = 'classic', practice, onExit,
             >
               <div className={`${event.headerColor} px-6 py-2 rounded-full border-b-4 border-black/20`}>
                 <span className="text-white font-black uppercase italic tracking-wider drop-shadow-sm">
-                  {mode === 'balloon' ? 'Balloon Pop' : event.title}
+                  {mode === 'balloon' ? t('mode.balloon') : name(event)}
                 </span>
               </div>
 

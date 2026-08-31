@@ -41,6 +41,12 @@ export function LangProvider({ children }) {
     return typeof entry === 'function' ? entry(params ?? {}) : entry
   }, [lang])
 
+  // data files carry both names; `heTitle` wins in Hebrew, English falls back
+  const name = useCallback(
+    (item) => (lang === 'he' ? (item?.heTitle ?? item?.title) : (item?.title ?? item?.heTitle)) ?? '',
+    [lang],
+  )
+
   const value = useMemo(() => ({
     lang,
     dir,
@@ -48,7 +54,8 @@ export function LangProvider({ children }) {
     setLang,
     toggleLang: () => setLang(lang === 'he' ? 'en' : 'he'),
     t,
-  }), [lang, dir, setLang, t])
+    name,
+  }), [lang, dir, setLang, t, name])
 
   return <LangContext.Provider value={value}>{children}</LangContext.Provider>
 }

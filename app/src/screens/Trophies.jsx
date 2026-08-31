@@ -18,7 +18,7 @@ const ICONS = {
 }
 
 export default function Trophies() {
-  const { t } = useLang()
+  const { t, name } = useLang()
   const { state } = usePlayer()
   const earnedCount = Object.keys(state.trophies).length
 
@@ -57,7 +57,7 @@ export default function Trophies() {
                 )}
               </div>
               <span className={`font-black uppercase italic leading-tight ${earnedTs ? 'text-slate-800' : 'text-blue-300'}`}>
-                {t.title}
+                {name(t)}
               </span>
               <span className={`text-xs font-bold leading-snug ${earnedTs ? 'text-slate-500' : 'text-blue-400'}`} dir="rtl">
                 {t.he}

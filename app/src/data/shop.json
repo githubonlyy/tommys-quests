@@ -8,7 +8,9 @@
     "rarity": "RARE",
     "icon": "award",
     "bgColor": "bg-blue-500",
-    "borderColor": "border-blue-700"
+    "borderColor": "border-blue-700",
+    "heTitle": "מנהל ערב הסרט",
+    "heType": "ערב משפחתי"
   },
   {
     "id": "trail-boss",
@@ -19,7 +21,9 @@
     "rarity": "EPIC",
     "icon": "flag",
     "bgColor": "bg-purple-500",
-    "borderColor": "border-purple-700"
+    "borderColor": "border-purple-700",
+    "heTitle": "מוביל הטיול",
+    "heType": "טיול סוף שבוע"
   },
   {
     "id": "lego-set",
@@ -30,6 +34,8 @@
     "rarity": "LEGENDARY",
     "icon": "zap",
     "bgColor": "bg-yellow-400",
-    "borderColor": "border-yellow-600"
+    "borderColor": "border-yellow-600",
+    "heTitle": "סט לגו",
+    "heType": "צעצוע"
   }
 ]

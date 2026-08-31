@@ -8,6 +8,7 @@ export const ARCADE_GAMES = [
   {
     id: 'coinrush',
     title: 'Coin Rush',
+    heTitle: 'מרוץ המטבעות',
     he: 'תפסו מטבעות, תתחמקו מפצצות!',
     price: 0,
     color: 'bg-pink-500',
@@ -19,6 +20,7 @@ export const ARCADE_GAMES = [
   {
     id: 'flappy',
     title: 'Flappy Zap',
+    heTitle: 'ברק מעופף',
     he: 'הקישו כדי לעוף בין הצינורות!',
     price: 1500,
     color: 'bg-sky-500',
@@ -30,6 +32,7 @@ export const ARCADE_GAMES = [
   {
     id: 'bricks',
     title: 'Brick Breaker',
+    heTitle: 'שובר הלבנים',
     he: 'שברו את כל הלבנים עם הכדור!',
     price: 2000,
     color: 'bg-violet-500',
@@ -41,6 +44,7 @@ export const ARCADE_GAMES = [
   {
     id: 'moles',
     title: 'Mole Smash',
+    heTitle: 'ציד חפרפרות',
     he: 'תפסו את החפרפרות — לא את הפצצות!',
     price: 2500,
     color: 'bg-lime-600',

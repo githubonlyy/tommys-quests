@@ -9,7 +9,7 @@ const ICONS = { award: Award, flag: Flag, zap: Zap }
 const ICON_COLORS = { award: 'text-blue-500', flag: 'text-purple-500', zap: 'text-yellow-500 fill-current' }
 
 export default function Shop() {
-  const { t } = useLang()
+  const { t, name, isHe } = useLang()
   const { state, dispatch } = usePlayer()
   const showToast = useToast()
   const lastBuyRef = useRef(0) // double-tap protection
@@ -21,7 +21,7 @@ export default function Shop() {
 
     if (state.coins >= item.cost) {
       dispatch({ type: 'BUY', item })
-      showToast(t('shop.unlock', { title: item.title }), 'success')
+      showToast(t('shop.unlock', { title: name(item) }), 'success')
     } else {
       showToast(t('shop.notEnough', { missing: (item.cost - state.coins).toLocaleString() }), 'error')
     }
@@ -53,7 +53,7 @@ export default function Shop() {
               )}
 
               <div className={`${item.bgColor} p-2 text-center border-b-4 border-black/10`}>
-                <span className="text-white font-black uppercase text-sm tracking-widest drop-shadow-md">{item.rarity}</span>
+                <span className="text-white font-black text-sm tracking-widest drop-shadow-md">{t(`rarity.${item.rarity}`)}</span>
               </div>
 
               <div className="p-6 flex flex-col items-center text-center flex-1 relative bg-gradient-to-b from-slate-50 to-slate-200">
@@ -61,8 +61,8 @@ export default function Shop() {
                 <div className="relative z-10 w-24 h-24 bg-white rounded-2xl border-4 border-slate-200 flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300">
                   <Icon className={`${ICON_COLORS[item.icon]} w-16 h-16`} />
                 </div>
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{item.type}</span>
-                <h3 className="text-2xl font-black text-slate-800 uppercase italic leading-tight mb-3">{item.title}</h3>
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{isHe ? (item.heType ?? item.type) : item.type}</span>
+                <h3 className="text-2xl font-black text-slate-800 uppercase italic leading-tight mb-3">{name(item)}</h3>
                 <p className="text-slate-600 font-semibold text-sm leading-snug" dir="rtl">{item.desc}</p>
               </div>
 
