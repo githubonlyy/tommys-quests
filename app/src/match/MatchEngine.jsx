@@ -13,12 +13,17 @@ import clockQ from '../data/questions/clock.json'
 import moneyQ from '../data/questions/money.json'
 import scienceQ from '../data/questions/science.json'
 import timesQ from '../data/questions/times.json'
+import readingQ from '../data/questions/reading.json'
+import sentencesQ from '../data/questions/sentences.json'
 import NumberPad from './widgets/NumberPad.jsx'
 import LetterTiles from './widgets/LetterTiles.jsx'
 import WordTap from './widgets/WordTap.jsx'
 import MapGrid from './widgets/MapGrid.jsx'
 import BalloonPop from './widgets/BalloonPop.jsx'
 import ClockRead, { fmtTime } from './widgets/ClockRead.jsx'
+import ListenPick from './widgets/ListenPick.jsx'
+import ReadPick from './widgets/ReadPick.jsx'
+import SentenceOrder from './widgets/SentenceOrder.jsx'
 import MoneyCount, { moneySum } from './widgets/MoneyCount.jsx'
 import PairsBoard from './PairsBoard.jsx'
 import VaultReveal from './VaultReveal.jsx'
@@ -29,10 +34,12 @@ import { TROPHIES } from '../data/trophies.js'
 const BANKS = {
   math: mathQ, english: englishQ, hebrew: hebrewQ, geography: geographyQ,
   clock: clockQ, money: moneyQ, science: scienceQ, times: timesQ,
+  listening: englishQ, reading: readingQ, sentences: sentencesQ,
 }
 const WIDGETS = {
   numberpad: NumberPad, lettertiles: LetterTiles, wordtap: WordTap, mapgrid: MapGrid,
   clockread: ClockRead, moneycount: MoneyCount, balloon: BalloonPop,
+  listenpick: ListenPick, readpick: ReadPick, sentenceorder: SentenceOrder,
 }
 
 function shuffle(arr) {
@@ -99,6 +106,29 @@ function buildPairs(eventId, count) {
   return uniq.slice(0, count).map((q, i) => ({ id: i, a: q.q, b: q.a }))
 }
 
+// heard word -> four Hebrew meanings
+function buildListening(q, bank) {
+  const decoys = pickOthers(bank, q.hint, 3, 'hint')
+  return {
+    word: q.word,
+    key: 'match.whatDidYouHear',
+    dir: 'rtl',
+    answerText: q.hint,
+    options: shuffle([{ label: q.hint, correct: true }, ...decoys.map((d) => ({ label: d, correct: false }))]),
+  }
+}
+
+// English sentence -> Hebrew comprehension question
+function buildReading(q) {
+  return {
+    text: q.text,
+    prompt: q.q,
+    dir: 'rtl',
+    answerText: q.a,
+    options: shuffle([{ label: q.a, correct: true }, ...q.decoys.map((d) => ({ label: d, correct: false }))]),
+  }
+}
+
 function classicAnswerText(eventId, q) {
   if (eventId === 'math' || eventId === 'times') return q.a
   if (eventId === 'english') return q.word
@@ -106,6 +136,7 @@ function classicAnswerText(eventId, q) {
   if (eventId === 'geography') return placeName(q.answer)
   if (eventId === 'clock') return fmtTime(q.h, q.m)
   if (eventId === 'money') return `₪${moneySum(q.items)}`
+  if (eventId === 'sentences') return q.words.join(' ')
   return ''
 }
 
@@ -116,6 +147,7 @@ function classicPrompt(eventId, q) {
   if (eventId === 'geography') return { text: q.q, dir: 'rtl' }
   if (eventId === 'clock') return { key: 'match.whatTime', dir: 'rtl' }
   if (eventId === 'money') return { key: 'match.howMuch', dir: 'rtl' }
+  if (eventId === 'sentences') return { key: 'match.buildSentence', dir: 'rtl' }
   return { text: '', dir: 'ltr' }
 }
 
@@ -128,6 +160,8 @@ export default function MatchEngine({ event, mode = 'classic', practice, onExit,
   const [questions] = useState(() => {
     if (isPairs) return []
     // science's classic widget IS the balloon picker — same prepared format
+    if (event.id === 'listening') return sample(englishQ, N).map((q) => buildListening(q, englishQ))
+    if (event.id === 'reading') return sample(readingQ, N).map(buildReading)
     if (mode === 'balloon' || event.widget === 'balloon') {
       const source = event.id === 'hebrew' && mode === 'balloon' ? oppositesQ : BANKS[event.id]
       return sample(source, N).map((q) => buildBalloon(event.id, q, source))
@@ -302,7 +336,7 @@ export default function MatchEngine({ event, mode = 'classic', practice, onExit,
     .filter(Boolean)
   const timerPct = (remaining / config.questionTimerSec) * 100
   const prompt = !isPairs && question
-    ? question.options ? { text: question.prompt, dir: question.dir } : classicPrompt(event.id, question)
+    ? question.options ? { text: question.prompt, key: question.key, dir: question.dir } : classicPrompt(event.id, question)
     : { text: '', dir: 'ltr' }
   const answerText = question ? (question.options ? question.answerText : classicAnswerText(event.id, question)) : ''
 
@@ -310,6 +344,8 @@ export default function MatchEngine({ event, mode = 'classic', practice, onExit,
   // (so the vocabulary he hears in Alien Decode is pronounced correctly)
   useEffect(() => {
     if (phase !== 'ask' || !question) return
+    // the listening drill owns its own audio — a prompt here would cut the word off
+    if (event.widget === 'listenpick') return
     const text = prompt.key ? t(prompt.key) : prompt.text
     if (!text) return
     const latinOnly = !/[֐-׿]/.test(text)

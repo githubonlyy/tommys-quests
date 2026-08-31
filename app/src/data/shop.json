@@ -1,9 +1,9 @@
 [
   {
-    "id": "padel-serve",
-    "title": "Extra Serve!",
-    "type": "Padel Perk",
-    "desc": "הגשה נוספת חינם במשחק הפאדל המשפחתי הבא!",
+    "id": "movie-night",
+    "title": "Movie Night Boss",
+    "type": "Family Night",
+    "desc": "אתה בוחר את הסרט לערב הסרט המשפחתי הבא — וגם את החטיף.",
     "cost": 500,
     "rarity": "RARE",
     "icon": "award",

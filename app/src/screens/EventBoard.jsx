@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { ChevronDown, ChevronUp, Calculator, MessageCircle, BookOpen, Map as MapIcon, Coins, Check, X, Sparkles, Gift, Clock, Banknote, FlaskConical, Grid3x3 } from 'lucide-react'
+import { ChevronDown, ChevronUp, Headphones, BookText, Type, Calculator, MessageCircle, BookOpen, Map as MapIcon, Coins, Check, X, Sparkles, Gift, Clock, Banknote, FlaskConical, Grid3x3 } from 'lucide-react'
 import { EVENTS, MODES } from '../data/events.js'
 import { dailySubjects } from '../data/board.js'
 import { usePlayer, businessDate } from '../context/PlayerContext.jsx'
@@ -16,6 +16,9 @@ const ICONS = {
   money: Banknote,
   science: FlaskConical,
   times: Grid3x3,
+  listening: Headphones,
+  reading: BookText,
+  sentences: Type,
 }
 
 export default function EventBoard({ onStartMatch }) {
