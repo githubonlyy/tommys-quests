@@ -1,7 +1,7 @@
 {
   "defaultPin": "1234",
   "questionsPerMatch": 10,
-  "questionTimerSec": 20,
+  "questionTimerSec": 0,
   "speedThresholdSec": 10,
   "coinsPerCorrect": 10,
   "speedBonusCoins": 5,

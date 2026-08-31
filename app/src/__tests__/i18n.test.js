@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { readFileSync, readdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { STRINGS, LANGS } from '../i18n/strings.js'
+import { THEMES } from '../data/themes.js'
 
 const SRC = new URL('..', import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1')
 
@@ -51,6 +52,22 @@ describe('i18n coverage', () => {
       for (const [key, value] of Object.entries(STRINGS[lang])) {
         expect(typeof value === 'function' || value.length > 0, `${lang}.${key}`).toBe(true)
       }
+    }
+  })
+})
+
+// Games read per-theme sprite skins by key; a renamed or missing key crashes
+// the game at runtime, which unit tests of pure logic never catch.
+describe('theme arcade skins', () => {
+  it('every theme defines a skin for every game that reads one', () => {
+    for (const [id, theme] of Object.entries(THEMES)) {
+      for (const key of ['coinrush', 'flappy', 'bricks', 'moles']) {
+        expect(theme.arcade[key], `${id}.${key}`).toBeTruthy()
+      }
+      expect(theme.arcade.coinrush.good, id).toBeTruthy()
+      expect(theme.arcade.coinrush.bad, id).toBeTruthy()
+      expect(Array.isArray(theme.particles) && theme.particles.length >= 4, id).toBe(true)
+      expect(Array.isArray(theme.confetti) && theme.confetti.length >= 4, id).toBe(true)
     }
   })
 })

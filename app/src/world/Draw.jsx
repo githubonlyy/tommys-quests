@@ -521,7 +521,7 @@ export default function Draw({ onClose }) {
           <div className="absolute inset-0" style={{ background: bg }} aria-hidden="true" />
           <canvas
             ref={canvasRef}
-            className="absolute top-0 left-0 touch-none"
+            className="absolute top-0 start-0 touch-none"
             style={{ touchAction: 'none' }}
             onPointerDown={onPointerDown}
             onPointerMove={onPointerMove}
