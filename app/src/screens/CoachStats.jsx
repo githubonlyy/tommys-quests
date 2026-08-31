@@ -194,7 +194,7 @@ function Dashboard() {
           <h3 className="text-lg font-black text-slate-600 uppercase tracking-wide">{t('coach.battleLog')}</h3>
         </div>
         <div className="overflow-x-auto max-h-96 overflow-y-auto">
-          <table className="w-full text-left border-collapse">
+          <table className="w-full text-start border-collapse">
             <thead className="sticky top-0 bg-slate-50">
               <tr>
                 <Th>{t('coach.time')}</Th><Th>{t('coach.event')}</Th><Th>{t('coach.result')}</Th><Th>{t('coach.score')}</Th><Th>{t('common.coins')}</Th>
@@ -211,7 +211,7 @@ function Dashboard() {
                   </td>
                   <td className="px-6 py-3 text-slate-800 uppercase italic whitespace-nowrap">
                     {log.subject}
-                    {log.practice && <span className="ml-2 text-xs bg-blue-100 text-blue-600 border border-blue-200 rounded px-1.5 py-0.5 not-italic">PRACTICE</span>}
+                    {log.practice && <span className="ms-2 text-xs bg-blue-100 text-blue-600 border border-blue-200 rounded px-1.5 py-0.5 not-italic">PRACTICE</span>}
                   </td>
                   <td className="px-6 py-3">
                     <span className={`px-3 py-1 rounded-lg text-sm font-black uppercase ${

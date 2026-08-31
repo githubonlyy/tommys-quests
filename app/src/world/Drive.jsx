@@ -74,7 +74,7 @@ function Grass({ side, particles }) {
     ch: (i + off) % 3 === 0 ? TREES[(i + off) % TREES.length] : particles[(i + off) % particles.length],
   }))
   return (
-    <div className={`absolute inset-y-0 ${side === 'left' ? 'left-0' : 'right-0'} w-[15%] overflow-hidden bg-black/10`} aria-hidden="true">
+    <div className={`absolute inset-y-0 ${side === 'left' ? 'start-0' : 'end-0'} w-[15%] overflow-hidden bg-black/10`} aria-hidden="true">
       <div data-speed="scene" className="drv-scroll absolute inset-x-0 top-0" style={{ height: '200%' }}>
         {[0, 1].map((half) => (
           <div key={half} className="relative w-full" style={{ height: '50%' }}>
@@ -106,7 +106,9 @@ export default function Drive({ highScore, onClose, onScore, onRestart }) {
   const { state } = usePlayer()
   const heroEmoji = avatarById(state.avatar.avatarId).emoji
   const { theme } = useTheme()
-  const skin = theme.arcade.catch
+  // this app names the catch-style skin `coinrush`; fall back so a theme
+  // missing the key can never crash the game
+  const skin = theme?.arcade?.coinrush ?? { good: '⭐', bad: '💣' }
   const areaRef = useRef(null)
   const roadRef = useRef(null)
   const carRef = useRef(null) // positioned wrapper (inline transform)
@@ -378,13 +380,13 @@ export default function Drive({ highScore, onClose, onScore, onRestart }) {
                   poolRef.current[i] = el
                 }}
                 aria-hidden="true"
-                className="absolute left-0 top-0 items-center justify-center leading-none will-change-transform drop-shadow"
+                className="absolute start-0 top-0 items-center justify-center leading-none will-change-transform drop-shadow"
                 style={{ width: SPRITE, height: SPRITE, fontSize: SPRITE * 0.86, fontFamily: EMOJI_FONT, display: 'none' }}
               />
             ))}
 
             {/* CAR — outer: position/tilt + blink, inner: shake */}
-            <div ref={carRef} className="absolute left-0 top-0 will-change-transform" style={{ width: CAR_W, height: CAR_H }} aria-label="המכונית של מלאני">
+            <div ref={carRef} className="absolute start-0 top-0 will-change-transform" style={{ width: CAR_W, height: CAR_H }} aria-label="המכונית של מלאני">
               <div ref={carBodyRef}>
                 <Car themeId={theme.id}>
                   <span style={{ fontSize: DRIVER_SIZE * 0.6, lineHeight: 1 }}>{heroEmoji}</span>
@@ -394,7 +396,7 @@ export default function Drive({ highScore, onClose, onScore, onRestart }) {
 
             {/* sparkle bursts + floating score */}
             {bursts.map((b) => (
-              <div key={b.id} className="absolute left-0 top-0 pointer-events-none" style={{ transform: `translate(${b.x}px, ${b.y}px)` }} aria-hidden="true">
+              <div key={b.id} className="absolute start-0 top-0 pointer-events-none" style={{ transform: `translate(${b.x}px, ${b.y}px)` }} aria-hidden="true">
                 {b.parts.map((p, i) => (
                   <span
                     key={i}

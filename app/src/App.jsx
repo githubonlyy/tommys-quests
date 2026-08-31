@@ -76,14 +76,14 @@ export default function App() {
     <ToastContext.Provider value={showToast}>
       <div
         dir={dir}
-        className="flex flex-col md:flex-row h-dvh w-full text-slate-800 font-sans overflow-hidden selection:bg-yellow-400 selection:text-black"
+        className="flex flex-col lg:flex-row h-dvh w-full text-slate-800 font-sans overflow-hidden selection:bg-yellow-400 selection:text-black"
         style={{
           ...theme.vars,
           backgroundImage: 'radial-gradient(circle at center, var(--t-bg-from) 0%, var(--t-bg-to) 100%)',
         }}
       >
         {/* SIDEBAR — tablet/desktop only; phones get the bottom nav */}
-        <aside className="hidden md:flex w-64 bg-(--t-side) border-e-4 border-(--t-side-deep) flex-col relative z-20 shadow-2xl">
+        <aside className="hidden lg:flex w-64 bg-(--t-side) border-e-4 border-(--t-side-deep) flex-col relative z-20 shadow-2xl">
           <div className="p-4 md:p-6 border-b-4 border-(--t-side-deep) flex flex-col items-center md:items-start">
             <div className="bg-yellow-400 p-2 md:p-3 rounded-2xl border-b-4 border-yellow-600 shadow-lg mb-2 -rotate-3">
               <Zap className="text-yellow-950 h-8 w-8 md:h-10 md:w-10 fill-current" />
@@ -101,28 +101,28 @@ export default function App() {
 
           <nav className="flex-1 p-2 md:p-4 space-y-3 mt-4">
             <NavItem
-              icon={<Gamepad2 size={28} className="md:mr-3" />}
+              icon={<Gamepad2 size={28} className="md:me-3" />}
               label={t('nav.events')}
               isActive={activeTab === 'events'}
               onClick={() => setActiveTab('events')}
               color="bg-green-500"
             />
             <NavItem
-              icon={<Store size={28} className="md:mr-3" />}
+              icon={<Store size={28} className="md:me-3" />}
               label={t('nav.shop')}
               isActive={activeTab === 'rewards'}
               onClick={() => setActiveTab('rewards')}
               color="bg-purple-500"
             />
             <NavItem
-              icon={<Joystick size={28} className="md:mr-3" />}
+              icon={<Joystick size={28} className="md:me-3" />}
               label={t('nav.fun')}
               isActive={activeTab === 'fun'}
               onClick={() => setActiveTab('fun')}
               color="bg-pink-500"
             />
             <NavItem
-              icon={<Trophy size={28} className="md:mr-3" />}
+              icon={<Trophy size={28} className="md:me-3" />}
               label={t('nav.trophies')}
               isActive={activeTab === 'trophies'}
               onClick={() => setActiveTab('trophies')}
@@ -138,16 +138,16 @@ export default function App() {
                   ? 'bg-slate-700 text-white border-b-4 border-slate-900 scale-95'
                   : 'bg-(--t-nav) text-(--t-text-soft) hover:bg-slate-700 hover:text-white border-b-4 border-transparent hover:border-slate-900'}`}
             >
-              <BarChart3 className="md:mr-3" size={24} />
+              <BarChart3 className="md:me-3" size={24} />
               <span className="hidden md:inline">{t('coach.title')}</span>
-              <Lock className="hidden md:block ml-auto opacity-50" size={16} />
+              <Lock className="hidden md:block ms-auto opacity-50" size={16} />
             </button>
           </div>
         </aside>
 
         {/* MAIN */}
         <main className="flex-1 flex flex-col relative overflow-hidden min-h-0">
-          <header className="h-16 md:h-24 shrink-0 bg-(--t-side)/80 backdrop-blur-md border-b-4 border-(--t-side-deep) flex items-center justify-between px-3 md:px-8 z-10 shadow-md">
+          <header className="h-16 lg:h-24 shrink-0 bg-(--t-side)/80 backdrop-blur-md border-b-4 border-(--t-side-deep) flex items-center justify-between px-3 lg:px-8 z-10 shadow-md">
             <div className="flex items-center gap-2 md:gap-4">
               <button
                 onClick={() => setAvatarOpen(true)}
@@ -162,10 +162,10 @@ export default function App() {
                   <span className="text-[10px] md:text-xs font-black text-(--t-text-soft) whitespace-nowrap">{t('header.level')} {state.level}</span>
                   <div className="flex-1 h-3 md:h-4 bg-blue-950 rounded-full border-2 border-blue-900 overflow-hidden relative">
                     <div
-                      className="absolute top-0 left-0 h-full bg-gradient-to-r from-yellow-400 to-orange-500 transition-all duration-1000"
+                      className="absolute top-0 start-0 h-full bg-gradient-to-r from-yellow-400 to-orange-500 transition-all duration-1000"
                       style={{ width: `${xpPct}%` }}
                     ></div>
-                    <div className="absolute top-0 left-0 w-full h-1/2 bg-white/20"></div>
+                    <div className="absolute top-0 start-0 w-full h-1/2 bg-white/20"></div>
                   </div>
                 </div>
               </div>
@@ -206,7 +206,7 @@ export default function App() {
                 </div>
               )}
               <div className="flex items-center bg-blue-950 border-4 border-blue-900 rounded-xl md:rounded-2xl px-2.5 py-1 md:px-6 md:py-3 shadow-inner rotate-1">
-              <div className="bg-yellow-400 p-1 md:p-1.5 rounded-full mr-1.5 md:mr-3 border-2 border-yellow-600 shadow-sm">
+              <div className="bg-yellow-400 p-1 md:p-1.5 rounded-full me-1.5 md:me-3 border-2 border-yellow-600 shadow-sm">
                 <Coins className="text-yellow-900 fill-yellow-200 w-4 h-4 md:w-5 md:h-5" />
               </div>
               <span className="text-lg md:text-3xl text-yellow-400 font-black tracking-wide drop-shadow-sm tabular-nums">
@@ -233,7 +233,7 @@ export default function App() {
 
         {/* BOTTOM NAV — phones only */}
         <nav
-          className="md:hidden shrink-0 grid grid-cols-5 bg-(--t-side) border-t-4 border-(--t-side-deep) z-20 shadow-[0_-4px_12px_rgba(0,0,0,0.3)]"
+          className="lg:hidden shrink-0 grid grid-cols-5 bg-(--t-side) border-t-4 border-(--t-side-deep) z-20 shadow-[0_-4px_12px_rgba(0,0,0,0.3)]"
           style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
         >
           <BottomNavItem

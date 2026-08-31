@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+/* Landscape phones are wide but very short: `short:` shrinks chrome so the
+   answer area still fits above the fold. */
+@custom-variant short (@media (min-width: 640px) and (max-height: 560px));
+
 @theme {
   /* Rubik: chunky rounded weights + full Hebrew support */
   --font-sans: "Rubik", ui-rounded, system-ui, -apple-system, "Segoe UI", sans-serif;

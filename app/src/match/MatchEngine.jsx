@@ -156,6 +156,8 @@ export default function MatchEngine({ event, mode = 'classic', practice, onExit,
   const { state, dispatch, config } = usePlayer()
   const N = config.questionsPerMatch
   const isPairs = mode === 'pairs'
+  // 0 turns the countdown off entirely — no clock pressure on a question
+  const hasTimer = config.questionTimerSec > 0
 
   const [questions] = useState(() => {
     if (isPairs) return []
@@ -201,6 +203,7 @@ export default function MatchEngine({ event, mode = 'classic', practice, onExit,
   useEffect(() => {
     if (phase !== 'ask') return
     qStartRef.current = Date.now()
+    if (!hasTimer) return
     setRemaining(config.questionTimerSec)
     const interval = setInterval(() => {
       const elapsed = (Date.now() - qStartRef.current) / 1000
@@ -334,7 +337,7 @@ export default function MatchEngine({ event, mode = 'classic', practice, onExit,
     .filter((id) => !startTrophiesRef.current.includes(id))
     .map((id) => TROPHIES.find((t) => t.id === id))
     .filter(Boolean)
-  const timerPct = (remaining / config.questionTimerSec) * 100
+  const timerPct = hasTimer ? (remaining / config.questionTimerSec) * 100 : 100
   const prompt = !isPairs && question
     ? question.options ? { text: question.prompt, key: question.key, dir: question.dir } : classicPrompt(event.id, question)
     : { text: '', dir: 'ltr' }
@@ -357,7 +360,7 @@ export default function MatchEngine({ event, mode = 'classic', practice, onExit,
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-blue-950/95 backdrop-blur-sm">
       {phase !== 'results' && (
-        <div className="flex-1 flex flex-col max-w-3xl w-full mx-auto p-3 md:p-6" style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}>
+        <div className="flex-1 flex flex-col max-w-3xl w-full mx-auto p-3 md:p-6 short:p-2" style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}>
           {/* top bar */}
           <div className="flex items-center gap-3 mb-4">
             <button
@@ -404,7 +407,7 @@ export default function MatchEngine({ event, mode = 'classic', practice, onExit,
           </div>
 
           {/* per-question timer (question modes) */}
-          {!isPairs && (
+          {!isPairs && hasTimer && (
             <div className="h-4 bg-black/40 rounded-full border-2 border-black/40 overflow-hidden mb-4">
               <div
                 className={`h-full rounded-full transition-[width] duration-100 ${
@@ -431,7 +434,7 @@ export default function MatchEngine({ event, mode = 'classic', practice, onExit,
           {!isPairs && question && (
             <div
               key={qIndex}
-              className={`anim-slide-in-q flex-1 bg-white rounded-3xl border-8 border-slate-800 shadow-2xl flex flex-col items-center justify-center gap-4 md:gap-6 p-4 md:p-6 overflow-y-auto relative ${
+              className={`anim-slide-in-q flex-1 bg-white rounded-3xl border-8 border-slate-800 shadow-2xl flex flex-col items-center justify-center gap-4 md:gap-6 short:gap-2 p-4 md:p-6 short:p-2 overflow-y-auto relative ${
                 feedback && !feedback.correct ? 'anim-shake' : ''
               } ${feedback ? (feedback.correct ? 'outline outline-8 outline-green-400' : 'outline outline-8 outline-red-400') : ''}`}
             >
@@ -441,7 +444,7 @@ export default function MatchEngine({ event, mode = 'classic', practice, onExit,
                 </span>
               </div>
 
-              <p className="text-2xl md:text-4xl lg:text-5xl font-black text-slate-800 text-center" dir={prompt.dir}>
+              <p className="text-2xl md:text-4xl lg:text-5xl short:text-xl font-black text-slate-800 text-center" dir={prompt.dir}>
                 {prompt.key ? t(prompt.key) : prompt.text}
               </p>
 
@@ -456,7 +459,7 @@ export default function MatchEngine({ event, mode = 'classic', practice, onExit,
 
               {feedback && (
                 <div
-                  className={`absolute bottom-0 left-0 right-0 py-3 px-6 text-center font-black text-white text-xl anim-pop ${
+                  className={`absolute bottom-0 start-0 end-0 py-3 px-6 text-center font-black text-white text-xl anim-pop ${
                     feedback.correct ? 'bg-green-500' : 'bg-red-500'
                   }`}
                   dir="rtl"

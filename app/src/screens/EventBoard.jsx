@@ -133,12 +133,12 @@ export default function EventBoard({ onStartMatch }) {
                 </div>
 
                 {practice ? (
-                  <div className="absolute bottom-4 right-4 bg-blue-100 px-3 py-1 rounded-full border-2 border-blue-300 flex items-center gap-1 shadow-md">
+                  <div className="absolute bottom-4 end-4 bg-blue-100 px-3 py-1 rounded-full border-2 border-blue-300 flex items-center gap-1 shadow-md">
                     <Sparkles className="text-blue-600" size={14} />
                     <span className="font-black text-blue-600 text-sm">{t('events.practice')}</span>
                   </div>
                 ) : (
-                  <div className="absolute bottom-4 right-4 bg-yellow-400 px-3 py-1 rounded-full border-2 border-yellow-600 flex items-center gap-1 shadow-md">
+                  <div className="absolute bottom-4 end-4 bg-yellow-400 px-3 py-1 rounded-full border-2 border-yellow-600 flex items-center gap-1 shadow-md">
                     <Coins className="text-yellow-900 fill-current" size={14} />
                     <span className="font-black text-yellow-900 text-sm tabular-nums">{t('events.reward', { max: maxCoins })}</span>
                   </div>
@@ -289,11 +289,11 @@ function ChestModal({ onClose }) {
               <div className="absolute left-3 right-3 top-8 bottom-2 rounded-xl bg-gradient-to-t from-amber-400 to-yellow-200 anim-vault-glow"></div>
             )}
             {/* body */}
-            <div className="absolute left-0 right-0 bottom-0 h-20 rounded-b-2xl rounded-t-md bg-gradient-to-b from-amber-600 to-amber-800 border-4 border-amber-900 z-10">
+            <div className="absolute start-0 end-0 bottom-0 h-20 rounded-b-2xl rounded-t-md bg-gradient-to-b from-amber-600 to-amber-800 border-4 border-amber-900 z-10">
               <div className="absolute left-1/2 -ml-3 top-2 w-6 h-7 bg-yellow-400 border-4 border-amber-900 rounded-md"></div>
             </div>
             {/* lid */}
-            <div className={`absolute left-0 right-0 top-4 h-12 rounded-t-2xl bg-gradient-to-b from-amber-500 to-amber-700 border-4 border-amber-900 z-10 ${opened ? 'anim-chest-lid' : ''}`}>
+            <div className={`absolute start-0 end-0 top-4 h-12 rounded-t-2xl bg-gradient-to-b from-amber-500 to-amber-700 border-4 border-amber-900 z-10 ${opened ? 'anim-chest-lid' : ''}`}>
               <div className="absolute inset-x-2 top-1.5 h-1.5 rounded bg-amber-300/50"></div>
             </div>
           </div>
