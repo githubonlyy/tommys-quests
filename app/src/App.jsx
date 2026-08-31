@@ -1,6 +1,7 @@
 import { useEffect, useState, createContext, useContext } from 'react'
-import { Gamepad2, Store, BarChart3, Zap, Trophy, Coins, Lock, Skull, Flame, Music, Joystick, Palette, Volume2, Languages, Globe2 } from 'lucide-react'
-import { usePlayer, levelCost } from './context/PlayerContext.jsx'
+import { Gamepad2, Store, BarChart3, Zap, Trophy, Coins, Lock, Skull, Flame, Music, Joystick, Palette, Shirt, Volume2, Globe2 } from 'lucide-react'
+import { usePlayer, getEquipped, levelCost } from './context/PlayerContext.jsx'
+import wardrobe from './data/wardrobe.json'
 import { useLang } from './context/LangContext.jsx'
 import { useTheme } from './context/ThemeContext.jsx'
 import ThemePicker from './screens/ThemePicker.jsx'
@@ -9,11 +10,22 @@ import { isSpeechOn, setSpeechOn, stopSpeaking, canSpeak } from './match/speak.j
 import EventBoard from './screens/EventBoard.jsx'
 import Shop from './screens/Shop.jsx'
 import Trophies from './screens/Trophies.jsx'
-import Fun from './screens/Fun.jsx'
-import AvatarPicker from './screens/AvatarPicker.jsx'
+import Arcade from './screens/Arcade.jsx'
+import World from './screens/World.jsx'
+import Closet from './screens/Closet.jsx'
 import HeroAvatar from './components/HeroAvatar.jsx'
 import CoachStats from './screens/CoachStats.jsx'
 import MatchEngine from './match/MatchEngine.jsx'
+
+// Tab order matches the sibling apps: learn, dress up, play, spend, compete.
+const TABS = [
+  { id: 'events', key: 'nav.events', Icon: Gamepad2, color: 'bg-green-500', active: 'text-green-300' },
+  { id: 'closet', key: 'nav.closet', Icon: Shirt, color: 'bg-pink-500', active: 'text-pink-300' },
+  { id: 'world', key: 'nav.world', Icon: Palette, color: 'bg-amber-500', active: 'text-amber-300' },
+  { id: 'rewards', key: 'nav.shop', Icon: Store, color: 'bg-purple-500', active: 'text-purple-300' },
+  { id: 'arcade', key: 'nav.arcade', Icon: Joystick, color: 'bg-sky-500', active: 'text-sky-300' },
+  { id: 'trophies', key: 'nav.trophies', Icon: Trophy, color: 'bg-yellow-500', active: 'text-yellow-300' },
+]
 
 const ToastContext = createContext(() => {})
 export const useToast = () => useContext(ToastContext)
@@ -67,6 +79,21 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // Picking a world dresses the doll in that world's preset — but only over
+  // free starter items, never over something he chose and paid for.
+  useEffect(() => {
+    if (!theme) return
+    const free = new Set(wardrobe.filter((i) => i.price === 0).map((i) => i.id))
+    const equipped = getEquipped(state, theme.id)
+    for (const [slot, itemId] of Object.entries(theme.avatarPreset)) {
+      const current = equipped[slot]
+      if (state.avatar.owned.includes(itemId) && current !== itemId && (current === null || free.has(current))) {
+        dispatch({ type: 'AVATAR_EQUIP', themeId: theme.id, slot, itemId })
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [theme?.id])
+
   const xpPct = Math.min(100, Math.round((state.xp / levelCost(state.level)) * 100))
 
   // pick a world before the app opens
@@ -100,34 +127,16 @@ export default function App() {
           </div>
 
           <nav className="flex-1 p-2 lg:p-4 space-y-3 mt-4">
-            <NavItem
-              icon={<Gamepad2 size={28} className="me-3" />}
-              label={t('nav.events')}
-              isActive={activeTab === 'events'}
-              onClick={() => setActiveTab('events')}
-              color="bg-green-500"
-            />
-            <NavItem
-              icon={<Store size={28} className="me-3" />}
-              label={t('nav.shop')}
-              isActive={activeTab === 'rewards'}
-              onClick={() => setActiveTab('rewards')}
-              color="bg-purple-500"
-            />
-            <NavItem
-              icon={<Joystick size={28} className="me-3" />}
-              label={t('nav.fun')}
-              isActive={activeTab === 'fun'}
-              onClick={() => setActiveTab('fun')}
-              color="bg-pink-500"
-            />
-            <NavItem
-              icon={<Trophy size={28} className="me-3" />}
-              label={t('nav.trophies')}
-              isActive={activeTab === 'trophies'}
-              onClick={() => setActiveTab('trophies')}
-              color="bg-yellow-500"
-            />
+            {TABS.map((tab) => (
+              <NavItem
+                key={tab.id}
+                icon={<tab.Icon size={28} className="me-3" />}
+                label={t(tab.key)}
+                isActive={activeTab === tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                color={tab.color}
+              />
+            ))}
           </nav>
 
           <div className="p-2 lg:p-4 border-t-4 border-(--t-side-deep) bg-black/15 space-y-2">
@@ -157,7 +166,7 @@ export default function App() {
                 <HeroAvatar size="sm" />
               </button>
               <div className="flex flex-col">
-                <span className="text-base lg:text-2xl text-white font-black drop-shadow-md tracking-wide leading-tight">{state.avatar.name}</span>
+                <span className="text-base lg:text-2xl text-white font-black drop-shadow-md tracking-wide leading-tight">{state.name}</span>
                 <div className="flex items-center gap-1.5 lg:gap-2 w-28 lg:w-48">
                   <span className="text-[10px] lg:text-xs font-black text-(--t-text-soft) whitespace-nowrap">{t('header.level')} {state.level}</span>
                   <div className="flex-1 h-3 lg:h-4 bg-blue-950 rounded-full border-2 border-blue-900 overflow-hidden relative">
@@ -224,7 +233,9 @@ export default function App() {
                 />
               )}
               {activeTab === 'rewards' && <Shop />}
-              {activeTab === 'fun' && <Fun />}
+              {activeTab === 'closet' && <Closet />}
+              {activeTab === 'world' && <World />}
+              {activeTab === 'arcade' && <Arcade />}
               {activeTab === 'trophies' && <Trophies />}
               {activeTab === 'admin' && <CoachStats />}
             </div>
@@ -233,39 +244,21 @@ export default function App() {
 
         {/* BOTTOM NAV — phones only */}
         <nav
-          className="lg:hidden shrink-0 grid grid-cols-5 bg-(--t-side) border-t-4 border-(--t-side-deep) z-20 shadow-[0_-4px_12px_rgba(0,0,0,0.3)]"
+          className="lg:hidden shrink-0 grid grid-cols-7 bg-(--t-side) border-t-4 border-(--t-side-deep) z-20 shadow-[0_-4px_12px_rgba(0,0,0,0.3)]"
           style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
         >
+          {TABS.map((tab) => (
+            <BottomNavItem
+              key={tab.id}
+              icon={<tab.Icon size={22} />}
+              label={t(tab.key)}
+              isActive={activeTab === tab.id}
+              activeColor={tab.active}
+              onClick={() => setActiveTab(tab.id)}
+            />
+          ))}
           <BottomNavItem
-            icon={<Gamepad2 size={24} />}
-            label={t('nav.events')}
-            isActive={activeTab === 'events'}
-            activeColor="text-green-400"
-            onClick={() => setActiveTab('events')}
-          />
-          <BottomNavItem
-            icon={<Store size={24} />}
-            label={t('nav.shop')}
-            isActive={activeTab === 'rewards'}
-            activeColor="text-purple-400"
-            onClick={() => setActiveTab('rewards')}
-          />
-          <BottomNavItem
-            icon={<Joystick size={24} />}
-            label={t('nav.fun')}
-            isActive={activeTab === 'fun'}
-            activeColor="text-pink-400"
-            onClick={() => setActiveTab('fun')}
-          />
-          <BottomNavItem
-            icon={<Trophy size={24} />}
-            label={t('nav.trophies')}
-            isActive={activeTab === 'trophies'}
-            activeColor="text-yellow-400"
-            onClick={() => setActiveTab('trophies')}
-          />
-          <BottomNavItem
-            icon={<BarChart3 size={24} />}
+            icon={<BarChart3 size={22} />}
             label={t('nav.coach')}
             isActive={activeTab === 'admin'}
             activeColor="text-slate-300"
@@ -273,7 +266,7 @@ export default function App() {
           />
         </nav>
 
-        {avatarOpen && <AvatarPicker onClose={() => setAvatarOpen(false)} />}
+        
 
         {/* MATCH OVERLAY */}
         {match && (

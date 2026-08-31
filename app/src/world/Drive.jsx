@@ -3,8 +3,7 @@ import { useTheme } from '../context/ThemeContext.jsx'
 import { sfx } from '../match/sounds.js'
 import { speak } from '../match/speak.js'
 import ArcadeShell from '../arcade/ArcadeShell.jsx'
-import { usePlayer } from '../context/PlayerContext.jsx'
-import { avatarById } from '../data/avatars.js'
+import Avatar from '../avatar/Avatar.jsx'
 import Car, { CAR_W, CAR_H, DRIVER_SIZE } from './drive/Car.jsx'
 import {
   START_LIVES,
@@ -103,8 +102,6 @@ function Grass({ side, particles }) {
  * changes on events (HUD, sparkle bursts, game over).
  */
 export default function Drive({ highScore, onClose, onScore, onRestart }) {
-  const { state } = usePlayer()
-  const heroEmoji = avatarById(state.avatar.avatarId).emoji
   const { theme } = useTheme()
   // this app names the catch-style skin `coinrush`; fall back so a theme
   // missing the key can never crash the game
@@ -389,7 +386,7 @@ export default function Drive({ highScore, onClose, onScore, onRestart }) {
             <div ref={carRef} className="absolute start-0 top-0 will-change-transform" style={{ width: CAR_W, height: CAR_H }} aria-label="המכונית של מלאני">
               <div ref={carBodyRef}>
                 <Car themeId={theme.id}>
-                  <span style={{ fontSize: DRIVER_SIZE * 0.6, lineHeight: 1 }}>{heroEmoji}</span>
+                  <Avatar size={DRIVER_SIZE} />
                 </Car>
               </div>
             </div>
