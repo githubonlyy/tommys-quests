@@ -1,11 +1,14 @@
 import { useState } from 'react'
-import { X, Lock, Check } from 'lucide-react'
+import { X, Lock, Check, Coins } from 'lucide-react'
 import { AVATARS, FRAMES, frameById } from '../data/avatars.js'
+import { GEAR_SLOTS, gearInSlot, isGearLocked } from '../data/gear.js'
+import HeroAvatar from '../components/HeroAvatar.jsx'
 import { usePlayer } from '../context/PlayerContext.jsx'
 import { useLang } from '../context/LangContext.jsx'
 import { sfx } from '../match/sounds.js'
 
-// Pick character + frame (level-gated) and edit the display name.
+// Pick character, frame and gear, and edit the display name. Characters and
+// frames unlock by level; gear is bought with coins (a few are level-earned).
 export default function AvatarPicker({ onClose }) {
   const { t } = useLang()
   const { state, dispatch } = usePlayer()
@@ -104,6 +107,72 @@ export default function AvatarPicker({ onClose }) {
                       </span>
                     )}
                   </button>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* gear */}
+          <div>
+            <p className="text-xs font-black text-slate-400 uppercase tracking-wider mb-1">
+              {t('avatar.gear')} · <span className="normal-case tracking-normal">{t('avatar.gearHint')}</span>
+            </p>
+            <div className="space-y-3">
+              {GEAR_SLOTS.map((slot) => {
+                const equipped = state.avatar.gear?.[slot] ?? null
+                return (
+                  <div key={slot}>
+                    <p className="text-[11px] font-black text-slate-400 uppercase mb-1">{t(`avatar.slot.${slot}`)}</p>
+                    <div className="flex gap-2 overflow-x-auto pb-1">
+                      <button
+                        onClick={() => { sfx.click(); dispatch({ type: 'SET_GEAR', slot, id: null }) }}
+                        className={`shrink-0 min-w-14 h-14 rounded-2xl border-4 text-xs font-black transition-all
+                          ${equipped === null ? 'bg-yellow-100 border-yellow-400 text-yellow-700' : 'bg-white border-slate-200 text-slate-400'}`}
+                      >
+                        {t('avatar.none')}
+                      </button>
+                      {gearInSlot(slot).map((g) => {
+                        const owned = state.ownedGear.includes(g.id)
+                        const locked = isGearLocked(g, level)
+                        const active = equipped === g.id
+                        const affordable = g.cost != null && state.coins >= g.cost
+                        return (
+                          <button
+                            key={g.id}
+                            title={g.he}
+                            onClick={() => {
+                              if (owned) { sfx.click(); dispatch({ type: 'SET_GEAR', slot, id: active ? null : g.id }); return }
+                              if (locked) return
+                              if (g.level || affordable) {
+                                dispatch({ type: 'GEAR_BUY', id: g.id })
+                                dispatch({ type: 'SET_GEAR', slot, id: g.id })
+                                sfx.fanfare()
+                              }
+                            }}
+                            disabled={locked || (!owned && !g.level && !affordable)}
+                            className={`shrink-0 w-14 relative rounded-2xl border-4 flex flex-col items-center justify-center gap-0.5 py-1 transition-all
+                              ${active ? 'bg-yellow-100 border-yellow-400 scale-105' : owned ? 'bg-white border-slate-200' : 'bg-slate-100 border-slate-200'}
+                              ${locked || (!owned && !g.level && !affordable) ? 'opacity-50' : 'active:scale-95'}`}
+                          >
+                            <span className={`text-2xl leading-none ${owned ? '' : 'grayscale'}`}>{g.emoji}</span>
+                            {owned ? (
+                              active && <Check size={12} strokeWidth={4} className="text-yellow-600" />
+                            ) : locked ? (
+                              <span className="flex items-center gap-0.5 text-[9px] font-black text-slate-500">
+                                <Lock size={8} /> {g.level}
+                              </span>
+                            ) : g.level ? (
+                              <span className="text-[9px] font-black text-green-600 uppercase">{t('avatar.buy')}</span>
+                            ) : (
+                              <span className="flex items-center gap-0.5 text-[9px] font-black text-yellow-700 tabular-nums">
+                                <Coins size={8} className="fill-current" />{g.cost}
+                              </span>
+                            )}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
                 )
               })}
             </div>

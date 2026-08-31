@@ -4,7 +4,7 @@ import { usePlayer } from '../context/PlayerContext.jsx'
 import { useLang } from '../context/LangContext.jsx'
 import { useTheme } from '../context/ThemeContext.jsx'
 import { EVENTS } from '../data/events.js'
-import { avatarById, frameById } from '../data/avatars.js'
+import HeroAvatar from '../components/HeroAvatar.jsx'
 import { sfx } from '../match/sounds.js'
 import Draw from '../world/Draw.jsx'
 import Drive from '../world/Drive.jsx'
@@ -36,9 +36,7 @@ export default function World() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3 bg-(--t-panel) p-4 rounded-2xl border-4 border-(--t-panel-border) backdrop-blur-sm">
-        <span className={`w-12 h-12 rounded-2xl border-4 flex items-center justify-center text-2xl ${frameById(state.avatar.frameId).classes}`}>
-          {avatarById(state.avatar.avatarId).emoji}
-        </span>
+        <HeroAvatar size="md" />
         <h2 className="flex-1 text-2xl md:text-3xl font-black text-white italic tracking-wide uppercase drop-shadow-md">
           {t('world.title')}
         </h2>

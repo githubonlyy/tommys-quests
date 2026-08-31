@@ -12,7 +12,7 @@ import Trophies from './screens/Trophies.jsx'
 import Arcade from './screens/Arcade.jsx'
 import World from './screens/World.jsx'
 import AvatarPicker from './screens/AvatarPicker.jsx'
-import { avatarById, frameById } from './data/avatars.js'
+import HeroAvatar from './components/HeroAvatar.jsx'
 import CoachStats from './screens/CoachStats.jsx'
 import MatchEngine from './match/MatchEngine.jsx'
 
@@ -159,10 +159,10 @@ export default function App() {
             <div className="flex items-center gap-2 md:gap-4">
               <button
                 onClick={() => setAvatarOpen(true)}
-                className={`w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl border-4 flex items-center justify-center text-2xl md:text-3xl shadow-lg active:scale-95 transition-transform ${frameById(state.avatar.frameId).classes}`}
+                className="active:scale-95 transition-transform"
                 aria-label={t('header.avatar')}
               >
-                {avatarById(state.avatar.avatarId).emoji}
+                <HeroAvatar size="sm" />
               </button>
               <div className="flex flex-col">
                 <span className="text-base md:text-2xl text-white font-black drop-shadow-md tracking-wide leading-tight">{state.avatar.name}</span>

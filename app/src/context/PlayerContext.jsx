@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useReducer } from 'react'
 import config from '../data/config.json'
 import { evaluateTrophies } from '../data/trophies.js'
 import { DEFAULT_AVATAR } from '../data/avatars.js'
+import { gearById } from '../data/gear.js'
 
 const STORAGE_KEY = 'tommys-quests-v1'
 
@@ -22,7 +23,8 @@ export const DEFAULT_STATE = {
   ownedGames: ['coinrush'], // arcade games bought with coins (coinrush is free)
   arcadeHighScores: {}, // gameId -> best score
   lessonsRead: {}, // eventId -> business date the day's lesson cards were read
-  avatar: { ...DEFAULT_AVATAR }, // { avatarId, frameId, name } — cosmetics unlock by level
+  avatar: { ...DEFAULT_AVATAR }, // { avatarId, frameId, name, gear } — cosmetics unlock by level
+  ownedGear: [], // accessory ids bought with coins or unlocked by level
   corrupt: false,
 }
 
@@ -135,6 +137,26 @@ export function reducer(state, action) {
         purchases: [purchase, ...state.purchases],
       }
     }
+    case 'GEAR_BUY': {
+      const g = gearById(action.id)
+      if (!g || state.ownedGear.includes(g.id)) return state
+      // level-locked gear is earned, never sold
+      if (g.level) {
+        if (state.level < g.level) return state
+        return { ...state, ownedGear: [...state.ownedGear, g.id] }
+      }
+      if (state.coins < g.cost) return state
+      const purchase = { id: Date.now() + '-' + g.id, ts: Date.now(), title: `${g.emoji} ${g.en}`, cost: g.cost }
+      return {
+        ...state,
+        coins: state.coins - g.cost,
+        ownedGear: [...state.ownedGear, g.id],
+        purchases: [purchase, ...state.purchases],
+      }
+    }
+    case 'SET_GEAR':
+      // null clears the slot
+      return { ...state, avatar: { ...state.avatar, gear: { ...(state.avatar.gear ?? {}), [action.slot]: action.id } } }
     case 'SET_AVATAR':
       return { ...state, avatar: { ...state.avatar, ...action.avatar } }
     case 'LESSON_READ':

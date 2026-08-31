@@ -20,7 +20,7 @@ export const FRAMES = [
   { id: 'galaxy', name: 'Galaxy', level: 10, classes: 'bg-gradient-to-br from-fuchsia-500 via-purple-600 to-indigo-800 border-purple-950' },
 ]
 
-export const DEFAULT_AVATAR = { avatarId: 'hero', frameId: 'steel', name: 'TOMMY' }
+export const DEFAULT_AVATAR = { avatarId: 'hero', frameId: 'steel', name: 'TOMMY', gear: { head: null, item: null, pet: null } }
 
 export const avatarById = (id) => AVATARS.find((a) => a.id === id) ?? AVATARS[0]
 export const frameById = (id) => FRAMES.find((f) => f.id === id) ?? FRAMES[0]
