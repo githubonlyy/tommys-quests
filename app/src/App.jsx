@@ -9,8 +9,7 @@ import { isSpeechOn, setSpeechOn, stopSpeaking, canSpeak } from './match/speak.j
 import EventBoard from './screens/EventBoard.jsx'
 import Shop from './screens/Shop.jsx'
 import Trophies from './screens/Trophies.jsx'
-import Arcade from './screens/Arcade.jsx'
-import World from './screens/World.jsx'
+import Fun from './screens/Fun.jsx'
 import AvatarPicker from './screens/AvatarPicker.jsx'
 import HeroAvatar from './components/HeroAvatar.jsx'
 import CoachStats from './screens/CoachStats.jsx'
@@ -117,17 +116,10 @@ export default function App() {
             />
             <NavItem
               icon={<Joystick size={28} className="md:mr-3" />}
-              label={t('nav.arcade')}
-              isActive={activeTab === 'arcade'}
-              onClick={() => setActiveTab('arcade')}
+              label={t('nav.fun')}
+              isActive={activeTab === 'fun'}
+              onClick={() => setActiveTab('fun')}
               color="bg-pink-500"
-            />
-            <NavItem
-              icon={<Palette size={28} className="md:mr-3" />}
-              label={t('nav.world')}
-              isActive={activeTab === 'world'}
-              onClick={() => setActiveTab('world')}
-              color="bg-amber-500"
             />
             <NavItem
               icon={<Trophy size={28} className="md:mr-3" />}
@@ -232,8 +224,7 @@ export default function App() {
                 />
               )}
               {activeTab === 'rewards' && <Shop />}
-              {activeTab === 'arcade' && <Arcade />}
-              {activeTab === 'world' && <World />}
+              {activeTab === 'fun' && <Fun />}
               {activeTab === 'trophies' && <Trophies />}
               {activeTab === 'admin' && <CoachStats />}
             </div>
@@ -242,7 +233,7 @@ export default function App() {
 
         {/* BOTTOM NAV — phones only */}
         <nav
-          className="md:hidden shrink-0 grid grid-cols-6 bg-(--t-side) border-t-4 border-(--t-side-deep) z-20 shadow-[0_-4px_12px_rgba(0,0,0,0.3)]"
+          className="md:hidden shrink-0 grid grid-cols-5 bg-(--t-side) border-t-4 border-(--t-side-deep) z-20 shadow-[0_-4px_12px_rgba(0,0,0,0.3)]"
           style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
         >
           <BottomNavItem
@@ -261,17 +252,10 @@ export default function App() {
           />
           <BottomNavItem
             icon={<Joystick size={24} />}
-            label={t('nav.arcade')}
-            isActive={activeTab === 'arcade'}
+            label={t('nav.fun')}
+            isActive={activeTab === 'fun'}
             activeColor="text-pink-400"
-            onClick={() => setActiveTab('arcade')}
-          />
-          <BottomNavItem
-            icon={<Palette size={24} />}
-            label={t('nav.world')}
-            isActive={activeTab === 'world'}
-            activeColor="text-amber-300"
-            onClick={() => setActiveTab('world')}
+            onClick={() => setActiveTab('fun')}
           />
           <BottomNavItem
             icon={<Trophy size={24} />}

@@ -21,5 +21,10 @@
     "timerSec": 90,
     "maxWrongForWin": 5
   },
-  "boardSize": 5
+  "boardSize": 5,
+  "playTime": {
+    "minutesPerSession": 15,
+    "matchesPerSession": 2,
+    "maxSessionsPerDay": 3
+  }
 }

@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import {
+  computePlayClock,
   reducer,
   DEFAULT_STATE,
   levelCost,
@@ -194,6 +195,58 @@ describe('SET_AVATAR', () => {
     let s = reducer(fresh(), { type: 'SET_AVATAR', avatar: { avatarId: 'fox' } })
     s = reducer(s, { type: 'SET_AVATAR', avatar: { name: 'MELANIE' } })
     expect(s.avatar).toMatchObject({ avatarId: 'fox', frameId: 'steel', name: 'MELANIE' })
+  })
+})
+
+describe('play-time budget', () => {
+  // resolved per call: the suite runs under fake timers set in beforeEach
+  const withPlays = (n, usedMs = 0) => {
+    const today = businessDate()
+    return {
+      ...fresh(),
+      dailyPlays: Object.fromEntries(Array.from({ length: n }, (_, i) => [`e${i}`, today])),
+      playTime: { date: today, usedMs },
+    }
+  }
+  const SESSION = config.playTime.minutesPerSession * 60000
+
+  it('grants nothing until the first two subjects are played', () => {
+    expect(computePlayClock(withPlays(0)).msLeft).toBe(0)
+    expect(computePlayClock(withPlays(1)).msLeft).toBe(0)
+    expect(computePlayClock(withPlays(1)).matchesToNext).toBe(1)
+  })
+
+  it('every two subjects buys one session', () => {
+    expect(computePlayClock(withPlays(2)).msLeft).toBe(SESSION)
+    expect(computePlayClock(withPlays(4)).msLeft).toBe(2 * SESSION)
+  })
+
+  it('caps the day even if he keeps learning', () => {
+    const capped = computePlayClock(withPlays(11))
+    expect(capped.earnedSessions).toBe(config.playTime.maxSessionsPerDay)
+    expect(capped.msLeft).toBe(config.playTime.maxSessionsPerDay * SESSION)
+    expect(capped.matchesToNext).toBe(0)
+  })
+
+  it('subtracts time already played and never goes negative', () => {
+    expect(computePlayClock(withPlays(2, SESSION / 3)).msLeft).toBe(SESSION - SESSION / 3)
+    expect(computePlayClock(withPlays(2, SESSION * 5)).msLeft).toBe(0)
+  })
+
+  it('spending accumulates, and yesterday does not carry over', () => {
+    let s = reducer(withPlays(2), { type: 'PLAY_TIME_SPEND', ms: 5000 })
+    s = reducer(s, { type: 'PLAY_TIME_SPEND', ms: 5000 })
+    expect(s.playTime.usedMs).toBe(10000)
+
+    const stale = { ...withPlays(2), playTime: { date: '2020-01-01', usedMs: 999999 } }
+    expect(computePlayClock(stale).msLeft).toBe(SESSION)
+    expect(reducer(stale, { type: 'PLAY_TIME_SPEND', ms: 1000 }).playTime.usedMs).toBe(1000)
+  })
+
+  it('reports being capped out only once the budget is spent', () => {
+    const n = config.playTime.maxSessionsPerDay * config.playTime.matchesPerSession
+    expect(computePlayClock(withPlays(n)).cappedOut).toBe(false)
+    expect(computePlayClock(withPlays(n, SESSION * 99)).cappedOut).toBe(true)
   })
 })
 
