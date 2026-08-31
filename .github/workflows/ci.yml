@@ -33,9 +33,9 @@ jobs:
         continue-on-error: true
 
       # a JSX identifier that is imported nowhere builds and tests fine, then
-      # white-screens the app — fail the build on it
-      - name: Lint (undefined JSX blocks the build)
-        run: npx oxlint src --deny jsx-no-undef --deny no-undef
+      # white-screens the app; .oxlintrc.json makes that an error
+      - name: Lint
+        run: npx oxlint src --max-warnings 200
 
       - name: Test
         run: npm test

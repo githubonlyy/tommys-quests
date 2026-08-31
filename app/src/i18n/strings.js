@@ -107,8 +107,6 @@ export const STRINGS = {
 
     'trophies.title': 'גביעים',
 
-    'theme.choose': 'איזה עולם היום?',
-    'theme.last': 'אחרון',
 
     'coach.title': 'אזור הורים',
     'coach.only': 'הורים בלבד',
@@ -180,7 +178,6 @@ export const STRINGS = {
     'world.driveHe': 'Drive and collect!',
 
     'theme.choose': 'Which world today?',
-    'theme.last': 'Last pick',
     'theme.enter': 'GO!',
 
     'header.level': 'LVL',
@@ -260,7 +257,6 @@ export const STRINGS = {
 
     'trophies.title': 'Trophies',
 
-    'theme.choose': 'Which world today?',
     'theme.last': 'Last',
 
     'coach.title': 'Coach Stats',
