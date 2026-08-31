@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Coins, Sparkles } from 'lucide-react'
 import { sfx } from './sounds.js'
+import { useLang } from '../context/LangContext.jsx'
 
 const BURST = Array.from({ length: 14 }, (_, i) => {
   const angle = (i / 14) * Math.PI * 2
@@ -19,6 +20,7 @@ const BURST = Array.from({ length: 14 }, (_, i) => {
  * Practice mode opens to a blue XP glow instead of gold coins.
  */
 export default function VaultReveal({ coins, xp, result, practice, onDone }) {
+  const { t } = useLang()
   // spin -> (thud on LOSS) -> open -> count -> done
   const [stage, setStage] = useState('spin')
   const [count, setCount] = useState(0)
@@ -144,12 +146,12 @@ export default function VaultReveal({ coins, xp, result, practice, onDone }) {
               {count}
             </span>
             <span className={`text-sm font-black uppercase ${practice ? 'text-blue-400' : 'text-yellow-600'}`}>
-              {practice ? 'XP' : 'Coins'}
+              {practice ? t('common.xp') : t('common.coins')}
             </span>
           </div>
         ) : (
           <span className="text-sm font-black text-slate-400 uppercase tracking-widest">
-            {isLoss && stage === 'thud' ? '...נעול חזק' : '...פותחים את הכספת'}
+            {isLoss && stage === 'thud' ? t('vault.locked') : t('vault.opening')}
           </span>
         )}
       </div>

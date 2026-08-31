@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Calculator, MessageCircle, BookOpen, Map as MapIcon, Coins, Check, X, Sparkles, Gift, Clock, Banknote, FlaskConical, Grid3x3 } from 'lucide-react'
 import { EVENTS, MODES } from '../data/events.js'
 import { usePlayer, businessDate } from '../context/PlayerContext.jsx'
+import { useLang } from '../context/LangContext.jsx'
 import { sfx } from '../match/sounds.js'
 import LessonDeck from '../match/LessonDeck.jsx'
 
@@ -17,6 +18,7 @@ const ICONS = {
 }
 
 export default function EventBoard({ onStartMatch }) {
+  const { t } = useLang()
   const { state, dispatch, playedToday, lessonReadToday, config } = usePlayer()
   const [preview, setPreview] = useState(null) // event shown in the pre-match modal
   const [lesson, setLesson] = useState(null) // event whose daily lesson cards are open
@@ -31,9 +33,9 @@ export default function EventBoard({ onStartMatch }) {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center bg-blue-900/50 p-4 rounded-2xl border-4 border-blue-900 backdrop-blur-sm">
-        <h2 className="text-2xl md:text-3xl font-black text-white italic tracking-wide uppercase drop-shadow-md">Daily Events</h2>
+        <h2 className="text-2xl md:text-3xl font-black text-white italic tracking-wide uppercase drop-shadow-md">{t('events.title')}</h2>
         <div className="px-3 py-1.5 bg-green-500 text-white rounded-xl border-b-4 border-green-700 font-bold text-sm uppercase flex items-center gap-1">
-          <Check size={16} strokeWidth={3} /> New Events
+          <Check size={16} strokeWidth={3} /> {t('events.new')}
         </div>
       </div>
 
@@ -57,10 +59,10 @@ export default function EventBoard({ onStartMatch }) {
         <div className="flex-1" dir="rtl">
           <p className="text-white font-black leading-tight">
             {chestClaimed
-              ? 'תיבת האוצר נאספה! נתראה מחר'
+              ? t('chest.claimed')
               : chestReady
-                ? 'תיבת האוצר מוכנה — פתחו אותה!'
-                : `שחקו ${goal} משימות שונות היום — ${goalDone}/${goal}`}
+                ? t('chest.ready')
+                : t('chest.progress', { done: goalDone, goal })}
           </p>
           <div className="flex gap-1.5 mt-1.5" dir="ltr">
             {Array.from({ length: goal }).map((_, i) => (
@@ -122,12 +124,12 @@ export default function EventBoard({ onStartMatch }) {
                 {practice ? (
                   <div className="absolute bottom-4 right-4 bg-blue-100 px-3 py-1 rounded-full border-2 border-blue-300 flex items-center gap-1 shadow-md">
                     <Sparkles className="text-blue-600" size={14} />
-                    <span className="font-black text-blue-600 text-sm">PRACTICE · XP</span>
+                    <span className="font-black text-blue-600 text-sm">{t('events.practice')}</span>
                   </div>
                 ) : (
                   <div className="absolute bottom-4 right-4 bg-yellow-400 px-3 py-1 rounded-full border-2 border-yellow-600 flex items-center gap-1 shadow-md">
                     <Coins className="text-yellow-900 fill-current" size={14} />
-                    <span className="font-black text-yellow-900 text-sm">עד 200+</span>
+                    <span className="font-black text-yellow-900 text-sm">{t('events.reward')}</span>
                   </div>
                 )}
               </div>
@@ -170,7 +172,7 @@ export default function EventBoard({ onStartMatch }) {
                 {practice && (
                   <div className="bg-blue-50 border-4 border-blue-200 rounded-2xl px-4 py-3 mb-6 w-full" dir="rtl">
                     <p className="font-bold text-blue-700 text-sm">
-                      כבר שיחקת היום! משחק חוזר = אימון: נקודות XP בלבד, בלי מטבעות.
+                      {t('events.practiceNote')}
                     </p>
                   </div>
                 )}
@@ -179,7 +181,7 @@ export default function EventBoard({ onStartMatch }) {
                   onClick={() => { setPreview(null); setLesson(preview) }}
                   className="flex items-center gap-1.5 text-sm font-black text-slate-400 hover:text-slate-600 uppercase mb-3 transition-colors"
                 >
-                  <BookOpen size={16} /> למדו שוב
+                  <BookOpen size={16} /> {t('events.learnAgain')}
                 </button>
 
                 {/* game mode picker */}
@@ -188,7 +190,7 @@ export default function EventBoard({ onStartMatch }) {
                     onClick={() => { setPreview(null); onStartMatch(preview, 'classic') }}
                     className="w-full bg-green-500 hover:bg-green-400 text-white text-2xl font-black italic uppercase py-4 rounded-2xl border-b-8 border-green-700 active:border-b-0 active:translate-y-2 transition-all shadow-lg"
                   >
-                    PLAY! · {preview.title}
+                    {t('events.play')} · {preview.title}
                   </button>
                   {preview.modes.filter((m) => m !== 'classic').map((m) => (
                     <button

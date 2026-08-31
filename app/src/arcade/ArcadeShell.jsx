@@ -1,10 +1,12 @@
 import { X, Heart, Trophy, Timer } from 'lucide-react'
+import { useLang } from '../context/LangContext.jsx'
 
 /**
  * Shared arcade chrome: HUD bar (timer / score / lives) + game-over modal.
  * The game itself renders as children inside the play area.
  */
 export default function ArcadeShell({ hud, over, highScore, onClose, onRestart, wrapRef, children }) {
+  const { t } = useLang()
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-blue-950">
       <div className="flex items-center gap-3 p-3 bg-blue-900 border-b-4 border-blue-950">
@@ -42,27 +44,27 @@ export default function ArcadeShell({ hud, over, highScore, onClose, onRestart, 
           <div className="anim-zoom-in bg-white rounded-3xl border-8 border-slate-800 shadow-2xl w-full max-w-sm overflow-hidden text-center">
             <div className="p-5 bg-gradient-to-br from-yellow-300 to-amber-500 border-b-8 border-black/10">
               <h2 className="text-3xl font-black text-white uppercase italic drop-shadow-md">
-                {over.isRecord ? 'NEW RECORD!' : 'GAME OVER'}
+                {over.isRecord ? t('arcade.newRecord') : t('arcade.gameOver')}
               </h2>
             </div>
             <div className="p-6 flex flex-col items-center gap-4 bg-slate-50">
               <p className="text-5xl font-black text-slate-800 tabular-nums">{over.score}</p>
               <div className="flex items-center gap-2 text-slate-500 font-bold">
                 <Trophy size={18} className="text-yellow-500 fill-yellow-200" />
-                <span className="tabular-nums">שיא: {Math.max(highScore, over.score)}</span>
+                <span className="tabular-nums">{t('common.record')}: {Math.max(highScore, over.score)}</span>
               </div>
               <div className="flex gap-3 w-full">
                 <button
                   onClick={onRestart}
                   className="flex-1 bg-blue-500 hover:bg-blue-400 text-white text-lg font-black italic uppercase py-3 rounded-2xl border-b-8 border-blue-700 active:border-b-0 active:translate-y-2 transition-all"
                 >
-                  Again!
+                  {t('result.again')}
                 </button>
                 <button
                   onClick={onClose}
                   className="flex-1 bg-green-500 hover:bg-green-400 text-white text-lg font-black italic uppercase py-3 rounded-2xl border-b-8 border-green-700 active:border-b-0 active:translate-y-2 transition-all"
                 >
-                  Exit
+                  {t('result.exit')}
                 </button>
               </div>
             </div>
