@@ -123,7 +123,7 @@ export const STRINGS = {
     'coach.avgTime': 'זמן ממוצע לשאלה',
     'coach.totalWins': 'סה״כ ניצחונות',
     'coach.accuracy': 'דיוק לפי נושא',
-    'coach.noMatches': 'עדיין אין משחקים — שלחו את תומי לשחק!',
+    'coach.noMatches': 'עדיין אין משחקים — שלחו את טומי לשחק!',
     'coach.battleLog': 'יומן משחקים',
     'log.WIN': 'ניצחון',
     'log.DRAW': 'תיקו',

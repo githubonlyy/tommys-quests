@@ -1,7 +1,7 @@
 [
   { "words": ["I", "like", "cats"], "he": "אני אוהב חתולים" },
   { "words": ["The", "dog", "is", "big"], "he": "הכלב גדול" },
-  { "words": ["My", "name", "is", "Tommy"], "he": "השם שלי תומי" },
+  { "words": ["My", "name", "is", "Tommy"], "he": "השם שלי טומי" },
   { "words": ["I", "have", "a", "ball"], "he": "יש לי כדור" },
   { "words": ["The", "sun", "is", "hot"], "he": "השמש חמה" },
   { "words": ["We", "play", "football"], "he": "אנחנו משחקים כדורגל" },

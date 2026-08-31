@@ -113,7 +113,7 @@ export default function App() {
               <Zap className="text-yellow-950 h-8 w-8 lg:h-10 lg:w-10 fill-current" />
             </div>
             <h1 className="text-2xl font-black text-white italic tracking-wider drop-shadow-md leading-tight">
-              {isHe ? <>המסע של<br /><span className="text-(--t-accent)">תומי</span></> : <>TOMMY&apos;S<br /><span className="text-(--t-accent)">QUESTS</span></>}
+              {isHe ? <>המסע של<br /><span className="text-(--t-accent)">טומי</span></> : <>TOMMY&apos;S<br /><span className="text-(--t-accent)">QUESTS</span></>}
             </h1>
             <button
               onClick={clearTheme}
