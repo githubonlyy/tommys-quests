@@ -17,7 +17,17 @@ export default function EventBoard({ onStartMatch }) {
   const [openCats, setOpenCats] = useState({}) // categories he expanded past today's rotation
 
   const today = businessDate()
-  const daily = useMemo(() => new Set(dailySubjects(today, EVENTS, config.boardSize).map((e) => e.id)), [today, config.boardSize])
+  // rotate inside each category, not across the whole board: a global window
+  // would leave some categories empty on a given day, and the daily goal needs
+  // four DIFFERENT categories
+  const daily = useMemo(() => {
+    const ids = new Set()
+    for (const cat of CATEGORIES) {
+      const inCat = EVENTS.filter((e) => e.category === cat.id)
+      for (const e of dailySubjects(today, inCat, config.boardSize)) ids.add(e.id)
+    }
+    return ids
+  }, [today, config.boardSize])
   // what a flawless match is worth, so the badge never drifts from the economy
   const maxCoins = config.questionsPerMatch * (config.coinsPerCorrect + config.speedBonusCoins) + config.winBonusCoins
 

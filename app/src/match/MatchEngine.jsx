@@ -15,6 +15,17 @@ import scienceQ from '../data/questions/science.json'
 import timesQ from '../data/questions/times.json'
 import readingQ from '../data/questions/reading.json'
 import sentencesQ from '../data/questions/sentences.json'
+import fractionsQ from '../data/questions/fractions.json'
+import wordproblemsQ from '../data/questions/wordproblems.json'
+import geometryQ from '../data/questions/geometry.json'
+import spellingQ from '../data/questions/spelling.json'
+import hebrewreadQ from '../data/questions/hebrewread.json'
+import synonymsQ from '../data/questions/synonyms.json'
+import holidaysQ from '../data/questions/holidays.json'
+import flagsQ from '../data/questions/flags.json'
+import bodyQ from '../data/questions/body.json'
+import patternsQ from '../data/questions/patterns.json'
+import riddlesQ from '../data/questions/riddles.json'
 import NumberPad from './widgets/NumberPad.jsx'
 import LetterTiles from './widgets/LetterTiles.jsx'
 import WordTap from './widgets/WordTap.jsx'
@@ -24,6 +35,8 @@ import ClockRead, { fmtTime } from './widgets/ClockRead.jsx'
 import ListenPick from './widgets/ListenPick.jsx'
 import ReadPick from './widgets/ReadPick.jsx'
 import SentenceOrder from './widgets/SentenceOrder.jsx'
+import FractionPick from './widgets/FractionPick.jsx'
+import PatternPick from './widgets/PatternPick.jsx'
 import MoneyCount, { moneySum } from './widgets/MoneyCount.jsx'
 import PairsBoard from './PairsBoard.jsx'
 import VaultReveal from './VaultReveal.jsx'
@@ -34,11 +47,16 @@ const BANKS = {
   math: mathQ, english: englishQ, hebrew: hebrewQ, geography: geographyQ,
   clock: clockQ, money: moneyQ, science: scienceQ, times: timesQ,
   listening: englishQ, reading: readingQ, sentences: sentencesQ,
+  fractions: fractionsQ, wordproblems: wordproblemsQ, geometry: geometryQ,
+  spelling: spellingQ, hebrewread: hebrewreadQ, synonyms: synonymsQ,
+  holidays: holidaysQ, flags: flagsQ, body: bodyQ,
+  patterns: patternsQ, riddles: riddlesQ,
 }
 const WIDGETS = {
   numberpad: NumberPad, lettertiles: LetterTiles, wordtap: WordTap, mapgrid: MapGrid,
   clockread: ClockRead, moneycount: MoneyCount, balloon: BalloonPop,
   listenpick: ListenPick, readpick: ReadPick, sentenceorder: SentenceOrder,
+  fractionpick: FractionPick, patternpick: PatternPick,
 }
 
 function shuffle(arr) {
@@ -65,12 +83,26 @@ function mathDistractors(answer) {
   return [...pool]
 }
 
+// subjects whose bank already ships its own decoys need no distractor logic
+const DECOY_BANKS = ['science', 'geometry', 'spelling', 'synonyms', 'holidays', 'flags', 'body', 'riddles']
+
+// { q, a, decoys } -> a four-way pick, keeping any extra fields the widget needs
+function buildChoice(q, extra = {}) {
+  return {
+    ...extra,
+    prompt: q.q,
+    dir: 'rtl',
+    answerText: q.a,
+    options: shuffle([{ label: q.a, correct: true }, ...q.decoys.map((d) => ({ label: d, correct: false }))]),
+  }
+}
+
 function buildBalloon(eventId, q, sourceBank) {
   let prompt, dir, emoji = null, correct, decoys
   if (eventId === 'math' || eventId === 'times') {
     prompt = `${q.q} = ?`; dir = 'ltr'
     correct = q.a; decoys = mathDistractors(q.a)
-  } else if (eventId === 'science') {
+  } else if (DECOY_BANKS.includes(eventId)) {
     prompt = q.q; dir = 'rtl'
     correct = q.a; decoys = q.decoys
   } else if (eventId === 'english') {
@@ -136,6 +168,7 @@ function classicAnswerText(eventId, q) {
   if (eventId === 'clock') return fmtTime(q.h, q.m)
   if (eventId === 'money') return `₪${moneySum(q.items)}`
   if (eventId === 'sentences') return q.words.join(' ')
+  if (eventId === 'wordproblems') return q.a
   return ''
 }
 
@@ -147,6 +180,7 @@ function classicPrompt(eventId, q) {
   if (eventId === 'clock') return { key: 'match.whatTime', dir: 'rtl' }
   if (eventId === 'money') return { key: 'match.howMuch', dir: 'rtl' }
   if (eventId === 'sentences') return { key: 'match.buildSentence', dir: 'rtl' }
+  if (eventId === 'wordproblems') return { text: q.q, dir: 'rtl' }
   return { text: '', dir: 'ltr' }
 }
 
@@ -161,6 +195,11 @@ export default function MatchEngine({ event, mode = 'classic', practice, onExit,
   const [questions] = useState(() => {
     if (isPairs) return []
     // science's classic widget IS the balloon picker — same prepared format
+    if (event.id === 'fractions') {
+      return sample(fractionsQ, N).map((q) => buildChoice({ ...q, q: 'איזה חלק צבוע?' }, { num: q.num, den: q.den }))
+    }
+    if (event.id === 'patterns') return sample(patternsQ, N).map((q) => buildChoice({ ...q, q: 'מה בא אחר כך?' }, { seq: q.seq }))
+    if (event.id === 'hebrewread') return sample(hebrewreadQ, N).map((q) => buildChoice(q, { text: q.text }))
     if (event.id === 'listening') return sample(englishQ, N).map((q) => buildListening(q, englishQ))
     if (event.id === 'reading') return sample(readingQ, N).map(buildReading)
     if (mode === 'balloon' || event.widget === 'balloon') {

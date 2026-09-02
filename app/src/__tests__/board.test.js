@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { dailySubjects, dayIndex } from '../data/board.js'
-import { EVENTS } from '../data/events.js'
+import { EVENTS, CATEGORIES } from '../data/events.js'
 
 const day = (n) => new Date(Date.UTC(2026, 7, 28) + n * 86400000).toISOString().slice(0, 10)
 
@@ -28,10 +28,24 @@ describe('dailySubjects', () => {
     for (const e of set) expect(EVENTS).toContain(e)
   })
 
-  it('every subject comes around within ten days', () => {
-    const seen = new Set()
-    for (let i = 0; i < 10; i++) for (const e of dailySubjects(day(i), EVENTS)) seen.add(e.id)
-    expect(seen.size).toBe(EVENTS.length)
+  // the board rotates inside each category, so coverage is per category
+  it('every subject in a category comes around within a fortnight', () => {
+    for (const cat of CATEGORIES) {
+      const inCat = EVENTS.filter((e) => e.category === cat.id)
+      if (inCat.length === 0) continue
+      const seen = new Set()
+      for (let i = 0; i < 14; i++) for (const e of dailySubjects(day(i), inCat, 2)) seen.add(e.id)
+      expect(seen.size, cat.id).toBe(inCat.length)
+    }
+  })
+
+  it('shows something from every category every day', () => {
+    for (let i = 0; i < 14; i++) {
+      for (const cat of CATEGORIES) {
+        const inCat = EVENTS.filter((e) => e.category === cat.id)
+        expect(dailySubjects(day(i), inCat, 2).length, `${cat.id} day ${i}`).toBeGreaterThan(0)
+      }
+    }
   })
 
   it('never asks for more subjects than exist', () => {
