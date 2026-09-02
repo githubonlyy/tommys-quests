@@ -1,28 +1,29 @@
 import { useEffect, useMemo, useState } from 'react'
 import { ChevronDown, ChevronUp, Coins, Check, X, Sparkles, Gift, BookOpen } from 'lucide-react'
-import { EVENTS, MODES } from '../data/events.js'
+import { EVENTS, MODES, CATEGORIES } from '../data/events.js'
 import { dailySubjects } from '../data/board.js'
-import { usePlayer, businessDate } from '../context/PlayerContext.jsx'
+import { usePlayer, businessDate, categoriesPlayedToday } from '../context/PlayerContext.jsx'
 import { useLang } from '../context/LangContext.jsx'
 import { sfx } from '../match/sounds.js'
 import LessonDeck from '../match/LessonDeck.jsx'
 
 export default function EventBoard({ onStartMatch }) {
-  const { t, name } = useLang()
+  const { t, name, isHe } = useLang()
   const { state, dispatch, playedToday, lessonReadToday, config } = usePlayer()
   const [preview, setPreview] = useState(null) // event shown in the pre-match modal
   const [lesson, setLesson] = useState(null) // event whose daily lesson cards are open
   const [chestOpen, setChestOpen] = useState(false)
-  const [showAll, setShowAll] = useState(false)
+  const showAll = false // sections expand one at a time now
+  const [openCats, setOpenCats] = useState({}) // categories he expanded past today's rotation
 
   const today = businessDate()
   const daily = useMemo(() => new Set(dailySubjects(today, EVENTS, config.boardSize).map((e) => e.id)), [today, config.boardSize])
-  const visible = showAll ? EVENTS : EVENTS.filter((e) => daily.has(e.id) || playedToday(e.id))
   // what a flawless match is worth, so the badge never drifts from the economy
   const maxCoins = config.questionsPerMatch * (config.coinsPerCorrect + config.speedBonusCoins) + config.winBonusCoins
 
   const goal = config.dailyGoal
-  const doneCount = EVENTS.filter((e) => playedToday(e.id)).length
+  // four DIFFERENT categories, so a day of pure arithmetic does not finish the goal
+  const doneCount = categoriesPlayedToday(state)
   const goalDone = Math.min(doneCount, goal)
   const chestReady = doneCount >= goal
   const chestClaimed = state.chestClaimed === businessDate()
@@ -87,62 +88,82 @@ export default function EventBoard({ onStartMatch }) {
         />
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
-        {visible.map((event) => {
-          const practice = playedToday(event.id)
-          return (
-            <div
-              key={event.id}
-              onClick={() => (lessonReadToday(event.id) ? setPreview(event) : setLesson(event))}
-              className={`group relative ${event.color} rounded-3xl border-b-8 ${event.borderColor} cursor-pointer hover:-translate-y-2 active:translate-y-2 active:border-b-0 transition-all duration-200 shadow-xl`}
+      {/* one collapsible section per category */}
+      {CATEGORIES.map((cat) => {
+        const all = EVENTS.filter((e) => e.category === cat.id)
+        if (all.length === 0) return null
+        const list = showAll || openCats[cat.id] ? all : all.filter((e) => daily.has(e.id) || playedToday(e.id))
+        const doneHere = all.filter((e) => playedToday(e.id)).length
+        const collapsed = list.length === 0
+        return (
+          <section key={cat.id} className="space-y-3">
+            <button
+              onClick={() => setOpenCats((o) => ({ ...o, [cat.id]: !o[cat.id] }))}
+              className="w-full flex items-center gap-2 bg-(--t-panel) p-3 rounded-2xl border-4 border-(--t-panel-border) backdrop-blur-sm"
             >
-              <div className="bg-white m-1.5 rounded-[1.25rem] h-[calc(100%-12px)] flex flex-col overflow-hidden relative">
-                <div className={`${event.headerColor} p-2 text-center border-b-4 border-black/10`}>
-                  <span className="text-white font-black uppercase text-sm tracking-wider drop-shadow-sm">
-                    {event.type}
-                  </span>
-                </div>
+              <span className="text-2xl leading-none">{cat.emoji}</span>
+              <span className="flex-1 text-start text-lg font-black text-white drop-shadow">{isHe ? cat.he : cat.en}</span>
+              {doneHere > 0 && (
+                <span className="px-2 py-0.5 rounded-lg bg-green-500 text-white text-xs font-black tabular-nums">
+                  {doneHere}/{all.length}
+                </span>
+              )}
+              <span className="text-(--t-text-soft)">
+                {collapsed || !openCats[cat.id] ? <ChevronDown size={20} /> : <ChevronUp size={20} />}
+              </span>
+            </button>
 
-                <div className="p-4 md:p-6 pb-12 md:pb-14 flex items-start gap-3 md:gap-4 flex-1">
-                  <div className={`w-16 h-16 md:w-20 md:h-20 shrink-0 rounded-2xl bg-slate-100 border-4 ${event.borderColor} shadow-inner rotate-3 group-hover:rotate-0 transition-transform flex items-center justify-center text-4xl md:text-5xl leading-none`}>
-                    {event.emoji}
+            {list.length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
+              {list.map((event) => {
+            const practice = playedToday(event.id)
+            return (
+              <div
+                key={event.id}
+                onClick={() => (lessonReadToday(event.id) ? setPreview(event) : setLesson(event))}
+                className={`group relative ${event.color} rounded-3xl border-b-8 ${event.borderColor} cursor-pointer hover:-translate-y-2 active:translate-y-2 active:border-b-0 transition-all duration-200 shadow-xl`}
+              >
+                <div className="bg-white m-1.5 rounded-[1.25rem] h-[calc(100%-12px)] flex flex-col overflow-hidden relative">
+                  <div className={`${event.headerColor} p-2 text-center border-b-4 border-black/10`}>
+                    <span className="text-white font-black uppercase text-sm tracking-wider drop-shadow-sm">
+                      {event.type}
+                    </span>
                   </div>
-                  <div className="flex-1">
-                    <h3 className="text-xl md:text-2xl font-black text-slate-800 uppercase italic leading-tight mb-2">
-                      {name(event)}
-                    </h3>
-                    <div className="bg-slate-100 p-2 rounded-xl border-2 border-slate-200" dir="rtl">
-                      <p className="font-bold text-slate-600 text-sm">{event.description}</p>
+
+                  <div className="p-4 md:p-6 pb-12 md:pb-14 flex items-start gap-3 md:gap-4 flex-1">
+                    <div className={`w-16 h-16 md:w-20 md:h-20 shrink-0 rounded-2xl bg-slate-100 border-4 ${event.borderColor} shadow-inner rotate-3 group-hover:rotate-0 transition-transform flex items-center justify-center text-4xl md:text-5xl leading-none`}>
+                      {event.emoji}
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-xl md:text-2xl font-black text-slate-800 uppercase italic leading-tight mb-2">
+                        {name(event)}
+                      </h3>
+                      <div className="bg-slate-100 p-2 rounded-xl border-2 border-slate-200" dir="rtl">
+                        <p className="font-bold text-slate-600 text-sm">{event.description}</p>
+                      </div>
                     </div>
                   </div>
+
+                  {practice ? (
+                    <div className="absolute bottom-4 end-4 bg-blue-100 px-3 py-1 rounded-full border-2 border-blue-300 flex items-center gap-1 shadow-md">
+                      <Sparkles className="text-blue-600" size={14} />
+                      <span className="font-black text-blue-600 text-sm">{t('events.practice')}</span>
+                    </div>
+                  ) : (
+                    <div className="absolute bottom-4 end-4 bg-yellow-400 px-3 py-1 rounded-full border-2 border-yellow-600 flex items-center gap-1 shadow-md">
+                      <Coins className="text-yellow-900 fill-current" size={14} />
+                      <span className="font-black text-yellow-900 text-sm tabular-nums">{t('events.reward', { max: maxCoins })}</span>
+                    </div>
+                  )}
                 </div>
-
-                {practice ? (
-                  <div className="absolute bottom-4 end-4 bg-blue-100 px-3 py-1 rounded-full border-2 border-blue-300 flex items-center gap-1 shadow-md">
-                    <Sparkles className="text-blue-600" size={14} />
-                    <span className="font-black text-blue-600 text-sm">{t('events.practice')}</span>
-                  </div>
-                ) : (
-                  <div className="absolute bottom-4 end-4 bg-yellow-400 px-3 py-1 rounded-full border-2 border-yellow-600 flex items-center gap-1 shadow-md">
-                    <Coins className="text-yellow-900 fill-current" size={14} />
-                    <span className="font-black text-yellow-900 text-sm tabular-nums">{t('events.reward', { max: maxCoins })}</span>
-                  </div>
-                )}
               </div>
-            </div>
-          )
-        })}
-      </div>
-
-      {EVENTS.length > visible.length || showAll ? (
-        <button
-          onClick={() => setShowAll((v) => !v)}
-          className="w-full min-h-14 flex items-center justify-center gap-2 bg-(--t-panel) hover:bg-(--t-nav) text-white font-black text-lg rounded-2xl border-4 border-(--t-panel-border) backdrop-blur-sm transition-colors"
-        >
-          {showAll ? <ChevronUp size={22} /> : <ChevronDown size={22} />}
-          {t(showAll ? 'events.showLess' : 'events.showAll')}
-        </button>
-      ) : null}
+            )
+          })}
+              </div>
+            )}
+          </section>
+        )
+      })}
 
       {/* CHEST + PRE-MATCH MODALS below */}
       {/* PRE-MATCH MODAL */}

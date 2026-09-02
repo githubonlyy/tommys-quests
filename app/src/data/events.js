@@ -7,9 +7,23 @@ export const MODES = {
   pairs: { label: 'Pairs Match', heLabel: 'משחק זיכרון — מצאו את הזוגות!' },
 }
 
+// Subjects are grouped on the board, and the daily goal asks for four
+// DIFFERENT categories so a week of nothing but arithmetic is not possible.
+export const CATEGORIES = [
+  { id: 'math', he: 'מתמטיקה', en: 'Math', emoji: '🔢', color: 'bg-red-500', border: 'border-red-700' },
+  { id: 'english', he: 'אנגלית', en: 'English', emoji: '🔤', color: 'bg-cyan-500', border: 'border-cyan-700' },
+  { id: 'hebrew', he: 'עברית', en: 'Hebrew', emoji: '📜', color: 'bg-purple-500', border: 'border-purple-700' },
+  { id: 'world', he: 'העולם', en: 'The World', emoji: '🌍', color: 'bg-green-500', border: 'border-green-700' },
+  { id: 'thinking', he: 'חשיבה', en: 'Thinking', emoji: '🧠', color: 'bg-amber-500', border: 'border-amber-700' },
+]
+
+export const CATEGORY_IDS = CATEGORIES.map((c) => c.id)
+export const categoryById = (id) => CATEGORIES.find((c) => c.id === id) ?? CATEGORIES[0]
+
 export const EVENTS = [
   {
     id: 'math',
+    category: 'math',
     emoji: '🔢',
     title: 'Vault Heist',
     heTitle: 'שוד הכספת',
@@ -24,6 +38,7 @@ export const EVENTS = [
   },
   {
     id: 'english',
+    category: 'english',
     emoji: '🔤',
     title: 'Alien Decode',
     heTitle: 'פענוח חייזרים',
@@ -38,6 +53,7 @@ export const EVENTS = [
   },
   {
     id: 'hebrew',
+    category: 'hebrew',
     emoji: '📜',
     title: 'Ancient Scroll',
     heTitle: 'המגילה העתיקה',
@@ -52,6 +68,7 @@ export const EVENTS = [
   },
   {
     id: 'geography',
+    category: 'world',
     emoji: '🗺️',
     title: 'Map Maker',
     heTitle: 'מפת הארץ',
@@ -66,6 +83,7 @@ export const EVENTS = [
   },
   {
     id: 'clock',
+    category: 'math',
     emoji: '🕐',
     title: 'Time Keeper',
     heTitle: 'שומר הזמן',
@@ -80,6 +98,7 @@ export const EVENTS = [
   },
   {
     id: 'money',
+    category: 'math',
     emoji: '💰',
     title: 'Cash Grab',
     heTitle: 'ציד השקלים',
@@ -94,6 +113,7 @@ export const EVENTS = [
   },
   {
     id: 'science',
+    category: 'world',
     emoji: '🔬',
     title: 'Brain Blast',
     heTitle: 'פיצוץ מוחות',
@@ -108,6 +128,7 @@ export const EVENTS = [
   },
   {
     id: 'times',
+    category: 'math',
     emoji: '✖️',
     title: 'Multiplier',
     heTitle: 'אלוף הכפל',
@@ -122,6 +143,7 @@ export const EVENTS = [
   },
   {
     id: 'listening',
+    category: 'english',
     emoji: '🎧',
     title: 'Listen Up',
     heTitle: 'אוזן קשבת',
@@ -136,6 +158,7 @@ export const EVENTS = [
   },
   {
     id: 'reading',
+    category: 'english',
     emoji: '📖',
     title: 'Story Time',
     heTitle: 'שעת סיפור',
@@ -150,6 +173,7 @@ export const EVENTS = [
   },
   {
     id: 'sentences',
+    category: 'english',
     emoji: '🧩',
     title: 'Word Builder',
     heTitle: 'בונה משפטים',

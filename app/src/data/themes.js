@@ -22,6 +22,7 @@ export const THEME_VAR_KEYS = [
 export const THEMES = {
   space: {
     id: 'space',
+    music: 'space',
     label: 'חלל',
     en: 'Space',
     subtitle: 'כוכבים, רקטות וחייזרים',
@@ -52,6 +53,7 @@ export const THEMES = {
   },
   dino: {
     id: 'dino',
+    music: 'jungle',
     label: 'דינוזאורים',
     en: 'Dinos',
     subtitle: 'ג׳ונגל, ביצים ודינוזאורים',
@@ -82,6 +84,7 @@ export const THEMES = {
   },
   soccer: {
     id: 'soccer',
+    music: 'sports',
     label: 'כדורגל',
     en: 'Soccer',
     subtitle: 'מגרש, גולים וגביעים',
@@ -112,6 +115,7 @@ export const THEMES = {
   },
   ninja: {
     id: 'ninja',
+    music: 'ninja',
     label: 'נינג׳ה',
     en: 'Ninja',
     subtitle: 'לילה, כוכבי נינג׳ה וקרב',

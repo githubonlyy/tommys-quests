@@ -32,6 +32,10 @@ export const STRINGS = {
     'theme.enter': 'קדימה!',
 
     'header.level': 'רמה',
+    'music.title': 'מוזיקה',
+    'music.on': 'מוזיקה דולקת',
+    'music.off': 'מוזיקה כבויה',
+    'music.hint': 'כל עולם מציע סגנון משלו — אפשר להחליף מתי שרוצים.',
     'header.music.on': 'כיבוי מוזיקה',
     'header.music.off': 'הפעלת מוזיקה',
     'header.speech.on': 'כיבוי הקראה',
@@ -53,7 +57,7 @@ export const STRINGS = {
     'events.practiceNote': 'כבר שיחקת היום! משחק חוזר = אימון: נקודות XP בלבד, בלי מטבעות.',
     'chest.ready': 'תיבת האוצר מוכנה — פתחו אותה!',
     'chest.claimed': 'תיבת האוצר נאספה! נתראה מחר',
-    'chest.progress': ({ done, goal }) => `שחקו ${goal} משימות שונות היום — ${done}/${goal}`,
+    'chest.progress': ({ done, goal }) => `שחקו ${goal} תחומים שונים היום — ${done}/${goal}`,
 
     'lesson.header': 'שיעור קצר',
     'lesson.next': 'הבא ←',
@@ -191,6 +195,10 @@ export const STRINGS = {
     'theme.enter': 'GO!',
 
     'header.level': 'LVL',
+    'music.title': 'Music',
+    'music.on': 'Music is on',
+    'music.off': 'Music is off',
+    'music.hint': 'Each world suggests a style — change it any time.',
     'header.music.on': 'Turn music off',
     'header.music.off': 'Turn music on',
     'header.speech.on': 'Turn speech off',
@@ -212,7 +220,7 @@ export const STRINGS = {
     'events.practiceNote': 'Already played today! A replay is practice: XP only, no coins.',
     'chest.ready': 'Treasure chest ready — open it!',
     'chest.claimed': 'Chest collected! See you tomorrow',
-    'chest.progress': ({ done, goal }) => `Play ${goal} different events today — ${done}/${goal}`,
+    'chest.progress': ({ done, goal }) => `Play ${goal} different categories today — ${done}/${goal}`,
 
     'lesson.header': 'Quick lesson',
     'lesson.next': 'Next →',

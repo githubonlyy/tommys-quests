@@ -5,13 +5,14 @@ import wardrobe from './data/wardrobe.json'
 import { useLang } from './context/LangContext.jsx'
 import { useTheme } from './context/ThemeContext.jsx'
 import ThemePicker from './screens/ThemePicker.jsx'
-import { playMusic, stopMusic, isMusicOn, setMusicOn } from './match/music.js'
+import { playMusic, stopMusic, isMusicOn, setMusicOn, setTrack, getTrack } from './match/music.js'
 import { isSpeechOn, setSpeechOn, stopSpeaking, canSpeak } from './match/speak.js'
 import EventBoard from './screens/EventBoard.jsx'
 import Shop from './screens/Shop.jsx'
 import Trophies from './screens/Trophies.jsx'
 import Fun from './screens/Fun.jsx'
 import Closet from './screens/Closet.jsx'
+import MusicPicker from './components/MusicPicker.jsx'
 import HeroAvatar from './components/HeroAvatar.jsx'
 import CoachStats from './screens/CoachStats.jsx'
 import MatchEngine from './match/MatchEngine.jsx'
@@ -37,6 +38,7 @@ export default function App() {
   // { event, practice } while a match is running
   const [match, setMatch] = useState(null)
   const [musicOn, setMusicOnState] = useState(isMusicOn())
+  const [musicOpen, setMusicOpen] = useState(false)
   const [speechOn, setSpeechOnState] = useState(isSpeechOn())
 
   // background music follows app state; first pointer tap unlocks WebAudio
@@ -49,10 +51,6 @@ export default function App() {
     return () => window.removeEventListener('pointerdown', kick)
   }, [match, musicOn])
 
-  const toggleMusic = () => {
-    setMusicOn(!musicOn)
-    setMusicOnState(!musicOn)
-  }
 
   const toggleSpeech = () => {
     setSpeechOn(!speechOn)
@@ -88,6 +86,16 @@ export default function App() {
         dispatch({ type: 'AVATAR_EQUIP', themeId: theme.id, slot, itemId })
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [theme?.id])
+
+  // a world suggests its own music the first time it is picked; once he has
+  // chosen a style himself it is never overridden
+  useEffect(() => {
+    if (!theme?.music) return
+    let chosen = false
+    try { chosen = localStorage.getItem('tommys-quests-track') !== null } catch { /* first run */ }
+    if (!chosen && getTrack() !== theme.music) setTrack(theme.music)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [theme?.id])
 
@@ -179,7 +187,7 @@ export default function App() {
 
             <div className="flex items-center gap-2 lg:gap-3">
               <button
-                onClick={toggleMusic}
+                onClick={() => setMusicOpen(true)}
                 aria-label={musicOn ? t('header.music.on') : t('header.music.off')}
                 className={`w-9 h-9 lg:w-11 lg:h-11 rounded-xl border-b-4 flex items-center justify-center transition-all active:translate-y-0.5 active:border-b-2 relative
                   ${musicOn ? 'bg-green-500 border-green-700 text-white' : 'bg-blue-950 border-blue-900 text-blue-600'}`}
@@ -263,6 +271,10 @@ export default function App() {
         </nav>
 
         
+
+        {musicOpen && (
+          <MusicPicker musicOn={musicOn} onToggle={setMusicOnState} onClose={() => setMusicOpen(false)} />
+        )}
 
         {/* MATCH OVERLAY */}
         {match && (

@@ -3,6 +3,7 @@ import config from '../data/config.json'
 import { evaluateTrophies } from '../data/trophies.js'
 import wardrobe from '../data/wardrobe.json'
 import { THEME_IDS, DEFAULT_THEME } from '../data/themes.js'
+import { EVENTS } from '../data/events.js'
 
 const STORAGE_KEY = 'tommys-quests-v1'
 
@@ -287,8 +288,22 @@ function loadInitial() {
  * today grants one session, capped per day; time already spent is subtracted.
  * Pure so the rules can be tested without React.
  */
+/** Distinct subject categories he has played today — the daily goal counts these. */
+export function categoriesPlayedToday(state, today = businessDate()) {
+  const cats = new Set()
+  for (const [eventId, date] of Object.entries(state.dailyPlays)) {
+    if (date !== today) continue
+    const ev = EVENTS.find((e) => e.id === eventId)
+    if (ev?.category) cats.add(ev.category)
+  }
+  return cats.size
+}
+
 export function computePlayClock(state, cfg = config, today = businessDate()) {
   const { minutesPerSession, matchesPerSession, maxSessionsPerDay } = cfg.playTime
+  // play time is earned by VOLUME (any matches); the chest is what demands
+  // breadth across categories — tying both to categories would make the third
+  // session unreachable, since there are fewer categories than it needs
   const doneToday = Object.values(state.dailyPlays).filter((d) => d === today).length
   const earnedSessions = Math.min(maxSessionsPerDay, Math.floor(doneToday / matchesPerSession))
   const sameDay = state.playTime?.date === today

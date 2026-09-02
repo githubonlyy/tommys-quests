@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import {
+  categoriesPlayedToday,
   computePlayClock,
   reducer,
   DEFAULT_STATE,
@@ -10,6 +11,7 @@ import {
 import { lessonCardsForToday, CARDS_PER_DAY } from '../match/lessonRotation.js'
 import LESSONS from '../data/lessons.json'
 import config from '../data/config.json'
+import { EVENTS, CATEGORY_IDS } from '../data/events.js'
 
 const fresh = () => structuredClone(DEFAULT_STATE)
 
@@ -192,6 +194,33 @@ describe('arcade', () => {
 describe('SET_NAME', () => {
   it('renames the player', () => {
     expect(reducer(fresh(), { type: 'SET_NAME', name: 'MICHAEL' }).name).toBe('MICHAEL')
+  })
+})
+
+describe('daily chest goal counts categories', () => {
+  const played = (...ids) => {
+    const today = businessDate()
+    return { ...fresh(), dailyPlays: Object.fromEntries(ids.map((id) => [id, today])) }
+  }
+
+  it('four subjects from one category do not finish the goal', () => {
+    // math, times, money and clock are all the same category on purpose
+    expect(categoriesPlayedToday(played('math', 'times', 'money', 'clock'))).toBe(1)
+  })
+
+  it('one subject from each category does', () => {
+    expect(categoriesPlayedToday(played('math', 'english', 'hebrew', 'geography'))).toBe(4)
+  })
+
+  it('ignores yesterday and unknown subjects', () => {
+    const s = played('math', 'english')
+    s.dailyPlays['hebrew'] = '2020-01-01'
+    s.dailyPlays['not-a-subject'] = businessDate()
+    expect(categoriesPlayedToday(s)).toBe(2)
+  })
+
+  it('every subject on the board declares a category', () => {
+    for (const e of EVENTS) expect(CATEGORY_IDS, e.id).toContain(e.category)
   })
 })
 
