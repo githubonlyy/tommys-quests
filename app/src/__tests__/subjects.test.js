@@ -82,3 +82,32 @@ describe('question banks', () => {
     }
   })
 })
+
+describe('lesson cards', () => {
+  const lessons = JSON.parse(readFileSync(new URL('../data/lessons.json', import.meta.url), 'utf8'))
+
+  it('every subject has a pool the daily rotation can slice', () => {
+    for (const e of EVENTS) {
+      const pool = lessons[e.id]
+      expect(pool, `${e.id} has no lesson pool`).toBeTruthy()
+      expect(pool.length, e.id).toBeGreaterThanOrEqual(3)
+    }
+  })
+
+  it('every card is a complete card', () => {
+    for (const [id, pool] of Object.entries(lessons)) {
+      for (const [i, c] of pool.entries()) {
+        expect(c.emoji, `${id}[${i}]`).toBeTruthy()
+        expect(c.title?.trim(), `${id}[${i}]`).toBeTruthy()
+        expect(c.text?.trim().length, `${id}[${i}]`).toBeGreaterThan(20)
+      }
+    }
+  })
+
+  it('no subject repeats a card title', () => {
+    for (const [id, pool] of Object.entries(lessons)) {
+      const titles = pool.map((c) => c.title)
+      expect(new Set(titles).size, `${id} repeats a title`).toBe(titles.length)
+    }
+  })
+})
