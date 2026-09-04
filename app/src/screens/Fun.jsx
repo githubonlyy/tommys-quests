@@ -10,16 +10,18 @@ import Avatar from '../avatar/Avatar.jsx'
 import Draw from '../world/Draw.jsx'
 import Drive from '../world/Drive.jsx'
 import { PlayClockChip, PlayClockBanner, PlayClockOverlay, usePlayClockTicker } from '../components/PlayClock.jsx'
+import LockedFun from '../components/LockedFun.jsx'
 
 // Everything fun in one place: drawing is always open, the driving game and
 // the arcade games spend the play time he earned by learning.
-export default function Fun() {
+export default function Fun({ onGoLearn }) {
   const { state, dispatch, playClock } = usePlayer()
   const { t, name } = useLang()
   const { theme } = useTheme()
   const showToast = useToast()
   const [open, setOpen] = useState(null) // { kind: 'draw'|'drive'|'arcade', id, run }
   const [buying, setBuying] = useState(null)
+  const [locked, setLocked] = useState(false)
   const [msLeft, setMsLeft] = useState(playClock.msLeft)
 
   const timed = Boolean(open) && open.kind !== 'draw'
@@ -28,7 +30,7 @@ export default function Fun() {
 
   const start = (next) => {
     if (next.kind !== 'draw' && !hasTime) {
-      showToast(t('fun.needMore', { n: playClock.matchesToNext }), 'error')
+      setLocked(true) // a toast disappeared before it explained anything
       return
     }
     sfx.click()
@@ -157,6 +159,8 @@ export default function Fun() {
           </div>
         </div>
       )}
+
+      {locked && <LockedFun onClose={() => setLocked(false)} onGoLearn={() => { setLocked(false); onGoLearn?.() }} />}
 
       {open?.kind === 'draw' && <Draw onClose={() => setOpen(null)} />}
       {open?.kind === 'drive' && (

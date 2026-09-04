@@ -239,7 +239,7 @@ export default function App() {
               )}
               {activeTab === 'rewards' && <Shop />}
               {activeTab === 'closet' && <Closet />}
-              {activeTab === 'fun' && <Fun />}
+              {activeTab === 'fun' && <Fun onGoLearn={() => setActiveTab('events')} />}
               {activeTab === 'trophies' && <Trophies />}
               {activeTab === 'admin' && <CoachStats />}
             </div>

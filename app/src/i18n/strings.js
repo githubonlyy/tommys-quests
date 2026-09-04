@@ -19,6 +19,11 @@ export const STRINGS = {
     'fun.cappedOut': 'נגמר זמן המשחק להיום — נתראה מחר!',
     'fun.sessionLength': ({ mins }) => `${mins} דק׳ לכל פעם`,
     'fun.drawFree': 'ציור פתוח תמיד — בלי שעון',
+    'locked.title': 'עוד לא נפתח',
+    'locked.explain': ({ name, need, left }) => `${name}, כדי לפתוח את המשחקים שחקו ${need} משימות שונות היום. נשארו עוד ${left}!`,
+    'locked.doneSoFar': 'כבר שיחקתם:',
+    'locked.try': 'אפשר להתחיל מאלה',
+    'locked.go': 'קדימה למשימות',
     'fun.finishRound': 'הזמן נגמר — סיימו את הסיבוב',
 
     'world.title': 'העולם שלי',
@@ -187,6 +192,11 @@ export const STRINGS = {
     'fun.cappedOut': 'Play time is done for today — see you tomorrow!',
     'fun.sessionLength': ({ mins }) => `${mins} min each time`,
     'fun.drawFree': 'Drawing is always open — no clock',
+    'locked.title': 'Not open yet',
+    'locked.explain': ({ name, need, left }) => `${name}, play ${need} different events today to open the games. ${left} to go!`,
+    'locked.doneSoFar': 'Already played:',
+    'locked.try': 'Try one of these',
+    'locked.go': 'Go to events',
     'fun.finishRound': 'Time is up — finish this round',
 
     'world.title': 'My World',

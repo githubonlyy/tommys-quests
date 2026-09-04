@@ -287,7 +287,7 @@ function loadInitial() {
 }
 
 /**
- * Play-time budget for the fun tab. Every `matchesPerSession` subjects played
+ * Play-time budget for the fun tab. Every `matchesPerSession` DIFFERENT subjects played
  * today grants one session, capped per day; time already spent is subtracted.
  * Pure so the rules can be tested without React.
  */
@@ -307,6 +307,8 @@ export function computePlayClock(state, cfg = config, today = businessDate()) {
   // play time is earned by VOLUME (any matches); the chest is what demands
   // breadth across categories — tying both to categories would make the third
   // session unreachable, since there are fewer categories than it needs
+  // dailyPlays holds at most one entry per subject per day, so this is the
+  // number of DIFFERENT subjects he has played today, not the number of matches
   const doneToday = Object.values(state.dailyPlays).filter((d) => d === today).length
   const earnedSessions = Math.min(maxSessionsPerDay, Math.floor(doneToday / matchesPerSession))
   const sameDay = state.playTime?.date === today

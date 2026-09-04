@@ -235,36 +235,49 @@ describe('play-time budget', () => {
     }
   }
   const SESSION = config.playTime.minutesPerSession * 60000
+  // read the rule from config rather than hardcoding it, so changing the
+  // threshold cannot leave these tests asserting something the app stopped doing
+  const NEED = config.playTime.matchesPerSession
+  const CAP = config.playTime.maxSessionsPerDay
 
-  it('grants nothing until the first two subjects are played', () => {
+  it('grants nothing until enough DIFFERENT subjects are played', () => {
     expect(computePlayClock(withPlays(0)).msLeft).toBe(0)
-    expect(computePlayClock(withPlays(1)).msLeft).toBe(0)
-    expect(computePlayClock(withPlays(1)).matchesToNext).toBe(1)
+    expect(computePlayClock(withPlays(NEED - 1)).msLeft).toBe(0)
+    expect(computePlayClock(withPlays(NEED - 1)).matchesToNext).toBe(1)
+    expect(computePlayClock(withPlays(0)).matchesToNext).toBe(NEED)
   })
 
-  it('every two subjects buys one session', () => {
-    expect(computePlayClock(withPlays(2)).msLeft).toBe(SESSION)
-    expect(computePlayClock(withPlays(4)).msLeft).toBe(2 * SESSION)
+  it('each block of different subjects buys one session', () => {
+    expect(computePlayClock(withPlays(NEED)).msLeft).toBe(SESSION)
+    expect(computePlayClock(withPlays(NEED * 2)).msLeft).toBe(2 * SESSION)
+  })
+
+  it('replaying the same subject does not count twice', () => {
+    // dailyPlays holds one entry per subject per day, so a replay cannot advance it
+    const s = withPlays(NEED - 1)
+    const before = computePlayClock(s).msLeft
+    s.dailyPlays['e0'] = businessDate() // same subject again
+    expect(computePlayClock(s).msLeft).toBe(before)
   })
 
   it('caps the day even if he keeps learning', () => {
-    const capped = computePlayClock(withPlays(11))
-    expect(capped.earnedSessions).toBe(config.playTime.maxSessionsPerDay)
-    expect(capped.msLeft).toBe(config.playTime.maxSessionsPerDay * SESSION)
+    const capped = computePlayClock(withPlays(NEED * CAP + 3))
+    expect(capped.earnedSessions).toBe(CAP)
+    expect(capped.msLeft).toBe(CAP * SESSION)
     expect(capped.matchesToNext).toBe(0)
   })
 
   it('subtracts time already played and never goes negative', () => {
-    expect(computePlayClock(withPlays(2, SESSION / 3)).msLeft).toBe(SESSION - SESSION / 3)
-    expect(computePlayClock(withPlays(2, SESSION * 5)).msLeft).toBe(0)
+    expect(computePlayClock(withPlays(NEED, SESSION / 3)).msLeft).toBe(SESSION - SESSION / 3)
+    expect(computePlayClock(withPlays(NEED, SESSION * 5)).msLeft).toBe(0)
   })
 
   it('spending accumulates, and yesterday does not carry over', () => {
-    let s = reducer(withPlays(2), { type: 'PLAY_TIME_SPEND', ms: 5000 })
+    let s = reducer(withPlays(NEED), { type: 'PLAY_TIME_SPEND', ms: 5000 })
     s = reducer(s, { type: 'PLAY_TIME_SPEND', ms: 5000 })
     expect(s.playTime.usedMs).toBe(10000)
 
-    const stale = { ...withPlays(2), playTime: { date: '2020-01-01', usedMs: 999999 } }
+    const stale = { ...withPlays(NEED), playTime: { date: '2020-01-01', usedMs: 999999 } }
     expect(computePlayClock(stale).msLeft).toBe(SESSION)
     expect(reducer(stale, { type: 'PLAY_TIME_SPEND', ms: 1000 }).playTime.usedMs).toBe(1000)
   })
@@ -294,7 +307,11 @@ describe('parent play-time override', () => {
   })
 
   it('stacks on top of the daily cap', () => {
-    const capped = withPlays(11, config.playTime.maxSessionsPerDay * SESSION)
+    // a genuinely capped day: every session earned and every minute spent
+    const capped = withPlays(
+      config.playTime.matchesPerSession * config.playTime.maxSessionsPerDay,
+      config.playTime.maxSessionsPerDay * SESSION,
+    )
     expect(computePlayClock(capped).msLeft).toBe(0)
     const s = reducer(capped, grant(30))
     expect(computePlayClock(s).msLeft).toBe(30 * 60000)

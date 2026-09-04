@@ -24,7 +24,7 @@
   "boardSize": 2,
   "playTime": {
     "minutesPerSession": 15,
-    "matchesPerSession": 2,
+    "matchesPerSession": 4,
     "maxSessionsPerDay": 3
   }
 }
