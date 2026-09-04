@@ -134,7 +134,7 @@ export default function Closet() {
     <div className="space-y-3 sm:space-y-4 lg:space-y-6" dir="rtl">
       {/* HEADER */}
       <div className="flex items-center gap-3 bg-(--t-panel) p-2.5 sm:p-3 lg:p-4 rounded-2xl border-4 border-(--t-panel-border) backdrop-blur-sm">
-        <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-white drop-shadow-md flex-1 min-w-0">הארון של מיכאל 👕</h2>
+        <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-white drop-shadow-md flex-1 min-w-0">הארון של טומי 👕</h2>
         <button
           onClick={() => speak(GREETING)}
           aria-label="הקראה"
@@ -286,7 +286,7 @@ function NoneCard({ active, onTap }) {
         ${active ? 'border-yellow-400 ring-4 ring-yellow-300/60' : 'border-slate-200'}`}
     >
       {active && <EquippedBadge />}
-      <span className="text-5xl">🙅‍♀️</span>
+      <span className="text-5xl">🚫</span>
       <span className="font-black text-slate-700 text-lg">בלי</span>
     </button>
   )

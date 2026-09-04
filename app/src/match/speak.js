@@ -17,14 +17,24 @@ function synth() {
 // Most systems ship a female Hebrew voice first (Carmit, Google עברית), so the
 // app sounded like it was speaking to a girl. Named male voices win, then
 // anything the platform marks male, then quality, then whatever exists.
-const MALE_VOICES = /asaf|david|guy|male|גבר|אסף/i
-const FEMALE_VOICES = /carmit|karmit|zira|hila|female|כרמית|הילה/i
+// Most systems ship a female Hebrew voice first (Carmit, Google עברית), so the
+// app sounded like it was speaking to a girl. Named male voices win, then
+// anything not named female, then quality, then whatever exists.
+//
+// The word boundaries matter: /male/ alone also matches inside "female", which
+// would classify "Hebrew (Israel) Female" as male and defeat the whole point.
+const MALE_VOICES = /\basaf\b|\bdavid\b|\bguy\b|\bmale\b|גבר|אסף/i
+const FEMALE_VOICES = /carmit|karmit|zira|hila|\bfemale\b|כרמית|הילה/i
 
-function bestVoice(list, prefix) {
+export const isMaleVoice = (name) => MALE_VOICES.test(name) && !FEMALE_VOICES.test(name)
+export const isFemaleVoice = (name) => FEMALE_VOICES.test(name)
+
+/** Best voice for a language: male if the device has one, never female if avoidable. */
+export function bestVoice(list, prefix) {
   const forLang = list.filter((v) => prefix.test(v.lang))
   if (forLang.length === 0) return null
-  const male = forLang.filter((v) => MALE_VOICES.test(v.name) || v.gender === 'male')
-  const neutral = forLang.filter((v) => !FEMALE_VOICES.test(v.name) && v.gender !== 'female')
+  const male = forLang.filter((v) => isMaleVoice(v.name))
+  const neutral = forLang.filter((v) => !isFemaleVoice(v.name))
   const best = (pool) => pool.find((v) => /natural|online|google/i.test(v.name)) ?? pool[0]
   return best(male.length ? male : neutral.length ? neutral : forLang)
 }
