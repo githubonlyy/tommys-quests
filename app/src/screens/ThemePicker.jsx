@@ -20,7 +20,7 @@ export default function ThemePicker() {
 
   useEffect(() => {
     // may be blocked before the first gesture on some browsers — harmless
-    if (isHe) speak(prompt, { delay: 400 })
+    if (isHe) speak(t('theme.greeting', { name: state.name }), { delay: 400 })
   }, [prompt, isHe])
 
   const pick = (id) => {
@@ -47,7 +47,7 @@ export default function ThemePicker() {
           TOMMY'S <span className="text-yellow-400">QUESTS</span>
         </h1>
         <button
-          onClick={() => speak(prompt)}
+          onClick={() => speak(t('theme.greeting', { name: state.name }))}
           className="mt-2 md:mt-3 min-h-11 inline-flex items-center gap-2 text-base sm:text-xl md:text-2xl font-black text-blue-950 bg-white/80 px-4 sm:px-5 py-2 rounded-full border-b-4 border-blue-300 active:border-b-0 active:translate-y-1 transition-all"
         >
           🔊 {prompt}

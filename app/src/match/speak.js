@@ -14,13 +14,19 @@ function synth() {
   return typeof window !== 'undefined' ? window.speechSynthesis : null
 }
 
-// prefer a natural/online voice, else any voice for that language tag
+// Most systems ship a female Hebrew voice first (Carmit, Google עברית), so the
+// app sounded like it was speaking to a girl. Named male voices win, then
+// anything the platform marks male, then quality, then whatever exists.
+const MALE_VOICES = /asaf|david|guy|male|גבר|אסף/i
+const FEMALE_VOICES = /carmit|karmit|zira|hila|female|כרמית|הילה/i
+
 function bestVoice(list, prefix) {
-  return (
-    list.find((v) => prefix.test(v.lang) && /natural|online|google/i.test(v.name)) ||
-    list.find((v) => prefix.test(v.lang)) ||
-    null
-  )
+  const forLang = list.filter((v) => prefix.test(v.lang))
+  if (forLang.length === 0) return null
+  const male = forLang.filter((v) => MALE_VOICES.test(v.name) || v.gender === 'male')
+  const neutral = forLang.filter((v) => !FEMALE_VOICES.test(v.name) && v.gender !== 'female')
+  const best = (pool) => pool.find((v) => /natural|online|google/i.test(v.name)) ?? pool[0]
+  return best(male.length ? male : neutral.length ? neutral : forLang)
 }
 
 function pickVoices() {

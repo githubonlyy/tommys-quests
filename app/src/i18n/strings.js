@@ -28,6 +28,10 @@ export const STRINGS = {
     'world.driveHe': 'נוסעים ואוספים!',
 
     'theme.choose': 'איזה עולם היום?',
+    'theme.greeting': ({ name }) => `שלום ${name}! איזה עולם היום?`,
+    'result.say.WIN': ({ name }) => `כל הכבוד ${name}! ניצחת!`,
+    'result.say.DRAW': ({ name }) => `יפה ${name}! עוד קצת ואתה שם.`,
+    'result.say.LOSS': ({ name }) => `לא נורא ${name}, ננסה שוב!`,
     'theme.last': 'הבחירה האחרונה',
     'theme.enter': 'קדימה!',
 
@@ -192,6 +196,10 @@ export const STRINGS = {
     'world.driveHe': 'Drive and collect!',
 
     'theme.choose': 'Which world today?',
+    'theme.greeting': ({ name }) => `Hi ${name}! Which world today?`,
+    'result.say.WIN': ({ name }) => `Well done ${name}! You win!`,
+    'result.say.DRAW': ({ name }) => `Nice ${name}! Almost there.`,
+    'result.say.LOSS': ({ name }) => `No worries ${name}, let's try again!`,
     'theme.enter': 'GO!',
 
     'header.level': 'LVL',

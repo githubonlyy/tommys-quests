@@ -383,7 +383,7 @@ export default function Drive({ highScore, onClose, onScore, onRestart }) {
             ))}
 
             {/* CAR — outer: position/tilt + blink, inner: shake */}
-            <div ref={carRef} className="absolute start-0 top-0 will-change-transform" style={{ width: CAR_W, height: CAR_H }} aria-label="המכונית של מלאני">
+            <div ref={carRef} className="absolute start-0 top-0 will-change-transform" style={{ width: CAR_W, height: CAR_H }} aria-label="המכונית של טומי">
               <div ref={carBodyRef}>
                 <Car themeId={theme.id}>
                   <Avatar size={DRIVER_SIZE} />

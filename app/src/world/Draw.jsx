@@ -145,7 +145,7 @@ export default function Draw({ onClose }) {
   }, [replay])
 
   useEffect(() => {
-    speak('בואי נצייר!', { delay: 600 })
+    speak('בואו נצייר!', { delay: 600 })
   }, [])
 
   // Turn the picked family picture into a transparent-paper overlay. Cached per
@@ -397,7 +397,7 @@ export default function Draw({ onClose }) {
     if (saving) return
     if (!hasOps && isBlank) {
       sfx.buzz()
-      notify('הדף ריק — ציירי משהו קודם!')
+      notify('הדף ריק — ציירו משהו קודם!')
       return
     }
     setSaving(true)
@@ -467,7 +467,7 @@ export default function Draw({ onClose }) {
   }
 
   const dollTool = () => {
-    pickTool('doll', 'הוסיפי אותי')
+    pickTool('doll', 'הוסיפו אותי')
     getDollImage().catch(() => {})
   }
 
@@ -570,7 +570,7 @@ export default function Draw({ onClose }) {
             >
               <span className="text-2xl leading-none">{sticker}</span>
             </ToolBtn>
-            <ToolBtn ref={dollBtnRef} active={tool === 'doll'} label="הוסיפי אותי" onClick={dollTool}>
+            <ToolBtn ref={dollBtnRef} active={tool === 'doll'} label="הוסיפו אותי" onClick={dollTool}>
               <Avatar size={34} />
             </ToolBtn>
             <ToolBtn
@@ -681,7 +681,7 @@ export default function Draw({ onClose }) {
           {gallery.length === 0 ? (
             <div className="flex flex-col items-center gap-3 py-10 text-center">
               <span className="text-7xl">🎨</span>
-              <p className="text-2xl font-black text-slate-700">עוד אין ציורים — בואי נצייר!</p>
+              <p className="text-2xl font-black text-slate-700">עוד אין ציורים — בואו נצייר!</p>
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">

@@ -58,7 +58,7 @@ export const DEFAULT_STATE = {
   ownedGames: ['coinrush'], // arcade games bought with coins (coinrush is free)
   arcadeHighScores: {}, // gameId -> best score
   lessonsRead: {}, // eventId -> business date the day's lesson cards were read
-  name: 'TOMMY',
+  name: 'טומי',
   avatar: defaultAvatar(), // { owned: [itemId], equippedByTheme: { themeId: { slot: itemId|null } } }
   playTime: { date: null, usedMs: 0, bonusMs: 0 }, // fun-tab budget for the current game day
   corrupt: false,
@@ -269,6 +269,9 @@ function loadInitial() {
       return { ...DEFAULT_STATE, corrupt: true }
     }
     const merged = { ...DEFAULT_STATE, ...parsed, corrupt: false }
+    // saves made before the app spoke Hebrew hold the Latin default; only the
+    // untouched default is migrated, never a name he chose himself
+    if (merged.name === 'TOMMY') merged.name = DEFAULT_STATE.name
     // wardrobe.json changes between releases, and old saves predate per-world outfits
     merged.avatar = repairAvatar(parsed.avatar)
     // migrate pre-game-shop saves: single coinrush high score -> per-game map

@@ -355,6 +355,8 @@ export default function MatchEngine({ event, mode = 'classic', practice, onExit,
     if (phase !== 'results' || reportedRef.current) return
     reportedRef.current = true
     if (unified.resultLabel === 'WIN') sfx.fanfare()
+    // he hears his own name at the moment that matters most
+    speak(t(`result.say.${unified.resultLabel}`, { name: state.name }), { delay: 900 })
     dispatch({
       type: 'MATCH_RESULT',
       eventId: event.id,
