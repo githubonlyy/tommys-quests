@@ -106,20 +106,24 @@ export default function EventBoard({ onStartMatch }) {
         const doneHere = all.filter((e) => playedToday(e.id)).length
         const collapsed = list.length === 0
         return (
-          <section key={cat.id} className="space-y-3">
+          <section key={cat.id} className="space-y-3 pt-1">
+            {/* each subject group wears its own colour so the board reads as
+                sections rather than one long list of cards */}
             <button
               onClick={() => setOpenCats((o) => ({ ...o, [cat.id]: !o[cat.id] }))}
-              className="w-full flex items-center gap-2 bg-(--t-panel) p-3 rounded-2xl border-4 border-(--t-panel-border) backdrop-blur-sm"
+              className={`w-full flex items-center gap-3 ${cat.color} ${cat.border} px-4 py-3 rounded-2xl border-b-8 shadow-lg active:border-b-2 active:translate-y-1 transition-all`}
             >
-              <span className="text-2xl leading-none">{cat.emoji}</span>
-              <span className="flex-1 text-start text-lg font-black text-white drop-shadow">{isHe ? cat.he : cat.en}</span>
-              {doneHere > 0 && (
-                <span className="px-2 py-0.5 rounded-lg bg-green-500 text-white text-xs font-black tabular-nums">
-                  {doneHere}/{all.length}
-                </span>
-              )}
-              <span className="text-(--t-text-soft)">
-                {collapsed || !openCats[cat.id] ? <ChevronDown size={20} /> : <ChevronUp size={20} />}
+              <span className="w-11 h-11 shrink-0 rounded-xl bg-white/25 border-2 border-white/40 flex items-center justify-center text-2xl leading-none">
+                {cat.emoji}
+              </span>
+              <span className="flex-1 text-start text-xl lg:text-2xl font-black text-white drop-shadow-md">
+                {isHe ? cat.he : cat.en}
+              </span>
+              <span className="px-2.5 py-1 rounded-lg bg-black/25 text-white text-xs font-black tabular-nums">
+                {doneHere}/{all.length}
+              </span>
+              <span className="text-white/80">
+                {collapsed || !openCats[cat.id] ? <ChevronDown size={22} /> : <ChevronUp size={22} />}
               </span>
             </button>
 
