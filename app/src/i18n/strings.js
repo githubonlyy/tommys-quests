@@ -19,6 +19,7 @@ export const STRINGS = {
     'fun.cappedOut': 'נגמר זמן המשחק להיום — נתראה מחר!',
     'fun.sessionLength': ({ mins }) => `${mins} דק׳ לכל פעם`,
     'fun.drawFree': 'ציור פתוח תמיד — בלי שעון',
+    'fun.alwaysOpen': 'תמיד פתוח',
     'locked.title': 'עוד לא נפתח',
     'locked.explain': ({ name, need, left }) => `${name}, כדי לפתוח את המשחקים שחקו ${need} משימות שונות היום. נשארו עוד ${left}!`,
     'locked.doneSoFar': 'כבר שיחקתם:',
@@ -123,6 +124,7 @@ export const STRINGS = {
     'arcade.notNow': 'לא עכשיו',
     'arcade.gameOver': 'נגמר המשחק',
     'arcade.newRecord': 'שיא חדש!',
+    'arcade.solved': 'פתרת!',
 
     'trophies.title': 'גביעים',
 
@@ -192,6 +194,7 @@ export const STRINGS = {
     'fun.cappedOut': 'Play time is done for today — see you tomorrow!',
     'fun.sessionLength': ({ mins }) => `${mins} min each time`,
     'fun.drawFree': 'Drawing is always open — no clock',
+    'fun.alwaysOpen': 'Always open',
     'locked.title': 'Not open yet',
     'locked.explain': ({ name, need, left }) => `${name}, play ${need} different events today to open the games. ${left} to go!`,
     'locked.doneSoFar': 'Already played:',
@@ -295,6 +298,7 @@ export const STRINGS = {
     'arcade.notNow': 'Not now',
     'arcade.gameOver': 'GAME OVER',
     'arcade.newRecord': 'NEW RECORD!',
+    'arcade.solved': 'SOLVED!',
 
     'trophies.title': 'Trophies',
 

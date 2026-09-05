@@ -42,9 +42,11 @@ export default function ArcadeShell({ hud, over, highScore, onClose, onRestart, 
       {over && (
         <div className="absolute inset-0 z-10 flex items-center justify-center bg-blue-950/85 backdrop-blur-sm p-4">
           <div className="anim-zoom-in bg-white rounded-3xl border-8 border-slate-800 shadow-2xl w-full max-w-sm overflow-hidden text-center">
-            <div className="p-5 bg-gradient-to-br from-yellow-300 to-amber-500 border-b-8 border-black/10">
+            <div className={`p-5 border-b-8 border-black/10 bg-gradient-to-br ${
+              over.won && !over.isRecord ? 'from-green-300 to-emerald-500' : 'from-yellow-300 to-amber-500'
+            }`}>
               <h2 className="text-3xl font-black text-white uppercase italic drop-shadow-md">
-                {over.isRecord ? t('arcade.newRecord') : t('arcade.gameOver')}
+                {over.isRecord ? t('arcade.newRecord') : over.won ? t('arcade.solved') : t('arcade.gameOver')}
               </h2>
             </div>
             <div className="p-6 flex flex-col items-center gap-4 bg-slate-50">

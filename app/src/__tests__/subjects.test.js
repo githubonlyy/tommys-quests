@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
-import { readFileSync } from 'node:fs'
+import { readFileSync, readdirSync } from 'node:fs'
 import { EVENTS, CATEGORIES, CATEGORY_IDS, MODES } from '../data/events.js'
-import { ARCADE_GAMES, FUN_CATEGORIES } from '../data/arcadeGames.js'
+import { ARCADE_GAMES, FUN_CATEGORIES, alwaysOpenCategory } from '../data/arcadeGames.js'
 
 const bank = (id) =>
   JSON.parse(readFileSync(new URL(`../data/questions/${id}.json`, import.meta.url), 'utf8'))
@@ -120,21 +120,77 @@ describe('fun games', () => {
     }
   })
 
+  it('ids are unique — the screen keys cards and high scores by id', () => {
+    const ids = ARCADE_GAMES.map((g) => g.id)
+    expect(new Set(ids).size).toBe(ids.length)
+    // the two screens that predate the registry own these ids
+    expect(ids).not.toContain('draw')
+    expect(ids).not.toContain('drive')
+  })
+
   it('every game sits in a group, and every group has games', () => {
     const ids = FUN_CATEGORIES.map((c) => c.id)
     for (const g of ARCADE_GAMES) expect(ids, g.id).toContain(g.category)
-    // 'create' holds the drawing and driving cards, which are built in the screen
-    for (const c of FUN_CATEGORIES.filter((c) => c.id !== 'create')) {
+    for (const c of FUN_CATEGORIES) {
       expect(ARCADE_GAMES.filter((g) => g.category === c.id).length, c.id).toBeGreaterThan(0)
     }
   })
 
-  it('every game has both names, a description and a component', () => {
+  it('the quiet group is always open, so there is something to do with no play time left', () => {
+    const open = FUN_CATEGORIES.filter((c) => c.alwaysOpen)
+    expect(open.length).toBe(1)
+    expect(open[0].id).toBe('puzzle')
+    expect(alwaysOpenCategory('puzzle')).toBe(true)
+    expect(alwaysOpenCategory('action')).toBe(false)
+  })
+
+  it('every group has a Hebrew and an English label, an emoji and colours', () => {
+    for (const c of FUN_CATEGORIES) {
+      expect(c.he, c.id).toBeTruthy()
+      expect(c.en, c.id).toBeTruthy()
+      expect(c.emoji, c.id).toBeTruthy()
+      expect(c.color, c.id).toMatch(/^bg-/)
+      expect(c.border, c.id).toMatch(/^border-/)
+    }
+  })
+
+  it('every game has both names, a description, an icon, colours and a component', () => {
     for (const g of ARCADE_GAMES) {
       expect(g.heTitle, g.id).toBeTruthy()
       expect(g.title, g.id).toBeTruthy()
       expect(g.he, g.id).toBeTruthy()
+      expect(typeof g.Icon, g.id).not.toBe('undefined')
+      expect(g.color, g.id).toMatch(/^bg-/)
+      expect(g.borderColor, g.id).toMatch(/^border-/)
+      expect(g.textColor, g.id).toMatch(/^text-/)
+      expect(g.lightBg, g.id).toMatch(/^bg-/)
       expect(typeof g.Component, g.id).toBe('function')
+    }
+  })
+
+  // A game reading another child's theme key crashed on open once already
+  // (Drive read theme.arcade.catch, which only Melanie's app defines).
+  it('no game reads a per-theme sprite key that does not exist', () => {
+    const KNOWN = ['coinrush', 'flappy', 'bricks', 'moles']
+    const dir = new URL('../arcade/', import.meta.url)
+    for (const file of readdirSync(dir)) {
+      if (!file.endsWith('.jsx')) continue
+      const src = readFileSync(new URL(file, dir), 'utf8')
+      for (const m of src.matchAll(/theme(?:\?)?\.arcade(?:\?)?\.([a-zA-Z]+)/g)) {
+        expect(KNOWN, `${file} reads theme.arcade.${m[1]}`).toContain(m[1])
+      }
+    }
+  })
+
+  // Every game is handed the same four props and must report its score once.
+  it('every game file keeps the ArcadeShell contract', () => {
+    const dir = new URL('../arcade/', import.meta.url)
+    for (const file of readdirSync(dir)) {
+      if (!file.endsWith('.jsx') || file === 'ArcadeShell.jsx') continue
+      const src = readFileSync(new URL(file, dir), 'utf8')
+      expect(src, `${file} props`).toMatch(/\{\s*highScore,\s*onClose,\s*onScore,\s*onRestart\s*\}/)
+      expect(src, `${file} shell`).toContain('<ArcadeShell')
+      expect(src.match(/onScore\(/g)?.length ?? 0, `${file} onScore calls`).toBe(1)
     }
   })
 })

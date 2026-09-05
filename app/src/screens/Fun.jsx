@@ -12,39 +12,45 @@ import { PlayClockChip, PlayClockBanner, PlayClockOverlay, usePlayClockTicker } 
 import LockedFun from '../components/LockedFun.jsx'
 
 // Everything fun in one place, grouped like the subjects are. Nothing here
-// costs coins — the games are earned by learning, and coins stay for the
-// real-world shop. Drawing is the one thing that is always open.
+// costs coins: the games are earned by learning, and coins stay for the
+// real-world shop. The quiet group — drawing and the puzzles — is always open
+// and never touches the play clock, so there is always something to do.
 export default function Fun({ onGoLearn }) {
   const { state, dispatch, playClock } = usePlayer()
   const { t, name, isHe } = useLang()
   const { theme } = useTheme()
-  const [open, setOpen] = useState(null) // { kind: 'draw'|'drive'|'arcade', id, run }
+  const [open, setOpen] = useState(null) // { kind: 'draw'|'drive'|'arcade', id, run, free }
   const [locked, setLocked] = useState(false)
   const [msLeft, setMsLeft] = useState(playClock.msLeft)
 
-  const timed = Boolean(open) && open.kind !== 'draw'
+  // only the timed games burn the clock — a puzzle can run all afternoon
+  const timed = Boolean(open) && !open.free
   usePlayClockTicker(timed, msLeft, setMsLeft)
   const hasTime = msLeft > 0
 
-  const start = (next) => {
-    if (next.kind !== 'draw' && !hasTime) {
+  const start = (gm, free) => {
+    if (!free && !hasTime) {
       setLocked(true) // a toast disappeared before it explained anything
       return
     }
     sfx.click()
-    setOpen(next)
+    if (gm.kind === 'draw') setOpen({ kind: 'draw', free: true })
+    else if (gm.kind === 'drive') setOpen({ kind: 'drive', run: 1, free })
+    else setOpen({ kind: 'arcade', id: gm.id, run: 1, free })
   }
 
   const DRAW_CARD = {
-    id: 'draw', kind: 'draw', alwaysOpen: true, Icon: Palette,
+    id: 'draw', kind: 'draw', Icon: Palette,
     title: t('world.draw'), heTitle: t('world.draw'), he: t('fun.drawFree'),
     color: 'bg-amber-400', borderColor: 'border-amber-600', textColor: 'text-amber-500', lightBg: 'bg-amber-100',
   }
   const DRIVE_CARD = {
-    id: 'drive', drive: true, Icon: CarIcon,
+    id: 'drive', kind: 'drive', Icon: CarIcon,
     title: t('world.drive'), heTitle: t('world.drive'), he: t('world.driveHe'),
     color: 'bg-sky-500', borderColor: 'border-sky-700', textColor: 'text-sky-500', lightBg: 'bg-sky-100',
   }
+  // the two screens that predate the arcade registry still get a card each
+  const EXTRA = { puzzle: [DRAW_CARD], race: [DRIVE_CARD] }
 
   return (
     <div className="space-y-5">
@@ -60,9 +66,7 @@ export default function Fun({ onGoLearn }) {
       <PlayClockBanner msLeft={msLeft} />
 
       {FUN_CATEGORIES.map((cat) => {
-        const inCat = cat.id === 'create'
-          ? [DRAW_CARD, DRIVE_CARD]
-          : ARCADE_GAMES.filter((g) => g.category === cat.id)
+        const inCat = [...(EXTRA[cat.id] ?? []), ...ARCADE_GAMES.filter((g) => g.category === cat.id)]
         if (inCat.length === 0) return null
         return (
           <section key={cat.id} className="space-y-3">
@@ -73,18 +77,23 @@ export default function Fun({ onGoLearn }) {
               <span className="flex-1 text-start text-lg lg:text-xl font-black text-white drop-shadow-md">
                 {isHe ? cat.he : cat.en}
               </span>
+              {cat.alwaysOpen && (
+                <span className="shrink-0 bg-white/25 border-2 border-white/40 text-white text-[11px] font-black px-2.5 py-1 rounded-lg">
+                  {t('fun.alwaysOpen')}
+                </span>
+              )}
             </div>
 
             <div className="grid grid-cols-2 gap-3 md:gap-4">
               {inCat.map((gm) => {
-                const free = gm.alwaysOpen
+                const free = Boolean(cat.alwaysOpen || gm.kind === 'draw')
                 const playable = free || hasTime
                 const best = state.arcadeHighScores?.[gm.id] ?? 0
                 const Icon = gm.Icon ?? Gamepad2
                 return (
                   <div
                     key={gm.id}
-                    onClick={() => start(gm.kind ? { kind: gm.kind } : { kind: gm.drive ? 'drive' : 'arcade', id: gm.id, run: 1 })}
+                    onClick={() => start(gm, free)}
                     className={`relative rounded-3xl border-b-8 shadow-xl cursor-pointer transition-all duration-200 overflow-hidden
                       ${playable ? `${gm.color} ${gm.borderColor} hover:-translate-y-1 active:translate-y-1 active:border-b-0` : 'bg-slate-600 border-slate-800'}`}
                   >
@@ -124,10 +133,10 @@ export default function Fun({ onGoLearn }) {
             key={open.run}
             highScore={state.arcadeHighScores?.drive ?? 0}
             onScore={(score) => dispatch({ type: 'ARCADE_SCORE', game: 'drive', score })}
-            onRestart={() => hasTime && setOpen((o) => ({ ...o, run: o.run + 1 }))}
+            onRestart={() => (open.free || hasTime) && setOpen((o) => ({ ...o, run: o.run + 1 }))}
             onClose={() => setOpen(null)}
           />
-          <PlayClockOverlay msLeft={msLeft} />
+          {!open.free && <PlayClockOverlay msLeft={msLeft} />}
         </>
       )}
       {open?.kind === 'arcade' && (() => {
@@ -139,10 +148,10 @@ export default function Fun({ onGoLearn }) {
               key={open.run}
               highScore={state.arcadeHighScores?.[gm.id] ?? 0}
               onScore={(score) => dispatch({ type: 'ARCADE_SCORE', game: gm.id, score })}
-              onRestart={() => hasTime && setOpen((o) => ({ ...o, run: o.run + 1 }))}
+              onRestart={() => (open.free || hasTime) && setOpen((o) => ({ ...o, run: o.run + 1 }))}
               onClose={() => setOpen(null)}
             />
-            <PlayClockOverlay msLeft={msLeft} />
+            {!open.free && <PlayClockOverlay msLeft={msLeft} />}
           </>
         )
       })()}
