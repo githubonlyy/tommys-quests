@@ -2,6 +2,12 @@ import CoinRush from '../arcade/CoinRush.jsx'
 import FlappyZap from '../arcade/FlappyZap.jsx'
 import BrickBreaker from '../arcade/BrickBreaker.jsx'
 import MoleSmash from '../arcade/MoleSmash.jsx'
+import Soccer from '../arcade/Soccer.jsx'
+import Basketball from '../arcade/Basketball.jsx'
+import NinjaSlice from '../arcade/NinjaSlice.jsx'
+import Runner from '../arcade/Runner.jsx'
+import SkatePark from '../arcade/SkatePark.jsx'
+import Bowling from '../arcade/Bowling.jsx'
 
 // Arcade catalog. price 0 = free starter game. Daily study-goal gate applies to all.
 export const ARCADE_GAMES = [
@@ -52,5 +58,77 @@ export const ARCADE_GAMES = [
     textColor: 'text-lime-600',
     lightBg: 'bg-lime-100',
     Component: MoleSmash,
+  },
+  {
+    id: 'soccer',
+    title: 'Penalty Kicks',
+    heTitle: 'בעיטות עונשין',
+    he: 'כוונו ובעטו — השוער לא ישן!',
+    price: 700,
+    color: 'bg-green-600',
+    borderColor: 'border-green-800',
+    textColor: 'text-green-600',
+    lightBg: 'bg-green-100',
+    Component: Soccer,
+  },
+  {
+    id: 'basketball',
+    title: 'Hoops',
+    heTitle: 'קליעה לסל',
+    he: 'משכו, שחררו וקלעו לסל הנע!',
+    price: 700,
+    color: 'bg-orange-500',
+    borderColor: 'border-orange-700',
+    textColor: 'text-orange-500',
+    lightBg: 'bg-orange-100',
+    Component: Basketball,
+  },
+  {
+    id: 'ninjaslice',
+    title: 'Ninja Slice',
+    heTitle: 'חיתוך נינג׳ה',
+    he: 'העבירו אצבע וחתכו — היזהרו מפצצות!',
+    price: 900,
+    color: 'bg-red-600',
+    borderColor: 'border-red-800',
+    textColor: 'text-red-600',
+    lightBg: 'bg-red-100',
+    Component: NinjaSlice,
+  },
+  {
+    id: 'runner',
+    title: 'Endless Runner',
+    heTitle: 'ריצה אינסופית',
+    he: 'קפצו והחליקו — עד לאן תגיעו?',
+    price: 800,
+    color: 'bg-lime-500',
+    borderColor: 'border-lime-700',
+    textColor: 'text-lime-500',
+    lightBg: 'bg-lime-100',
+    Component: Runner,
+  },
+  {
+    id: 'skatepark',
+    title: 'Skate Park',
+    heTitle: 'סקייט פארק',
+    he: 'קפצו, הסתובבו ונחתו יפה!',
+    price: 1000,
+    color: 'bg-violet-500',
+    borderColor: 'border-violet-700',
+    textColor: 'text-violet-500',
+    lightBg: 'bg-violet-100',
+    Component: SkatePark,
+  },
+  {
+    id: 'bowling',
+    title: 'Bowling',
+    heTitle: 'באולינג',
+    he: 'כוונו וגלגלו — סטרייק!',
+    price: 800,
+    color: 'bg-amber-500',
+    borderColor: 'border-amber-700',
+    textColor: 'text-amber-500',
+    lightBg: 'bg-amber-100',
+    Component: Bowling,
   },
 ]

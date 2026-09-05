@@ -26,6 +26,10 @@ import flagsQ from '../data/questions/flags.json'
 import bodyQ from '../data/questions/body.json'
 import patternsQ from '../data/questions/patterns.json'
 import riddlesQ from '../data/questions/riddles.json'
+import lettersQ from '../data/questions/letters.json'
+import phonicsQ from '../data/questions/phonics.json'
+import blendingQ from '../data/questions/blending.json'
+import sightwordsQ from '../data/questions/sightwords.json'
 import NumberPad from './widgets/NumberPad.jsx'
 import LetterTiles from './widgets/LetterTiles.jsx'
 import WordTap from './widgets/WordTap.jsx'
@@ -51,6 +55,7 @@ const BANKS = {
   spelling: spellingQ, hebrewread: hebrewreadQ, synonyms: synonymsQ,
   holidays: holidaysQ, flags: flagsQ, body: bodyQ,
   patterns: patternsQ, riddles: riddlesQ,
+  letters: lettersQ, phonics: phonicsQ, blending: blendingQ, sightwords: sightwordsQ,
 }
 const WIDGETS = {
   numberpad: NumberPad, lettertiles: LetterTiles, wordtap: WordTap, mapgrid: MapGrid,
@@ -199,7 +204,9 @@ export default function MatchEngine({ event, mode = 'classic', practice, onExit,
       return sample(fractionsQ, N).map((q) => buildChoice({ ...q, q: 'איזה חלק צבוע?' }, { num: q.num, den: q.den }))
     }
     if (event.id === 'patterns') return sample(patternsQ, N).map((q) => buildChoice({ ...q, q: 'מה בא אחר כך?' }, { seq: q.seq }))
-    if (event.id === 'hebrewread') return sample(hebrewreadQ, N).map((q) => buildChoice(q, { text: q.text }))
+    if (['hebrewread', 'letters', 'phonics', 'blending', 'sightwords'].includes(event.id)) {
+      return sample(BANKS[event.id], N).map((q) => buildChoice(q, { text: q.text }))
+    }
     if (event.id === 'listening') return sample(englishQ, N).map((q) => buildListening(q, englishQ))
     if (event.id === 'reading') return sample(readingQ, N).map(buildReading)
     if (mode === 'balloon' || event.widget === 'balloon') {
