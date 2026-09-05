@@ -3,7 +3,13 @@ import { sfx } from '../sounds.js'
 
 // The sequence is shown as tiles with an empty slot at the end; he picks what
 // belongs there. Reads left-to-right even in the Hebrew layout, like numbers.
+const HEBREW = /[֐-׿]/
+
 export default function PatternPick({ question, disabled, onAnswer }) {
+  // number and Latin sequences read left to right; a Hebrew letter sequence
+  // reads the other way, and laying it out ltr puts the empty slot at the
+  // wrong end of the row
+  const seqDir = question.seq.some((v) => HEBREW.test(String(v))) ? 'rtl' : 'ltr'
   const [tapped, setTapped] = useState(null)
   const lockRef = useRef(false)
 
@@ -17,7 +23,7 @@ export default function PatternPick({ question, disabled, onAnswer }) {
 
   return (
     <div className="flex flex-col items-center gap-6 w-full">
-      <div className="flex items-center justify-center gap-2 flex-wrap max-w-lg" dir="ltr">
+      <div className="flex items-center justify-center gap-2 flex-wrap max-w-lg" dir={seqDir}>
         {question.seq.map((v, i) => (
           <span
             key={i}
@@ -31,7 +37,7 @@ export default function PatternPick({ question, disabled, onAnswer }) {
         </span>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 w-full max-w-sm" dir="ltr">
+      <div className="grid grid-cols-2 gap-3 w-full max-w-sm" dir={seqDir}>
         {question.options.map((opt) => {
           const hitCorrect = tapped === opt.label && opt.correct
           const hitWrong = tapped === opt.label && !opt.correct
