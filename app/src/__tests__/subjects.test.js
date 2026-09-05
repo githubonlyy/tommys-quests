@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { EVENTS, CATEGORIES, CATEGORY_IDS, MODES } from '../data/events.js'
+import { ARCADE_GAMES, FUN_CATEGORIES } from '../data/arcadeGames.js'
 
 const bank = (id) =>
   JSON.parse(readFileSync(new URL(`../data/questions/${id}.json`, import.meta.url), 'utf8'))
@@ -108,6 +109,32 @@ describe('lesson cards', () => {
     for (const [id, pool] of Object.entries(lessons)) {
       const titles = pool.map((c) => c.title)
       expect(new Set(titles).size, `${id} repeats a title`).toBe(titles.length)
+    }
+  })
+})
+
+describe('fun games', () => {
+  it('every game is free — coins are for the real-world shop', () => {
+    for (const g of ARCADE_GAMES) {
+      expect(g.price, `${g.id} should not cost coins`).toBeUndefined()
+    }
+  })
+
+  it('every game sits in a group, and every group has games', () => {
+    const ids = FUN_CATEGORIES.map((c) => c.id)
+    for (const g of ARCADE_GAMES) expect(ids, g.id).toContain(g.category)
+    // 'create' holds the drawing and driving cards, which are built in the screen
+    for (const c of FUN_CATEGORIES.filter((c) => c.id !== 'create')) {
+      expect(ARCADE_GAMES.filter((g) => g.category === c.id).length, c.id).toBeGreaterThan(0)
+    }
+  })
+
+  it('every game has both names, a description and a component', () => {
+    for (const g of ARCADE_GAMES) {
+      expect(g.heTitle, g.id).toBeTruthy()
+      expect(g.title, g.id).toBeTruthy()
+      expect(g.he, g.id).toBeTruthy()
+      expect(typeof g.Component, g.id).toBe('function')
     }
   })
 })
