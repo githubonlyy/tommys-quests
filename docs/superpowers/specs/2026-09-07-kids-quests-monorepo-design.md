@@ -1,6 +1,6 @@
 # One engine, three children — merging the kids' apps
 
-Design, 2026-09-07.
+Design, 2026-09-07. Revised 2026-09-08: the move is behaviour-preserving.
 
 ## The problem
 
@@ -34,39 +34,49 @@ The apps differ in **data** — name, gender, subjects, difficulty, wardrobe,
 themes. We have been paying for those differences as if they were differences in
 **code**.
 
+## The shape of this work
+
+There are two phases and they must not be confused.
+
+**The move** consolidates three repos into one and changes nothing else. Every
+app comes out of it behaving exactly as it does today — same screens, same
+strings, same games, same saves, same URL. If a child could tell the move
+happened, the move was done wrong.
+
+**Convergence** comes afterwards, as ordinary feature work, and is out of scope
+for this document beyond naming what it will retire. Because the apps then share
+one engine, a change lands in all three at once.
+
 ## Goals
 
 1. One implementation of every engine feature, for all three children.
-2. Each child keeps their own URL, their own home-screen icon, and their saved
-   progress — coins, level, trophies, drawings. They notice nothing.
-3. Gender, name, age and difficulty become profile data that the engine reads,
+2. **No app's behaviour changes during the move.** This is the hard constraint
+   the plan is built around, not an aspiration.
+3. Each child keeps their own URL, their own home-screen icon, and their saved
+   progress — coins, level, trophies, drawings.
+4. Gender, name, age and difficulty become profile data that the engine reads,
    not source files that get forked.
-4. The three apps cannot silently drift apart again — a test fails first.
+5. The three apps cannot silently drift apart again — a test fails first.
 
 ## Non-goals
 
+- **No feature is added, removed or changed during the move.** Differences that
+  exist today survive it intact, including the ones we intend to retire later.
 - Not a shared "who is playing" screen. Each child keeps the sense that the app
   is theirs; that is most of the motivation for a 3.5-year-old.
 - Not a rewrite. The engine is טומי's current code, moved, not rebuilt.
-- Not a change to any child's teaching content. Subjects, question banks and
-  lesson cards move as they are.
+- Not a change to any child's teaching content.
 
-## Decisions already made
+## What may differ per child, permanently
 
-**Each child keeps their own link and icon, and their saves survive.**
-All three apps are served from the same origin, `githubonlyy.github.io`.
-localStorage is scoped per origin, not per path, so the three apps already share
-one storage namespace and are separated only by their key prefixes
-(`tommys-quests-*`, `melanies-quests-*`, `michaels-quests-*`). If each profile
-declares its existing prefix, there is nothing to migrate — the saves are already
-at the keys the merged app will read.
+Exactly two things:
 
-**The three existing repos stay alive as deploy targets.** They own the Pages
-URLs. Deleting them deletes the kids' links. What they lose is their source.
+1. **Teaching level** — subjects, question banks, lesson cards, and the pacing
+   around them. A 3.5-year-old and an 8-year-old do not get the same משימות.
+2. **Which arcade games appear** — some of the 26 are not for a 3.5-year-old.
 
-**One engine covers 3.5 to 8.** מיכאל does work through his משימות, so the
-learning loop itself fits him; what differs is content difficulty and the number
-of things on screen. That is a profile, not a fork.
+Everything else is the same app. Every current difference beyond those two is a
+temporary state, carried through the move by a flag that has an expiry.
 
 ## Architecture
 
@@ -129,9 +139,13 @@ profiles/<kid>/
   "boardSize": 2,
   "questionTimerSec": 0,
   "playTime": { "minutesPerSession": 15, "matchesPerSession": 4, "maxSessionsPerDay": 3 },
-  "capabilities": { }
+  "arcade": ["coinrush", "flappy", "bricks", "moles", "..."],
+  "legacy": { }
 }
 ```
+
+`arcade` is a permanent per-child list. `legacy` holds the temporary flags below
+and is empty when the last of them is retired.
 
 The engine imports its profile through a Vite alias resolved from the build
 mode, so `vite build --mode melanie` produces her app and there is no runtime
@@ -158,50 +172,59 @@ any voice at all rather than going silent.
 A test then asserts that no bare gendered Hebrew imperative survives anywhere
 under `engine/`. The bug class becomes impossible rather than merely fixed.
 
-### Capability flags
+Note that this is the one place where "behaviour does not change" needs care.
+מיכאל is addressed as a girl today, in his own app. Fixing that is a behaviour
+change, and a wanted one — it ships as its own visible commit rather than hiding
+inside the move.
 
-Some differences are features one child has and another does not — not content,
-and not difficulty:
+### Legacy flags, and when each one dies
 
-| capability | טומי | מלאני | מיכאל | what it is |
-|---|---|---|---|---|
-| `funTab` | on | off | off | World and Arcade merged into one grouped tab |
-| `playClock` | on | off | off | play time earned by finishing different subjects |
-| `lessonCards` | on | off | off | a teaching card before each subject |
-| `musicPicker` | on | off | off | eight chiptune tracks to choose from |
-| `dance` | off | on | off | מלאני's dance screen |
-| `boardRotation` | on | off | on | which subjects appear on the board today |
-| `arcadeTier` | `full` | `full` | `simple` | which of the 26 games are offered |
+Every difference that is not teaching level or arcade selection is temporary.
+These exist so the move can preserve today's apps exactly; each is retired
+afterwards by turning it on everywhere and deleting the flag.
 
-Every one of these lives in the engine and is switched on by the profile.
-Nothing is deleted and nothing is duplicated. The "off" column is the migration
-plan: those flip to `on` in step 4 and step 5, one push at a time.
+| flag | on today for | retired by |
+|---|---|---|
+| `funTab` | טומי | giving מלאני and מיכאל the merged World+Arcade tab |
+| `playClock` | טומי | giving them play time earned by finishing subjects |
+| `lessonCards` | טומי | giving them a teaching card before each subject |
+| `musicPicker` | טומי | giving them the eight-track picker |
+| `boardRotation` | טומי, מיכאל | giving מלאני the rotating board |
+| `dance` | מלאני | giving the boys the dance screen |
 
-`arcadeTier` is what lets מיכאל's app stay a 3.5-year-old's app while being the
-same code that will grow with him. When he is 6, it is a one-line change.
+Six flags, six deletions. When `legacy` is empty the apps differ only in
+teaching level and arcade selection, which is the end state.
 
-One difference resists being a flag and needs a closer look in step 5: מיכאל's
-drawing screen is a smaller variant of the same file (773 lines against 885),
-differing in layout and tap-target size rather than in features — all three apps
-offer the same four tools. Those differences should become profile-driven sizing
-in the shared screen; if they turn out not to, that is a finding worth recording
-rather than a reason to keep two copies of the file.
+The flag list is the contract. Adding a seventh should feel like a decision and
+should come with the sentence that retires it; a flag with no expiry is drift
+wearing a different hat.
 
 ### Migration hazard: per-theme sprite keys
 
 The four original arcade games have different ids in different apps. טומי's
 themes define `theme.arcade.coinrush / flappy / bricks / moles`; both siblings
-define `catch / flappy / breaker / whack`. A game ported without its key crashes on open
-— this has already happened once, when Drive read `theme.arcade.catch` in
-טומי's app. The engine uses טומי's ids; each profile's `themes.js` is renamed to
-match when that profile moves in, and the existing theme-skin test is extended to
-cover every game the engine can render.
+define `catch / flappy / breaker / whack`. A game rendered without its key
+crashes on open — this has already happened once, when Drive read
+`theme.arcade.catch` in טומי's app.
+
+The engine uses טומי's ids. Each profile's `themes.js` is renamed to match when
+that profile moves in, which is a rename of data with no visible effect: the
+same emoji, titles and colours reach the same games. The theme-skin test is
+extended to cover every game each profile's `arcade` list can render.
+
+### One difference that resists being a flag
+
+מיכאל's drawing screen is a smaller variant of the same file — 773 lines against
+885 — differing in layout and tap-target size rather than in features. All three
+apps offer the same four tools. Those differences should become profile-driven
+sizing in the shared screen. If they turn out not to, that is a finding worth
+recording rather than a reason to keep two copies of the file.
 
 ### What never enters the engine
 
 The child's name, their grammatical gender, their storage prefix, their subjects
 and question banks, their lesson content, their wardrobe and avatar parts, their
-themes, shop and trophies, and their coloring pages.
+themes, shop and trophies, their arcade list, and their coloring pages.
 
 If a change wants to put one of those in `engine/`, that is the signal the
 boundary is wrong, not a reason to make an exception.
@@ -226,75 +249,92 @@ A public `kids-quests` that each child's own CI clones and builds needs no
 secrets at all. Rejected because it puts the children's names, banks and family
 photos in a browsable public tree for the sake of avoiding three deploy keys.
 
-## Migration plan
+## The move
 
-Each step ends with all three apps working and shippable. You can stop after any
-of them.
+Each step ends with all three apps working, shippable, and unchanged. You can
+stop after any of them.
 
 **Step 0 — clean the slate.** Commit and push the outstanding coloring-page work
 in all three repos, and add `.gitattributes` normalising line endings. Until
-this lands, diffs between the three copies are noise and the merge cannot be
+this lands, diffs between the three copies are noise and the move cannot be
 verified.
 
-**Step 1 — plumbing, no behaviour change.** Create `kids-quests` from טומי's
-history. Move his source to `engine/` and `profiles/tommy/`. Prove he still
-builds, still deploys to `tommys-quests`, still opens at the same URL with his
-save intact. This is where the deploy keys get proven, on the app whose progress
-matters most, before anything else moves.
+**Step 1 — plumbing.** Create `kids-quests` from טומי's history. Move his source
+to `engine/` and `profiles/tommy/`. Prove he still builds, still deploys to
+`tommys-quests`, still opens at the same URL with his save intact. This is where
+the deploy keys get proven, on the app whose progress matters most, before
+anything else moves.
 
 **Step 2 — teach the engine gender.** Every user-facing string gains both forms;
 the voice preference reads the profile. טומי's app must come out behaviourally
-identical: same strings, same voice. The gendered-string test lands here.
+identical.
 
-**Step 3 — מלאני moves in, unchanged.** Add `profiles/melanie` with her existing
-content and her capability flags all off. Her app builds from the monorepo and
-deploys to her URL looking exactly as it does today. This is the riskiest step
-and it stays deliberately boring: same app, new build path.
+**Step 3 — מלאני moves in.** Add `profiles/melanie` with her existing content,
+her arcade list of four, and her legacy flags set to match today. Her app builds
+from the monorepo and deploys to her URL looking exactly as it does now.
 
-**Step 4 — מלאני's capabilities, in small pushes.** The merged fun tab, then the
-play clock, then the 22 additional games, then lesson cards and the music
-picker. Each push is one visible change on her tablet, and one revert away from
-the app she had.
+**Step 4 — מיכאל moves in.** The same, tuned to nothing: his app also comes out
+identical. The one intended difference is that his inherited feminine strings
+become masculine, shipped as its own commit so it is visible rather than buried.
 
-**Step 5 — מיכאל moves in and is tuned for 3.5.** Same two-phase shape: content
-first, unchanged; then capabilities, with `arcadeTier: 'simple'`, fewer drawing
-tools and shorter rounds. His inherited feminine strings are fixed by step 2
-automatically, since his profile says `gender: 'm'`.
-
-**Step 6 — retire the old source.** Delete `app/src` from the three repos. They
+**Step 5 — retire the old source.** Delete `app/src` from the three repos. They
 keep their names, their Pages settings, their URLs and their deployed output.
+
+The move ends here. Nothing on any tablet has changed.
+
+## After the move
+
+Convergence is ordinary feature work, done in whatever order suits the children,
+one flag at a time. Each is a single push that lands for whoever is missing it,
+and deletes a flag:
+
+מלאני and מיכאל get the merged fun tab, then the play clock, then lesson cards,
+then the music picker. מלאני gets the rotating board. The boys get the dance
+screen. Then `legacy` is empty.
+
+Each of those is individually revertable, and each one is now written once
+rather than three times — which is the entire point of the move.
 
 ## Testing
 
-The suite runs three times, once per profile, plus cross-profile invariants that
-are the real payoff:
+The suite runs three times, once per profile, plus cross-profile invariants:
 
 - no child's name appears anywhere under `engine/`
 - every profile defines every required `profile.json` field
 - the three storage prefixes are unique, and unchanged from today's values —
   this is what guarantees the saves survive
 - every engine string defines both a masculine and a feminine form
-- every capability flag a profile sets is one the engine knows
-- every theme defines a sprite skin for every game the engine can render
+- every legacy flag a profile sets is one the engine knows
+- every theme defines a sprite skin for every game in that profile's arcade list
 - every profile's question banks match the widgets their subjects declare
 
 The first, third and fourth of those would each have caught a bug that actually
 shipped to a tablet this year.
 
+### Proving the move changed nothing
+
+The constraint deserves a check rather than a promise. For each child, build the
+app from its old repo and from the monorepo and compare the two:
+
+- the same set of user-facing strings, in the same places
+- the same localStorage keys read and written
+- the same screens, tabs and games reachable
+- the same assets bundled
+
+Any difference must be explainable, and for מיכאל exactly one is expected: the
+feminine strings becoming masculine. An unexplained difference stops the step.
+
 ## Risks
 
-**Step 4 changes מלאני's app substantially.** Mitigated by shipping it in four
-or five separate pushes rather than one, each individually revertable.
+**A "temporary" flag becomes permanent.** This is the failure mode that rebuilds
+the drift inside one repo. Mitigated by every flag carrying its retirement in
+this table, and by `legacy` being expected to reach empty.
 
 **Deploy keys are new machinery.** Mitigated by proving them in step 1 on טומי's
 app alone, before either sibling depends on them.
 
-**A profile could quietly grow into a second engine.** If `capabilities` starts
-carrying behaviour rather than switches, the boundary has failed. The flag list
-in this document is the reference; adding a flag should feel like a decision.
-
-**The merge is a lot of movement at once in step 1.** Mitigated by it being pure
-file movement with no behaviour change, verifiable by diffing the built bundle
+**Step 1 moves a lot of files at once.** Mitigated by it being pure file
+movement with no behaviour change, verifiable by diffing the built bundle
 against the current deployment.
 
 ## What this does not solve
@@ -303,4 +343,4 @@ The coloring-page pipeline still has two known defects at the time of writing: a
 light or textured desk is mistaken for the paper, keying up to 31% of the sheet
 solid black, and a full-bleed band thinner than 15% of the page height is
 cropped away entirely. Both are in `pageInk.js`, both are in all three apps, and
-both are fixed once after the merge instead of three times before it.
+both are fixed once after the move instead of three times before it.
