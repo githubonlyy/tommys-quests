@@ -1,0 +1,53 @@
+# Line endings: LF in the repo AND in the working tree, on every platform.
+#
+# This app has two byte-identical sibling repos. When one of them checks out
+# CRLF and another LF, every file differs on every line and a cross-repo diff
+# shows nothing but noise — real drift hides in it. Pinning eol=lf everywhere
+# makes those diffs meaningful again.
+#
+# After adding this file, normalise what is already committed once:
+#     git add --renormalize .
+#     git status          # review, then commit
+
+* text=auto eol=lf
+
+# Windows batch files are the one text format that genuinely needs CRLF.
+*.bat  text eol=crlf
+*.cmd  text eol=crlf
+
+# Binary assets: never eol-converted, never diffed as text. `text=auto` already
+# detects most of these, but detection is a heuristic and a mangled PNG is
+# silent — so mark them explicitly. Covers app/coloring-pages/ (the family
+# coloring pages) and everything shipped from app/public/.
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.webp  binary
+*.gif   binary
+*.avif  binary
+*.heic  binary
+*.ico   binary
+*.bmp   binary
+*.tif   binary
+*.tiff  binary
+*.pdf   binary
+
+*.mp3   binary
+*.m4a   binary
+*.wav   binary
+*.ogg   binary
+*.mp4   binary
+*.webm  binary
+
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
+*.otf   binary
+*.eot   binary
+
+*.zip   binary
+*.gz    binary
+*.7z    binary
+
+# SVG is text and stays text: app/public/favicon.svg and icons.svg are edited
+# by hand and should keep producing readable diffs. The default rule covers it.
