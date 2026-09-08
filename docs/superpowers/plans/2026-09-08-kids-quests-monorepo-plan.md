@@ -216,10 +216,16 @@ Then replace each literal. The full list, verified by grep:
 | `tommys-quests-page-modes` | `world/draw/familyPages.js` |
 | `tommys-quests-draw-page` | `world/Draw.jsx` |
 
-**This is the step that protects his save.** After it, טומי's build must still
-read and write exactly those ten strings. A typo here silently resets an
-8-year-old's coins, level, trophies and drawings. Assert the ten resolved keys
-in a test rather than trusting the edit.
+After this, טומי's build must still read and write exactly those ten strings.
+Assert the ten resolved keys in a test rather than trusting the edit — it costs
+one assertion and removes the whole question.
+
+Lior has said (2026-09-08) he does not mind the saved data being reset, so a
+mistake here is an annoyance rather than a disaster. Preserve the keys anyway:
+it costs one string per profile. The part genuinely worth care is
+`*-drawings` — coins, levels and trophies come back in a week of play, but
+every picture the children have saved to their gallery lives there and does
+not.
 
 ### 1.7 Replace the hardcoded name
 
@@ -271,8 +277,10 @@ the `gh-pages` branch. The URL does not change.
   existing save is intact — coins, level, trophies, drawings, chosen theme
 - the built asset list matches the previous deployment
 
-**Stop condition:** if his save does not survive, revert Pages to the old source
-and stop. Nothing else in this plan matters more than that.
+**Stop condition:** if the site does not load, revert Pages to the old source
+and stop. A lost save is not a stop condition — Lior has accepted that risk —
+but it is still a bug worth fixing before moving to מלאני, since her drawings
+are the ones that matter most.
 
 ---
 

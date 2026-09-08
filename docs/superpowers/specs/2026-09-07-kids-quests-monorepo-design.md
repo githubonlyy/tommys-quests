@@ -53,7 +53,9 @@ one engine, a change lands in all three at once.
 2. **No app's behaviour changes during the move.** This is the hard constraint
    the plan is built around, not an aspiration.
 3. Each child keeps their own URL, their own home-screen icon, and their saved
-   progress — coins, level, trophies, drawings.
+   progress — coins, level, trophies, drawings. Lior has said he does not mind a
+   reset, so this is a strong preference rather than a hard constraint; the
+   drawings are the part that cannot be earned back.
 4. Gender, name, age and difficulty become profile data that the engine reads,
    not source files that get forked.
 5. The three apps cannot silently drift apart again — a test fails first.
