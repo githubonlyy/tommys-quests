@@ -1,5 +1,11 @@
-name: CI & Deploy
+name: CI
 
+# This app is built and deployed by githubonlyy/kids-quests now, which pushes
+# the built site to this repo's gh-pages branch. Pages here serves that branch,
+# so an Actions deploy from this workflow would fail: deploy-pages only works
+# when Pages is configured for Actions. The source under app/ is kept for
+# reference until step 5 of the migration removes it, and this workflow now
+# only checks that it still builds.
 on:
   push:
     branches: [master]
@@ -42,24 +48,3 @@ jobs:
 
       - name: Build
         run: npm run build
-
-      - name: Upload Pages artifact
-        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-        uses: actions/upload-pages-artifact@v5
-        with:
-          path: app/dist
-
-  deploy:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v5
