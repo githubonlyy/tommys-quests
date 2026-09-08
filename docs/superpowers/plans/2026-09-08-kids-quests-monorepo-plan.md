@@ -14,9 +14,22 @@ see.** Two exceptions are approved and named where they occur.
 
 Paths in this plan are absolute because the work spans four repositories.
 
+## Status
+
+**Step 0 is done** (2026-09-08). All three apps committed, pushed, CI green and
+live: טומי `a33324f`, מלאני `83c95a1`, מיכאל `72f33e1`. That merge also shipped
+מיכאל's four gan subjects and rotating board, which had been sitting unmerged on
+`feat/new-subjects` since 28 August.
+
+Step 0.3 was skipped deliberately — the two remaining `pageInk` defects get
+fixed once after the move rather than three times before it.
+
+**Step 1 is blocked on Lior**: creating the private `kids-quests` repo and the
+three deploy keys (1.1 below). Everything after that is agent work.
+
 ---
 
-## Step 0 — Clean the slate
+## Step 0 — Clean the slate ✅ done 2026-09-08
 
 Nothing here is about the merge. It is the precondition that makes the merge
 verifiable.
