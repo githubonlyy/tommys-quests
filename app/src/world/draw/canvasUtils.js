@@ -242,11 +242,23 @@ export function canvasToDataUrlUnder(canvas, maxBytes) {
   return url
 }
 
+/** clamp an opacity to 0..1; anything unusable (NaN, undefined) means opaque */
+export function clampAlpha(a) {
+  const n = Number(a)
+  if (!Number.isFinite(n)) return 1
+  return Math.min(1, Math.max(0, n))
+}
+
 /**
  * Flatten background + drawing + template outline into one downscaled JPEG.
  * `templateSvg` may be null for a blank page.
+ *
+ * `templateAlpha` is the opacity the family-page overlay is shown at on screen
+ * (1 for קווים, MODE_OPACITY.trace for שקוף, and the same faint value for a
+ * page whose keying failed). The caller must pass what the child actually sees,
+ * or the saved JPEG will not match the screen.
  */
-export async function composeDrawing({ canvas, bg, templateSvg, templateImg, w, h, maxSide = 640, maxBytes = 150 * 1024 }) {
+export async function composeDrawing({ canvas, bg, templateSvg, templateImg, templateAlpha = 1, w, h, maxSide = 640, maxBytes = 150 * 1024 }) {
   const out = fitWithin(w, h, maxSide)
   const off = document.createElement('canvas')
   off.width = out.w
@@ -262,7 +274,7 @@ export async function composeDrawing({ canvas, bg, templateSvg, templateImg, w, 
   } else if (templateImg) {
     // family pages keep their own aspect ratio; letterbox them like the screen does
     const r = containRect(templateImg.naturalWidth || templateImg.width, templateImg.naturalHeight || templateImg.height, { x: 0, y: 0, w: out.w, h: out.h })
-    ctx.globalAlpha = templateImg.__alpha ?? 1
+    ctx.globalAlpha = clampAlpha(templateAlpha)
     ctx.drawImage(templateImg, r.x, r.y, r.w, r.h)
     ctx.globalAlpha = 1
   }
